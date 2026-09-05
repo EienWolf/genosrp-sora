@@ -1,8 +1,8 @@
 # GenosRP Sora
 
-Página web estática con HTML, CSS y JavaScript plano. Sin dependencias ni paso
-de compilación para desarrollar; el único build es una copia de archivos para
-publicar en Cloudflare.
+Sitio del personaje de rol **Sora Winterbourne**. Se genera desde `content/`,
+que es la fuente de verdad: el HTML es un derivado y no se edita nunca a mano.
+El sitio publicado no lleva dependencias en el navegador.
 
 **En producción:** https://genosrp.eienwolf.dev/sora/
 
@@ -10,15 +10,32 @@ publicar en Cloudflare.
 
 ```
 .
-├── index.html          # Página principal
-├── css/styles.css      # Estilos (tokens + tema claro/oscuro)
-├── js/main.js          # JS del sitio
-├── assets/img/         # Imágenes y recursos estáticos
+├── content/            # FUENTE DE VERDAD. Ver content/README.md
+├── css/styles.css      # Estilos del sitio
+├── js/main.js          # Filtros de hechizos y visor de galería
 ├── wrangler.jsonc      # Configuración del Worker (ruta y assets)
+├── .claude/skills/     # Skills para añadir hechizos, cartas e imágenes
 └── scripts/
-    ├── build.mjs       # Copia el sitio a dist/sora/
+    ├── generar.mjs     # Generador: content/ -> dist/sora/
+    ├── build.mjs       #   carga de content/ y plantilla común
+    ├── paginas.mjs     #   renderizado de cada página
+    ├── maquina.mjs     #   llms.txt, content.json, robots, sitemap
+    ├── add-hechizo.py  # Importa hechizos de discord-hechizos
+    ├── add-carta.py    # Añade cartas y mantiene los hilos
+    ├── add-imagen.py   # Añade capturas y elige el lote de referencia
     ├── deploy.sh       # Build + wrangler deploy (lee .env)
     └── setup-dns.sh    # Paso único: registro DNS del subdominio
+
+## El sitio y las máquinas
+
+El HTML publicado es una **selección**: deja fuera las guías de interpretación
+de los personajes secundarios y los metadatos internos (banderas de
+mantenimiento, aptitud de las imágenes como referencia).
+
+Esa selección no se aplica a las salidas legibles por máquina. `llms.txt`,
+`llms-full.txt` y `content.json` llevan **todo** lo que hay en `content/`,
+porque nada está marcado como privado. Si una IA consulta el sitio, llega al
+material completo.
 ```
 
 ## Desarrollo

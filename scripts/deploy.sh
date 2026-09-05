@@ -37,7 +37,7 @@ MSG
 fi
 
 echo "▸ Construyendo…"
-node scripts/build.mjs
+node scripts/generar.mjs
 
 echo
 echo "▸ Desplegando a Cloudflare…"
