@@ -172,22 +172,38 @@ export function magia(d) {
 export function cartas(d) {
   const hilos = d.hilos.map((h) => {
     const meta = h.meta?.datos ?? {};
+    // Un hilo «abierto» es el que aún espera respuesta: sus cartas nacen
+    // abiertas, que es donde está lo que falta por contestar.
+    const abierto = meta.estado === 'abierto';
+
     const cartas = h.cartas.map((c) => {
       const x = c.datos;
       const deSora = (x.de ?? []).includes('sora-winterbourne');
       const de = (x.de ?? []).map(d.nombreDe).join(' y ');
       const para = (x.para ?? []).map(d.nombreDe).join(' y ');
+      const adjuntos = x.adjuntos ?? [];
       return `<article class="carta carta--${deSora ? 'sora' : 'otro'}">
-        <p class="quien">${esc(de)} → ${esc(para)}</p>
-        <div class="papel">${md(c.cuerpo)}
-        ${(x.adjuntos ?? []).map((a) =>
-          `<p class="adjunto">Adjunto: ${esc(a)}</p>`).join('')}</div>
+        <details class="sobre"${abierto ? ' open' : ''}>
+          <summary>
+            <span class="lacre" aria-hidden="true">${esc(de.trim().charAt(0))}</span>
+            <span class="remite">
+              <strong>${esc(de)}</strong>
+              <span class="para">para ${esc(para)}</span>
+              ${adjuntos.length ? `<span class="con-adjunto">Lleva ${
+                adjuntos.length === 1 ? 'un adjunto' : `${adjuntos.length} adjuntos`}</span>` : ''}
+            </span>
+            <span class="abrir" aria-hidden="true">Leer</span>
+          </summary>
+          <div class="papel">${md(c.cuerpo)}
+          ${adjuntos.map((a) => `<p class="adjunto">Adjunto: ${esc(a)}</p>`).join('')}</div>
+        </details>
       </article>`;
     }).join('');
+
     return `<div class="hilo">
       <h3>${esc(meta.titulo ?? meta.slug)}</h3>
       ${meta.asunto ? `<p class="cuando">${esc(meta.asunto)}${
-        meta.estado === 'abierto' ? ' · sin respuesta todavía' : ''}</p>` : ''}
+        abierto ? ' · sin respuesta todavía' : ''}</p>` : ''}
       ${cartas}
     </div>`;
   }).join('');
@@ -196,7 +212,7 @@ export function cartas(d) {
     id: 'cartas', titulo: 'Cartas · Sora Winterbourne',
     descripcion: 'La correspondencia de Sora, por hilos.',
     entrada: 'Las cartas de Sora van a la derecha; las respuestas, a la izquierda. '
-      + 'Aurora las lleva y las trae.',
+      + 'Están cerradas: ábrelas para leerlas. Aurora las lleva y las trae.',
     contenido: `
 <section>
   <h2>Correspondencia</h2>

@@ -265,12 +265,15 @@
     });
   })();
 
-  // Al abrir un hechizo salta una chispa: el conjuro prende.
-  document.querySelectorAll('details.hechizo').forEach(function (h) {
+  // Al abrir un hechizo salta una chispa: el conjuro prende. Al abrir una
+  // carta, la chispa sale del lacre que se rompe.
+  document.querySelectorAll('details.hechizo, details.sobre').forEach(function (h) {
     h.addEventListener('toggle', function () {
       if (!h.open) return;
-      var r = h.querySelector('summary').getBoundingClientRect();
-      chispear(r.left + 12, r.top + r.height / 2, 14, 90);
+      var lacre = h.querySelector('.lacre');
+      var r = (lacre || h.querySelector('summary')).getBoundingClientRect();
+      var x = lacre ? r.left + r.width / 2 : r.left + 12;
+      chispear(x, r.top + r.height / 2, lacre ? 18 : 14, lacre ? 110 : 90);
     });
   });
 
