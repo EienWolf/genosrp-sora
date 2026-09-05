@@ -1,0 +1,15 @@
+---
+tipo: "historia"
+slug: "nombre-corto-del-suceso"
+titulo: "Título de la historia"
+curso: 1                    # en qué curso ocurre
+fecha: null                 # in-game, si se conoce
+personajes:                 # slugs de quienes participan
+  - sora-winterbourne
+lugares: []
+relacionado_con: []         # slugs de hechizos, cartas o fichas que toca
+---
+
+## Historia
+
+El relato, en prosa.

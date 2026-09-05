@@ -1,0 +1,25 @@
+# Personas que Sora ha tratado y aún no tienen ficha propia.
+# "?" = dato desconocido; rellénalo cuando aparezca en el rol.
+# Si alguien gana peso, promuévelo a content/personajes/<slug>.md.
+conocidos:
+  - slug: "arlan-fendragon"
+    nombre: "Arlan Fendragon"
+    relacion: "Responsable del club de Pociones; admitió a Sora"
+    cargo: "Responsable del club de Pociones"
+    casa: "?"
+    info:
+      - "Admite miembros en el club de Pociones y entrega una chapa de miembro"
+      - "Pide revisar el tablón y llevar la túnica a las reuniones"
+      - "Firma como «Arlan F»"
+  - slug: "lilwenn-pliego"
+    nombre: "Lilwenn Pliego"
+    relacion: "Contacto de Sora en el club de Quidditch"
+    cargo: "Responsable del club de Quidditch"
+    casa: "?"
+    info:
+      - "Gestiona el ingreso al club de Quidditch y convoca las pruebas"
+      - >-
+        La prueba de acceso evalúa manejo de escoba, movilidad y trabajo
+        en equipo
+      - "Trato directo y seco, con humor"
+      - "Le debe a Sora avisar la fecha de las pruebas (hilo abierto)"

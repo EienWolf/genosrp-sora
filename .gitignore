@@ -1,5 +1,7 @@
 # --- Claude Code / asistentes ---
-.claude/
+# Las skills del proyecto SÍ se versionan: son herramientas del repo.
+.claude/*
+!.claude/skills/
 CLAUDE.md
 claude.md
 CLAUDE.local.md
@@ -58,3 +60,6 @@ temp/
 *.tmp
 *.bak
 *.orig
+
+# --- Cloudflare / Wrangler ---
+.wrangler/
