@@ -182,7 +182,6 @@
     varita.setAttribute('aria-hidden', 'true');
     varita.innerHTML = '<span class="varita__aro"></span><span class="varita__punta"></span>';
     document.body.appendChild(varita);
-    raiz.classList.add('varita-activa');
 
     var punta = varita.querySelector('.varita__punta');
     var aro = varita.querySelector('.varita__aro');
@@ -190,13 +189,50 @@
     var pxa = raton.x, pya = raton.y;    // aro, con retardo
     var recorrido = 0;
 
+    // Ocultar el cursor nativo y no tener aún el mágico deja la pantalla sin
+    // ningún cursor. Las dos cosas pasan juntas o no pasan.
+    function despertar() {
+      varita.classList.add('despierta');
+      raiz.classList.add('varita-activa');
+    }
+    function dormir() {
+      varita.classList.remove('despierta');
+      raiz.classList.remove('varita-activa');
+    }
+
+    // Continuidad entre páginas: al navegar, el documento nuevo empieza de
+    // cero y el cursor tardaba en aparecer hasta el primer movimiento. Se
+    // recupera la última posición conocida para que esté ya donde toca.
+    var LLAVE = 'sora:puntero';
+    function recuperar() {
+      try {
+        var g = sessionStorage.getItem(LLAVE);
+        if (!g) return;
+        var p = JSON.parse(g);
+        if (!p || p.length !== 2) return;
+        raton.x = pxp = pxa = p[0];
+        raton.y = pyp = pya = p[1];
+        raton.dentro = true;
+        despertar();
+      } catch (_) {}
+    }
+    addEventListener('pagehide', function () {
+      try {
+        if (raton.dentro) sessionStorage.setItem(LLAVE, JSON.stringify([raton.x, raton.y]));
+      } catch (_) {}
+    });
+    // pagereveal se dispara también al activar una página prerrenderizada,
+    // donde el script ya se ejecutó hace rato.
+    addEventListener('pagereveal', recuperar);
+    recuperar();
+
     addEventListener('pointermove', function (e) {
       raton.vx = e.clientX - raton.x;
       raton.vy = e.clientY - raton.y;
       raton.x = e.clientX;
       raton.y = e.clientY;
       raton.dentro = true;
-      varita.classList.add('despierta');
+      despertar();
 
       // Se sueltan chispas en proporción al camino andado, no por
       // evento: así la estela es igual de densa a cualquier velocidad.
@@ -217,9 +253,7 @@
     addEventListener('pointerup', soltar, { passive: true });
     addEventListener('pointercancel', soltar, { passive: true });
     addEventListener('blur', soltar);
-    addEventListener('pointerleave', function () {
-      raton.dentro = false; varita.classList.remove('despierta');
-    });
+    addEventListener('pointerleave', function () { raton.dentro = false; dormir(); });
 
     tareas.push(function () {
       pxp = mezcla(pxp, raton.x, 0.55);
