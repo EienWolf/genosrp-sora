@@ -26,6 +26,9 @@ RAIZ = Path(__file__).resolve().parent.parent
 CARTAS = RAIZ / "content" / "cartas"
 CONOCIDOS = RAIZ / "content" / "conocidos.yml"
 DESCONOCIDO = "?"
+# El sitio genera /cartas/pagina-N y /cartas/indice.json junto a las páginas de
+# los hilos: un hilo con uno de esos slugs pisaría el archivo del generador.
+SLUGS_RESERVADOS = re.compile(r"^(pagina-\d+|indice)$")
 
 
 def slugify(texto):
@@ -143,6 +146,9 @@ def anadir(args, cuerpo):
     nuevo = bool(args.nuevo_hilo)
     nombre = args.nuevo_hilo or args.hilo
     dir_hilo = CARTAS / nombre
+    if nuevo and SLUGS_RESERVADOS.match(nombre):
+        sys.exit(f"✘ «{nombre}» es un nombre reservado del sitio "
+                 f"(/cartas/pagina-N, /cartas/indice). Elige otro slug.")
     if nuevo and dir_hilo.exists():
         sys.exit(f"✘ El hilo «{nombre}» ya existe. Usa --hilo para añadir a él.")
     if not nuevo and not dir_hilo.is_dir():

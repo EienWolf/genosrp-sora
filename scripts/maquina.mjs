@@ -6,9 +6,11 @@
  * de interpretación de los secundarios, los metadatos de las imágenes y las
  * banderas internas. Si una IA consulta el sitio, debe poder llegar a todo.
  */
-import { BASE, enlace } from './build.mjs';
+import { BASE } from './build.mjs';
+import { hilosOrdenados, rutaHilo } from './paginas.mjs';
 
-const URL_BASE = 'https://genosrp.eienwolf.dev' + BASE;
+const ORIGEN = 'https://genosrp.eienwolf.dev';
+const URL_BASE = ORIGEN + BASE;
 
 /** Índice breve, según la convención llms.txt. */
 export function llmsTxt(d) {
@@ -35,9 +37,31 @@ export function llmsTxt(d) {
   l.push(`- [Sora](${URL_BASE}/): quién es, qué teme y qué quiere.`);
   l.push(`- [Historia](${URL_BASE}/historia): su pasado y su paso por el castillo.`);
   l.push(`- [Magia](${URL_BASE}/magia): ${d.hechizos.length} hechizos.`);
-  l.push(`- [Cartas](${URL_BASE}/cartas): ${d.hilos.length} hilos de correspondencia.`);
+  l.push(`- [Cartas](${URL_BASE}/cartas): índice de ${d.hilos.length} conversaciones.`);
   l.push(`- [Entorno](${URL_BASE}/entorno): tutores, terapeuta, su lechuza y conocidos.`);
   l.push(`- [Galería](${URL_BASE}/galeria): ${d.galeria.length} capturas del juego.`);
+  l.push('');
+  l.push('## Conversaciones');
+  l.push('');
+  l.push('Cada hilo tiene su propia página y su propio Markdown, para poder');
+  l.push('traerse solo la conversación que interese en vez de todo el volcado.');
+  l.push('');
+  // Un índice deja de serlo si enumera mil cosas: se listan las más recientes
+  // y la lista completa se sirve aparte, en JSON.
+  const TOPE = 50;
+  const orden = hilosOrdenados(d);
+  if (orden.length > TOPE) {
+    l.push(`Se listan las ${TOPE} más recientes de ${orden.length}. La lista completa,`);
+    l.push(`en JSON: ${URL_BASE}/cartas/indice.json`);
+    l.push('');
+  }
+  for (const h of orden.slice(0, TOPE)) {
+    const meta = h.meta?.datos ?? {};
+    const otros = (meta.participantes ?? []).filter((s) => s !== 'sora-winterbourne');
+    l.push(`- [${meta.titulo ?? meta.slug}](${ORIGEN}${rutaHilo(meta.slug)}.md): `
+      + `${h.cartas.length} cartas con ${otros.join(', ') || '?'}`
+      + `${meta.estado === 'abierto' ? ', espera respuesta' : ''}.`);
+  }
   l.push('');
   l.push('## Cómo está organizado');
   l.push('');
@@ -97,6 +121,30 @@ export function llmsFullTxt(d) {
   return l.join('\n');
 }
 
+/** Un hilo entero en Markdown, para servirlo junto a su página. */
+export function hiloMd(d, h) {
+  const meta = h.meta?.datos ?? {};
+  const l = [];
+  l.push(`# ${meta.titulo ?? meta.slug}`); l.push('');
+  l.push('```yaml'); l.push(JSON.stringify(meta, null, 2)); l.push('```'); l.push('');
+  // En orden real, del 1 en adelante: la web las presenta al revés, pero para
+  // una máquina la cronología vale más que la comodidad de lectura.
+  const clave = (c) => c.datos.registro ?? c.datos.orden ?? 0;
+  for (const c of [...h.cartas].sort((a, b) => clave(a) - clave(b))) {
+    const de = (c.datos.de ?? []).join(', ');
+    const para = (c.datos.para ?? []).join(', ');
+    l.push(`## Carta ${c.datos.orden} (alta ${c.datos.registro ?? '?'}): ${de} → ${para}`);
+    l.push('');
+    if (c.datos.adjuntos?.length) l.push(`Adjuntos: ${c.datos.adjuntos.join('; ')}`), l.push('');
+    if (c.datos.emotes?.length) {
+      for (const e of c.datos.emotes) l.push(`/${e.comando} ${e.texto}`);
+      l.push('');
+    }
+    l.push(c.cuerpo); l.push('');
+  }
+  return l.join('\n');
+}
+
 export function contentJson(d) {
   const limpia = (f) => ({ ...f.datos, ruta: f.ruta, cuerpo: f.cuerpo });
   return JSON.stringify({
@@ -128,11 +176,11 @@ Sitemap: ${URL_BASE}/sitemap.xml
 `;
 }
 
-export function sitemapXml(paginas) {
+export function sitemapXml(rutas) {
   const hoy = new Date().toISOString().slice(0, 10);
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${paginas.map((p) => `  <url><loc>${URL_BASE}/${enlace(p)}</loc>`
+${rutas.map((r) => `  <url><loc>${URL_BASE}${r ? '/' + r : '/'}</loc>`
   + `<lastmod>${hoy}</lastmod></url>`).join('\n')}
 </urlset>
 `;

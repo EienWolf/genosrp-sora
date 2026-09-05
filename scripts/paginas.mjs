@@ -169,74 +169,177 @@ export function magia(d) {
 
 // ------------------------------------------------------------------- cartas
 
-export function cartas(d) {
-  // Las cartas no traen fecha, pero se dan de alta en el orden en que se
-  // enviaron: `registro` es un contador global y `ultimo_registro` dice
-  // cuándo se movió cada hilo por última vez. Esa es la cronología.
-  //
-  // El orden de esta página es de presentación, no del dato: llms-full.txt y
-  // content.json siguen sirviendo los hilos y las cartas en su orden real.
-  // Arriba lo que sigue vivo; a igualdad, lo que se movió hace menos.
+// A 1000 cartas, meterlas todas en una página da 1 MB de HTML. Cada hilo
+// tiene su propia página y /cartas pasa a ser un índice de conversaciones:
+// el índice crece una fila por hilo, no una por carta.
+const HILOS_POR_PAGINA = 120;
+
+/** Los hilos en el orden en que se presentan: vivos arriba, y a igualdad el
+ *  que se movió hace menos. `ultimo_registro` es la cronología (ver README). */
+export function hilosOrdenados(d) {
   const vivo = (h) => (h.meta?.datos?.estado === 'abierto' ? 0 : 1);
   const movido = (h) => h.meta?.datos?.ultimo_registro ?? 0;
-  const hilos = [...d.hilos]
-    .sort((a, b) => vivo(a) - vivo(b) || movido(b) - movido(a))
-    .map((h) => {
+  return [...d.hilos].sort((a, b) => vivo(a) - vivo(b) || movido(b) - movido(a));
+}
+
+/** Las páginas del índice. Siempre hay al menos una. */
+export function paginasIndice(d) {
+  const todos = hilosOrdenados(d);
+  const trozos = [];
+  for (let i = 0; i < todos.length; i += HILOS_POR_PAGINA) {
+    trozos.push(todos.slice(i, i + HILOS_POR_PAGINA));
+  }
+  return trozos.length ? trozos : [[]];
+}
+
+export const rutaHilo = (slug) => `${BASE}/cartas/${slug}`;
+export const rutaIndice = (n) => (n === 0 ? `${BASE}/cartas` : `${BASE}/cartas/pagina-${n + 1}`);
+
+const conQuien = (d, meta) => (meta.participantes ?? [])
+  .filter((s) => s !== 'sora-winterbourne').map(d.nombreDe);
+
+/** Una carta lacrada. Se usa igual en la página del hilo y en cualquier otra. */
+function tarjetaCarta(d, c, { abierta, ultima }) {
+  const x = c.datos;
+  const deSora = (x.de ?? []).includes('sora-winterbourne');
+  const de = (x.de ?? []).map(d.nombreDe).join(' y ');
+  const para = (x.para ?? []).map(d.nombreDe).join(' y ');
+  const adjuntos = x.adjuntos ?? [];
+  return `<article class="carta carta--${deSora ? 'sora' : 'otro'}">
+    <details class="sobre"${abierta ? ' open' : ''}>
+      <summary>
+        <span class="lacre" aria-hidden="true">${esc(de.trim().charAt(0).toUpperCase())}</span>
+        <span class="remite">
+          <strong>${esc(de)}</strong>
+          <span class="para">para ${esc(para)}</span>
+          ${ultima ? '<span class="reciente">la última del hilo</span>' : ''}
+          ${adjuntos.length ? `<span class="con-adjunto">Lleva ${
+            adjuntos.length === 1 ? 'un adjunto' : `${adjuntos.length} adjuntos`}</span>` : ''}
+        </span>
+        <span class="abrir" aria-hidden="true">Leer</span>
+      </summary>
+      <div class="papel">${md(c.cuerpo)}
+      ${adjuntos.map((a) => `<p class="adjunto">Adjunto: ${esc(a)}</p>`).join('')}</div>
+    </details>
+  </article>`;
+}
+
+/** Las cartas de un hilo, la más reciente arriba. */
+function cartasDelHilo(d, h) {
+  const abierto = h.meta?.datos?.estado === 'abierto';
+  const clave = (c) => c.datos.registro ?? c.datos.orden ?? 0;
+  const recientes = [...h.cartas].sort((a, b) => clave(b) - clave(a));
+  return recientes.map((c, i) => tarjetaCarta(d, c, {
+    abierta: abierto, ultima: i === 0 && recientes.length > 1,
+  })).join('');
+}
+
+// ---------------------------------------------------- índice de conversaciones
+
+export function cartasIndice(d, pagina, total) {
+  const hilos = paginasIndice(d)[pagina] ?? [];
+  const nAbiertos = d.hilos.filter((h) => h.meta?.datos?.estado === 'abierto').length;
+
+  const filas = hilos.map((h) => {
     const meta = h.meta?.datos ?? {};
-    // Un hilo «abierto» es el que aún espera respuesta: sus cartas nacen
-    // abiertas, que es donde está lo que falta por contestar.
     const abierto = meta.estado === 'abierto';
-    const recientes = [...h.cartas].sort((a, b) =>
-      (b.datos.registro ?? b.datos.orden ?? 0) - (a.datos.registro ?? a.datos.orden ?? 0));
-
-    const cartas = recientes.map((c, i) => {
-      const x = c.datos;
-      const deSora = (x.de ?? []).includes('sora-winterbourne');
-      const de = (x.de ?? []).map(d.nombreDe).join(' y ');
-      const para = (x.para ?? []).map(d.nombreDe).join(' y ');
-      const adjuntos = x.adjuntos ?? [];
-      return `<article class="carta carta--${deSora ? 'sora' : 'otro'}">
-        <details class="sobre"${abierto ? ' open' : ''}>
-          <summary>
-            <span class="lacre" aria-hidden="true">${esc(de.trim().charAt(0))}</span>
-            <span class="remite">
-              <strong>${esc(de)}</strong>
-              <span class="para">para ${esc(para)}</span>
-              ${i === 0 && recientes.length > 1
-                ? '<span class="reciente">la última del hilo</span>' : ''}
-              ${adjuntos.length ? `<span class="con-adjunto">Lleva ${
-                adjuntos.length === 1 ? 'un adjunto' : `${adjuntos.length} adjuntos`}</span>` : ''}
-            </span>
-            <span class="abrir" aria-hidden="true">Leer</span>
-          </summary>
-          <div class="papel">${md(c.cuerpo)}
-          ${adjuntos.map((a) => `<p class="adjunto">Adjunto: ${esc(a)}</p>`).join('')}</div>
-        </details>
-      </article>`;
-    }).join('');
-
-    // Cada hilo tiene ancla propia: hoy permite enlazar una conversación
-    // concreta, y mañana es la ruta si pasan a página por hilo.
-    return `<div class="hilo" id="${esc(meta.slug ?? '')}">
-      <h3>${esc(meta.titulo ?? meta.slug)}</h3>
-      ${meta.asunto ? `<p class="cuando">${esc(meta.asunto)}${
-        abierto ? ' · sin respuesta todavía' : ''}</p>` : ''}
-      ${cartas}
-    </div>`;
+    const otros = conQuien(d, meta);
+    const n = h.cartas.length;
+    return `<li class="fila-hilo" id="${esc(meta.slug ?? '')}"
+      data-estado="${abierto ? 'abierto' : 'cerrado'}"
+      data-busca="${esc([meta.titulo, meta.asunto, ...otros].filter(Boolean).join(' ').toLowerCase())}">
+      <a href="${rutaHilo(meta.slug)}">
+        <span class="lacre lacre--mini" aria-hidden="true">${esc((otros[0] ?? '?').charAt(0).toUpperCase())}</span>
+        <span class="fila-texto">
+          <strong>${esc(meta.titulo ?? meta.slug)}</strong>
+          <span class="con">${otros.length ? `con ${esc(otros.join(' y '))} · ` : ''}${
+            n} ${n === 1 ? 'carta' : 'cartas'}</span>
+        </span>
+        ${abierto ? '<span class="marca-abierto">espera respuesta</span>' : ''}
+      </a>
+    </li>`;
   }).join('');
 
+  const paso = (n, texto) => n >= 0 && n < total
+    ? `<a href="${rutaIndice(n)}">${texto}</a>` : '';
+  const paginador = total > 1 ? `<nav class="paginas" aria-label="Páginas del índice">
+    ${paso(pagina - 1, '← Anteriores')}
+    <span>Página ${pagina + 1} de ${total}</span>
+    ${paso(pagina + 1, 'Siguientes →')}
+  </nav>` : '';
+
   return plantilla({
-    id: 'cartas', titulo: 'Cartas · Sora Winterbourne',
+    id: 'cartas', titulo: `Cartas · Sora Winterbourne${pagina ? ` (${pagina + 1})` : ''}`,
     descripcion: 'La correspondencia de Sora, por hilos.',
-    entrada: 'Las de Sora van a la derecha; las respuestas, a la izquierda. En cada '
-      + 'hilo la más reciente va arriba, y llegan lacradas: ábrelas para leerlas. '
+    entrada: 'Cada conversación tiene su propia página. Los hilos que esperan '
+      + 'respuesta van arriba; el resto, por lo que se movió hace menos. '
       + 'Aurora las trae.',
     contenido: `
 <section>
-  <h2>Correspondencia</h2>
-  ${hilos}
+  <h2>${d.hilos.length} ${d.hilos.length === 1 ? 'conversación' : 'conversaciones'}</h2>
+  <div class="buscador">
+    <label for="buscar-hilo">Buscar</label>
+    <input id="buscar-hilo" type="search" autocomplete="off"
+      placeholder="título, asunto o con quién" data-indice="${BASE}/cartas/indice.json">
+  </div>
+  <div class="filtros" role="group" aria-label="Estado">
+    <span class="filtros__rotulo">Estado</span>
+    <button class="filtro" type="button" aria-pressed="false"
+      data-campo="estado" data-valor="abierto">esperan respuesta (${nAbiertos})</button>
+    <button class="filtro" type="button" aria-pressed="false"
+      data-campo="estado" data-valor="cerrado">cerradas</button>
+  </div>
+  <ul class="hilos">${filas}</ul>
+  <p id="sin-resultados" hidden>Ningún hilo cumple ese filtro.</p>
+  ${paginador}
 </section>`,
   });
+}
+
+// ------------------------------------------------------- la página de un hilo
+
+export function cartasHilo(d, h, vecinos) {
+  const meta = h.meta?.datos ?? {};
+  const abierto = meta.estado === 'abierto';
+  const otros = conQuien(d, meta);
+  const n = h.cartas.length;
+  const salto = (v, texto) => v
+    ? `<a href="${rutaHilo(v.meta?.datos?.slug)}">${texto} ${esc(v.meta?.datos?.titulo ?? '')}</a>`
+    : '';
+
+  return plantilla({
+    id: 'cartas',
+    rotulo: meta.titulo ?? meta.slug,
+    titulo: `${meta.titulo ?? meta.slug} · Cartas de Sora Winterbourne`,
+    descripcion: `${n} ${n === 1 ? 'carta' : 'cartas'}${
+      otros.length ? ` entre Sora y ${otros.join(' y ')}` : ''}.`,
+    entrada: `${esc(meta.asunto ?? '')}${abierto ? ' · sin respuesta todavía' : ''}`,
+    volver: { href: `${BASE}/cartas`, texto: 'Todas las cartas' },
+    contenido: `
+<section>
+  <h2>${n} ${n === 1 ? 'carta' : 'cartas'}${otros.length ? ` con ${esc(otros.join(' y '))}` : ''}</h2>
+  <p class="plomo">La más reciente arriba. Llegan lacradas: ábrelas para leerlas.</p>
+  ${cartasDelHilo(d, h)}
+</section>
+<nav class="vecinos" aria-label="Otras conversaciones">
+  ${salto(vecinos.anterior, '←')}
+  ${salto(vecinos.siguiente, '→')}
+</nav>`,
+  });
+}
+
+/** Índice de búsqueda: lo carga el buscador para poder buscar en todas las
+ *  páginas del índice y no solo en la que se está viendo. */
+export function indiceJson(d) {
+  return JSON.stringify(hilosOrdenados(d).map((h) => {
+    const meta = h.meta?.datos ?? {};
+    const otros = conQuien(d, meta);
+    return {
+      slug: meta.slug, titulo: meta.titulo ?? meta.slug, asunto: meta.asunto ?? '',
+      con: otros, cartas: h.cartas.length,
+      estado: meta.estado ?? 'cerrado', url: rutaHilo(meta.slug),
+    };
+  }));
 }
 
 // ------------------------------------------------------------------ entorno

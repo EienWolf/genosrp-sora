@@ -4,7 +4,7 @@
 
   // --- Filtros de hechizos -------------------------------------------------
   var filtros = document.querySelectorAll('.filtro');
-  var hechizos = document.querySelectorAll('.hechizo');
+  var filtrables = '.hechizo, .fila-hilo';
   var vacio = document.querySelector('#sin-resultados');
 
   function aplicar() {
@@ -15,7 +15,7 @@
       }
     });
     var visibles = 0;
-    hechizos.forEach(function (h) {
+    document.querySelectorAll(filtrables).forEach(function (h) {
       var pasa = Object.keys(activos).every(function (campo) {
         return activos[campo].indexOf(h.dataset[campo]) !== -1;
       });
@@ -36,6 +36,70 @@
       aplicar();
     });
   });
+
+  // --- Buscador de conversaciones -----------------------------------------
+  // El índice puede estar paginado, así que buscar solo en las filas visibles
+  // daría resultados incompletos: se trae indice.json una vez y busca en todo.
+  var caja = document.querySelector('#buscar-hilo');
+  var lista = document.querySelector('.hilos');
+  if (caja && lista) {
+    var original = lista.innerHTML;
+    var paginador = document.querySelector('.paginas');
+    var todo = null;
+    var pidiendo = false;
+
+    function pinta(hilos) {
+      lista.innerHTML = hilos.map(function (h) {
+        return '<li class="fila-hilo" data-estado="' + h.estado + '">'
+          + '<a href="' + h.url + '">'
+          + '<span class="lacre lacre--mini" aria-hidden="true">'
+          + ((h.con[0] || '?').charAt(0).toUpperCase()) + '</span>'
+          + '<span class="fila-texto"><strong></strong><span class="con"></span></span>'
+          + (h.estado === 'abierto' ? '<span class="marca-abierto">espera respuesta</span>' : '')
+          + '</a></li>';
+      }).join('');
+      // El texto se pone como texto, nunca como HTML: viene de content/, pero
+      // pasar por innerHTML lo haría interpretable.
+      lista.querySelectorAll('.fila-hilo').forEach(function (li, i) {
+        li.querySelector('strong').textContent = hilos[i].titulo;
+        li.querySelector('.con').textContent =
+          (hilos[i].con.length ? 'con ' + hilos[i].con.join(' y ') + ' · ' : '')
+          + hilos[i].cartas + (hilos[i].cartas === 1 ? ' carta' : ' cartas');
+      });
+    }
+
+    function buscar() {
+      var q = caja.value.trim().toLowerCase();
+      if (!q) {
+        lista.innerHTML = original;
+        if (paginador) paginador.hidden = false;
+        aplicar();
+        return;
+      }
+      if (paginador) paginador.hidden = true;
+      if (!todo) { traer(buscar); return; }
+      var terminos = q.split(/\s+/);
+      pinta(todo.filter(function (h) {
+        var heno = (h.titulo + ' ' + h.asunto + ' ' + h.con.join(' ')).toLowerCase();
+        return terminos.every(function (t) { return heno.indexOf(t) !== -1; });
+      }));
+      aplicar();
+    }
+
+    function traer(luego) {
+      if (pidiendo) return;
+      pidiendo = true;
+      fetch(caja.dataset.indice)
+        .then(function (r) { return r.json(); })
+        .then(function (j) { todo = j; luego(); })
+        .catch(function () { todo = []; luego(); })
+        .then(function () { pidiendo = false; });
+    }
+
+    caja.addEventListener('input', buscar);
+    // Se precarga al enfocar: cuando termine de escribir ya está.
+    caja.addEventListener('focus', function () { if (!todo) traer(function () {}); });
+  }
 
   // --- Visor de la galería -------------------------------------------------
   // La miniatura no se sustituye por la foto: se convierte en ella. Es la

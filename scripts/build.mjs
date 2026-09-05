@@ -170,12 +170,13 @@ const PAGINAS = [
    ratón por encima del enlace («moderate»), así que al pulsar ya está lista y
    la transición del navegador no tiene que esperar a la red. Son seis páginas
    estáticas sin efectos secundarios: prerrenderizarlas no cuesta nada. */
-function plantilla({ id, titulo, descripcion, entrada, contenido, hero = '' }) {
+function plantilla({ id, titulo, descripcion, entrada, rotulo, volver, contenido, hero = '' }) {
   // Sin hero propio (todo salvo la portada) la página abre con un pórtico:
   // le da un h1 real —antes solo tenían h2— y un arranque visual.
   const yo = PAGINAS.find((p) => p.id === id);
   const cabeza = hero || `<div class="portico"><div class="env">
-  <h1>${esc(yo?.menu ?? titulo)}</h1>
+  ${volver ? `<p class="volver"><a href="${volver.href}">${esc(volver.texto)}</a></p>` : ''}
+  <h1>${esc(rotulo ?? yo?.menu ?? titulo)}</h1>
   <p class="epigrafe">${esc(entrada ?? descripcion)}</p>
 </div></div>`;
   const menu = PAGINAS.map((p) =>

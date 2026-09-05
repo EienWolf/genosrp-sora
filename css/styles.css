@@ -367,6 +367,51 @@ main section > h2::after {
 .pendiente .nombre { color: var(--plata-3); }
 .marca-pendiente { color: var(--azul); font-size: .82rem; border: 1px solid var(--azul); border-radius: 999px; padding: .05rem .55rem; }
 
+/* ---------- Índice de conversaciones ---------- */
+.buscador { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; }
+.buscador label { color: var(--plata-3); font-size: .85rem; min-width: 5.5rem; }
+.buscador input {
+  font: inherit; font-size: .95rem; flex: 1; max-width: 26rem;
+  background: var(--noche-baja); color: var(--plata);
+  border: 1px solid var(--linea); border-radius: 999px; padding: .35rem 1rem;
+  transition: border-color .3s ease;
+}
+.buscador input:focus { border-color: var(--oro); }
+.buscador input::placeholder { color: var(--plata-3); }
+
+.hilos { list-style: none; margin: 0; padding: 0; }
+.fila-hilo { border-top: 1px solid var(--linea); }
+.fila-hilo:last-child { border-bottom: 1px solid var(--linea); }
+.fila-hilo > a {
+  display: flex; align-items: center; gap: 1rem;
+  padding: .9rem .25rem; text-decoration: none; color: inherit;
+  transition: padding-inline-start .35s var(--posarse), background .35s ease;
+}
+.fila-hilo > a:hover { background: rgba(74,158,224,.05); padding-inline-start: .9rem; }
+.fila-texto { flex: 1; display: grid; gap: .1rem; min-width: 0; }
+.fila-texto strong {
+  font-family: var(--serif); font-weight: 600; font-size: 1.05rem; color: var(--plata);
+  transition: color .3s ease;
+}
+.fila-hilo > a:hover .fila-texto strong { color: var(--oro); }
+.fila-texto .con { color: var(--plata-3); font-size: .88rem; }
+.lacre--mini { width: 1.7rem; height: 1.7rem; font-size: .8rem; }
+.marca-abierto {
+  flex: none; color: var(--azul); font-size: .78rem;
+  border: 1px solid var(--azul); border-radius: 999px; padding: .05rem .6rem;
+}
+
+.paginas { display: flex; align-items: center; gap: 1.25rem; margin-top: 2rem; font-size: .92rem; }
+.paginas span { color: var(--plata-3); }
+.vecinos {
+  display: flex; justify-content: space-between; gap: 1.5rem;
+  padding-block: 2rem; border-top: 1px solid var(--linea); font-size: .92rem;
+}
+.volver { margin: 0 0 .6rem; font-size: .88rem; }
+.volver a { color: var(--plata-3); text-decoration: none; }
+.volver a:hover { color: var(--oro); }
+.volver a::before { content: "← "; }
+
 /* ---------- Cartas ----------
    Cada carta llega cerrada y lacrada. Al abrirla el papel se despliega
    hacia abajo, como una hoja doblada que cae, y el lacre se ladea roto. */
