@@ -446,6 +446,8 @@ main section > h2::after {
 }
 .remite .para { color: var(--plata-3); font-size: .88rem; }
 .remite .con-adjunto { color: var(--oro); font-size: .82rem; }
+/* El orden va invertido: sin marca no se sabe que la de arriba es la última */
+.remite .reciente { color: var(--plata-3); font-size: .8rem; font-style: italic; }
 
 .abrir {
   flex: none; color: var(--plata-3); font-size: .85rem;

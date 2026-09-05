@@ -170,13 +170,18 @@ export function magia(d) {
 // ------------------------------------------------------------------- cartas
 
 export function cartas(d) {
-  const hilos = d.hilos.map((h) => {
+  // El orden de esta página es de presentación, no del dato: llms-full.txt y
+  // content.json siguen sirviendo los hilos y las cartas en su orden real.
+  // Arriba lo que sigue vivo; dentro de cada hilo, lo último primero.
+  const vivo = (h) => (h.meta?.datos?.estado === 'abierto' ? 0 : 1);
+  const hilos = [...d.hilos].sort((a, b) => vivo(a) - vivo(b)).map((h) => {
     const meta = h.meta?.datos ?? {};
     // Un hilo «abierto» es el que aún espera respuesta: sus cartas nacen
     // abiertas, que es donde está lo que falta por contestar.
     const abierto = meta.estado === 'abierto';
+    const recientes = [...h.cartas].reverse();
 
-    const cartas = h.cartas.map((c) => {
+    const cartas = recientes.map((c, i) => {
       const x = c.datos;
       const deSora = (x.de ?? []).includes('sora-winterbourne');
       const de = (x.de ?? []).map(d.nombreDe).join(' y ');
@@ -189,6 +194,8 @@ export function cartas(d) {
             <span class="remite">
               <strong>${esc(de)}</strong>
               <span class="para">para ${esc(para)}</span>
+              ${i === 0 && recientes.length > 1
+                ? '<span class="reciente">la última del hilo</span>' : ''}
               ${adjuntos.length ? `<span class="con-adjunto">Lleva ${
                 adjuntos.length === 1 ? 'un adjunto' : `${adjuntos.length} adjuntos`}</span>` : ''}
             </span>
@@ -211,8 +218,9 @@ export function cartas(d) {
   return plantilla({
     id: 'cartas', titulo: 'Cartas · Sora Winterbourne',
     descripcion: 'La correspondencia de Sora, por hilos.',
-    entrada: 'Las cartas de Sora van a la derecha; las respuestas, a la izquierda. '
-      + 'Están cerradas: ábrelas para leerlas. Aurora las lleva y las trae.',
+    entrada: 'Las de Sora van a la derecha; las respuestas, a la izquierda. En cada '
+      + 'hilo la más reciente va arriba, y llegan lacradas: ábrelas para leerlas. '
+      + 'Aurora las trae.',
     contenido: `
 <section>
   <h2>Correspondencia</h2>
