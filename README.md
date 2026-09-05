@@ -1,4 +1,4 @@
-# Sitio Web
+# GenosRP Sora
 
 Página web estática con HTML, CSS y JavaScript plano. Sin dependencias ni paso
 de compilación.
