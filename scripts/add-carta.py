@@ -33,6 +33,21 @@ def slugify(texto):
     return re.sub(r"-+", "-", re.sub(r"[^a-z0-9]+", "-", t.lower())).strip("-")
 
 
+def siguiente_registro():
+    """Número de alta global, común a todos los hilos.
+
+    Las cartas no traen fecha, pero se dan de alta en el orden en que se
+    enviaron. Ese número es la única cronología fiable que hay: sirve para
+    ordenar los hilos por actividad, no solo las cartas dentro de uno.
+    """
+    mayor = 0
+    for carta in CARTAS.glob("*/[0-9][0-9]-*.md"):
+        m = re.search(r"^registro:\s*(\d+)\s*$", carta.read_text(encoding="utf-8"), re.M)
+        if m:
+            mayor = max(mayor, int(m.group(1)))
+    return mayor + 1
+
+
 def esc(s):
     return '"' + str(s).replace("\\", "\\\\").replace('"', '\\"') + '"'
 
@@ -109,8 +124,19 @@ def escribir_hilo(dir_hilo, titulo, asunto, estado):
         fm += f"asunto: {bloque(asunto, 2)}\n"
     fm += "participantes:\n" + "".join(f"  - {esc(p)}\n" for p in vistos)
     fm += f"cartas: {len(cartas_de(dir_hilo))}\n"
+    fm += f"ultimo_registro: {ultimo_registro(dir_hilo)}\n"
     fm += f"estado: {esc(estado)}\n---\n"
     ruta.write_text(fm, encoding="utf-8")
+
+
+def ultimo_registro(dir_hilo):
+    """El número de alta más alto del hilo: cuándo se movió por última vez."""
+    mayor = 0
+    for carta in cartas_de(dir_hilo):
+        m = re.search(r"^registro:\s*(\d+)\s*$", carta.read_text(encoding="utf-8"), re.M)
+        if m:
+            mayor = max(mayor, int(m.group(1)))
+    return mayor
 
 
 def anadir(args, cuerpo):
@@ -132,6 +158,7 @@ def anadir(args, cuerpo):
 
     fm = "---\ntipo: \"carta\"\n"
     fm += f"hilo: {esc(nombre)}\norden: {orden}\n"
+    fm += f"registro: {siguiente_registro()}\n"
     fm += "de:\n" + "".join(f"  - {esc(r)}\n" for r in remitentes)
     fm += "para:\n" + "".join(f"  - {esc(d)}\n" for d in destinos)
     fm += f"fecha: {esc(args.fecha) if args.fecha else 'null  # sin fecha conocida'}\n"

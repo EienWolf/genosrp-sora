@@ -7,5 +7,6 @@ participantes:
   - "sora-winterbourne"
   - "arlan-fendragon"
 cartas: 2
+ultimo_registro: 7
 estado: "cerrado"
 ---

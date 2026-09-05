@@ -2,6 +2,7 @@
 tipo: "carta"
 hilo: "club-de-quidditch"
 orden: 2
+registro: 4
 de:
   - "lilwenn-pliego"
 para:

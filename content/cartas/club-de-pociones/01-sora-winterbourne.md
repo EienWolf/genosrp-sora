@@ -2,6 +2,7 @@
 tipo: "carta"
 hilo: "club-de-pociones"
 orden: 1
+registro: 6
 de:
   - "sora-winterbourne"
 para:

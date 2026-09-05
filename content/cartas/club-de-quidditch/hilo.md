@@ -7,5 +7,6 @@ participantes:
   - "sora-winterbourne"
   - "lilwenn-pliego"
 cartas: 3
+ultimo_registro: 5
 estado: "abierto"
 ---

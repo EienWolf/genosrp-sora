@@ -160,6 +160,19 @@ content/cartas/club-de-quidditch/
 El orden de la conversación vive en el nombre del archivo, no en un campo del
 frontmatter: así no puede desincronizarse ni hay que renumerar al añadir.
 
+**Las cartas no llevan fecha, pero sí cronología.** Se dan de alta en el orden
+en que se enviaron, y el script les pone un contador global:
+
+| campo | dónde | qué es |
+| --- | --- | --- |
+| `orden` | carta | su posición dentro del hilo (1, 2, 3…) |
+| `registro` | carta | número de alta **global**, común a todos los hilos |
+| `ultimo_registro` | `hilo.md` | el `registro` más alto del hilo: cuándo se movió |
+
+`registro` es la única cronología fiable que hay mientras no haya fechas. Con
+él el sitio ordena los hilos por actividad y no solo alfabéticamente. Lo asigna
+`add-carta.py`; no se escribe a mano ni se reutiliza aunque se borre una carta.
+
 | Campo de la carta | Notas |
 | ----------------- | ----- |
 | `hilo`, `orden` | Derivados de la ruta |

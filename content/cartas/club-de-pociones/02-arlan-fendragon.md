@@ -2,6 +2,7 @@
 tipo: "carta"
 hilo: "club-de-pociones"
 orden: 2
+registro: 7
 de:
   - "arlan-fendragon"
 para:

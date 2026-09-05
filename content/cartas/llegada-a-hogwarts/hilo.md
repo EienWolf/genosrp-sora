@@ -8,5 +8,6 @@ participantes:
   - "ethan-winterbourne"
   - "lyra-winterbourne"
 cartas: 2
+ultimo_registro: 2
 estado: "cerrado"
 ---

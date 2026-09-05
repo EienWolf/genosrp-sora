@@ -10,6 +10,17 @@ Las cartas viven en `content/cartas/<hilo>/`, una carpeta por hilo y un archivo
 numerado por carta. El número del archivo **es** el orden de la conversación,
 así que no puede desincronizarse.
 
+Además, cada carta recibe un `registro`: un contador **global** a todos los
+hilos que refleja el orden en que se dieron de alta, que es el orden en que se
+enviaron. Como las cartas no llevan fecha, ese número es la única cronología
+que existe, y con él el sitio pone arriba los hilos que se han movido hace
+menos. Lo asigna el script solo.
+
+**Da las cartas de alta en el orden en que se enviaron.** Si el usuario te pasa
+varias de golpe, respeta ese orden aunque pertenezcan a hilos distintos: si las
+agrupas por hilo, el `registro` deja de decir la verdad. Si no sabes el orden,
+pregúntalo.
+
 No crees los archivos a mano: usa `scripts/add-carta.py`. El cuerpo de la carta
 va por stdin, con un heredoc.
 

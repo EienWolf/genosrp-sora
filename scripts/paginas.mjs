@@ -170,16 +170,24 @@ export function magia(d) {
 // ------------------------------------------------------------------- cartas
 
 export function cartas(d) {
+  // Las cartas no traen fecha, pero se dan de alta en el orden en que se
+  // enviaron: `registro` es un contador global y `ultimo_registro` dice
+  // cuándo se movió cada hilo por última vez. Esa es la cronología.
+  //
   // El orden de esta página es de presentación, no del dato: llms-full.txt y
   // content.json siguen sirviendo los hilos y las cartas en su orden real.
-  // Arriba lo que sigue vivo; dentro de cada hilo, lo último primero.
+  // Arriba lo que sigue vivo; a igualdad, lo que se movió hace menos.
   const vivo = (h) => (h.meta?.datos?.estado === 'abierto' ? 0 : 1);
-  const hilos = [...d.hilos].sort((a, b) => vivo(a) - vivo(b)).map((h) => {
+  const movido = (h) => h.meta?.datos?.ultimo_registro ?? 0;
+  const hilos = [...d.hilos]
+    .sort((a, b) => vivo(a) - vivo(b) || movido(b) - movido(a))
+    .map((h) => {
     const meta = h.meta?.datos ?? {};
     // Un hilo «abierto» es el que aún espera respuesta: sus cartas nacen
     // abiertas, que es donde está lo que falta por contestar.
     const abierto = meta.estado === 'abierto';
-    const recientes = [...h.cartas].reverse();
+    const recientes = [...h.cartas].sort((a, b) =>
+      (b.datos.registro ?? b.datos.orden ?? 0) - (a.datos.registro ?? a.datos.orden ?? 0));
 
     const cartas = recientes.map((c, i) => {
       const x = c.datos;
@@ -207,7 +215,9 @@ export function cartas(d) {
       </article>`;
     }).join('');
 
-    return `<div class="hilo">
+    // Cada hilo tiene ancla propia: hoy permite enlazar una conversación
+    // concreta, y mañana es la ruta si pasan a página por hilo.
+    return `<div class="hilo" id="${esc(meta.slug ?? '')}">
       <h3>${esc(meta.titulo ?? meta.slug)}</h3>
       ${meta.asunto ? `<p class="cuando">${esc(meta.asunto)}${
         abierto ? ' · sin respuesta todavía' : ''}</p>` : ''}

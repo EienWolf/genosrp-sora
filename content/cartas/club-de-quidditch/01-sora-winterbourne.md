@@ -2,6 +2,7 @@
 tipo: "carta"
 hilo: "club-de-quidditch"
 orden: 1
+registro: 3
 de:
   - "sora-winterbourne"
 para:

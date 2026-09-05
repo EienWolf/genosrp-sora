@@ -2,6 +2,7 @@
 tipo: "carta"
 hilo: "llegada-a-hogwarts"
 orden: 1
+registro: 1
 de:
   - "sora-winterbourne"
 para:

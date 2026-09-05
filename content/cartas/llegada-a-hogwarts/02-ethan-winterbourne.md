@@ -2,6 +2,7 @@
 tipo: "carta"
 hilo: "llegada-a-hogwarts"
 orden: 2
+registro: 2
 de:
   - "ethan-winterbourne"
   - "lyra-winterbourne"
