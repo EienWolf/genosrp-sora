@@ -5,6 +5,10 @@
    partículas, el cursor y el trazado de la cronología comparten el
    mismo latido, así que el coste no crece al añadir efectos.
 
+   El cambio de página NO se hace aquí: lo hace el navegador con View
+   Transitions, declarado en el CSS. Interceptar el clic para pintar un velo
+   añadía 220 ms de espera a cada navegación y dejaba costuras a la vista.
+
    Nada de esto se enciende si el usuario pide menos movimiento.
    Sin JavaScript el sitio se ve entero e igual de legible: los
    estilos de revelado viven bajo .animar, que solo pone este fichero.
@@ -297,30 +301,6 @@
         var t = (alto * 0.82 - r.top) / Math.max(r.height, 1);
         hitos[i].style.setProperty('--trazo', tope(t, 0, 1).toFixed(3));
       }
-    });
-  })();
-
-  // ------------------------------------------- transición de página
-  // El velo se cierra antes de navegar y se abre solo al cargar. Si la
-  // navegación se cancela o se vuelve atrás, pageshow lo retira.
-  (function () {
-    var velo = document.querySelector('.transicion');
-    if (!velo) return;
-    addEventListener('pageshow', function () { velo.classList.remove('cerrando'); });
-
-    document.addEventListener('click', function (e) {
-      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-      var a = cerca(e.target, 'a');
-      if (!a || a.target || a.hasAttribute('download')) return;
-      var url;
-      try { url = new URL(a.href); } catch (_) { return; }
-      if (url.origin !== location.origin) return;
-      if (url.pathname === location.pathname) return;   // anclas: sin velo
-      if (!/^https?:/.test(url.protocol)) return;
-
-      e.preventDefault();
-      velo.classList.add('cerrando');
-      setTimeout(function () { location.href = a.href; }, 220);
     });
   })();
 

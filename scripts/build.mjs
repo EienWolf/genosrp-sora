@@ -166,6 +166,10 @@ const PAGINAS = [
   { id: 'galeria', archivo: 'galeria.html', menu: 'Galería' },
 ];
 
+/* Las reglas de especulación del <head> prerrenderizan la página al pasar el
+   ratón por encima del enlace («moderate»), así que al pulsar ya está lista y
+   la transición del navegador no tiene que esperar a la red. Son seis páginas
+   estáticas sin efectos secundarios: prerrenderizarlas no cuesta nada. */
 function plantilla({ id, titulo, descripcion, entrada, contenido, hero = '' }) {
   // Sin hero propio (todo salvo la portada) la página abre con un pórtico:
   // le da un h1 real —antes solo tenían h2— y un arranque visual.
@@ -191,10 +195,12 @@ function plantilla({ id, titulo, descripcion, entrada, contenido, hero = '' }) {
 <link rel="stylesheet" href="${BASE}/css/styles.css">
 <link rel="alternate" type="text/plain" href="${BASE}/llms.txt" title="Índice para modelos de lenguaje">
 <link rel="alternate" type="application/json" href="${BASE}/content.json" title="Todo el contenido en JSON">
+<script type="speculationrules">
+{"prerender":[{"where":{"href_matches":"${BASE}/*"},"eagerness":"moderate"}]}
+</script>
 </head>
 <body>
 ${firmamento()}
-<div class="transicion" aria-hidden="true"></div>
 <header class="cabecera">
   <div class="env">
     <a class="marca" href="${BASE}/">Sora Winterbourne</a>

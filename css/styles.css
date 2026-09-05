@@ -501,11 +501,24 @@ html.varita-activa, html.varita-activa * { cursor: none; }
 .animar .presentacion > *:nth-child(2) { animation-delay: .18s; }
 @keyframes llegar { from { opacity: 0; transform: translateY(1.5rem); } to { opacity: 1; transform: none; } }
 
-/* ---------- Transición entre páginas ---------- */
-.transicion { position: fixed; inset: 0; z-index: 9997; pointer-events: none; background: var(--vacio); opacity: 0; }
-.animar .transicion { animation: velo .6s ease-out both; }
-@keyframes velo { from { opacity: 1; } to { opacity: 0; } }
-.transicion.cerrando { animation: none; opacity: 1; transition: opacity .24s ease-in; }
+/* ---------- Transición entre páginas ----------
+   La hace el navegador con View Transitions: fundido cruzado real entre el
+   documento que se va y el que llega, sin velo, sin parpadeo y sin retrasar
+   el clic. Antes había un velo negro con JavaScript y se notaban las
+   costuras: la página nueva pintaba, se ponía negra y volvía a aparecer.
+
+   Firefox todavía no las trae; ahí la navegación es directa, que es
+   preferible a un velo mal sincronizado. */
+@view-transition { navigation: auto; }
+
+::view-transition-old(root) { animation: irse .2s ease-in both; }
+::view-transition-new(root) { animation: llegar-pagina .42s var(--posarse) both; }
+@keyframes irse { to { opacity: 0; } }
+@keyframes llegar-pagina { from { opacity: 0; transform: scale(.994); } }
+
+/* La cabecera es la misma en todas las páginas: se queda quieta en vez de
+   fundirse consigo misma. */
+.cabecera { view-transition-name: cabecera; }
 
 /* ============================================================
    Sin movimiento: se apaga todo, y todo queda visible
@@ -520,5 +533,7 @@ html.varita-activa, html.varita-activa * { cursor: none; }
   .firmamento .capa, .firmamento .niebla, .cielo .astrolium { transform: none !important; }
   [data-revelar] { opacity: 1 !important; transform: none !important; }
   .crono > li::before { transform: none !important; }
-  .transicion { display: none; }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
 }
