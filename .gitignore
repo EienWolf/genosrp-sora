@@ -1,0 +1,60 @@
+# --- Claude Code / asistentes ---
+.claude/
+CLAUDE.md
+claude.md
+CLAUDE.local.md
+.cursor/
+.aider*
+.windsurfrules
+
+# --- Secretos y configuración local ---
+.env
+.env.*
+!.env.example
+*.env
+secrets.*
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+config.local.*
+
+# --- Dependencias y builds ---
+node_modules/
+dist/
+build/
+.cache/
+.parcel-cache/
+.vite/
+*.tsbuildinfo
+
+# --- Logs ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+
+# --- Sistema operativo ---
+.DS_Store
+Thumbs.db
+desktop.ini
+*~
+.Trash-*
+
+# --- Editores ---
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*.sublime-workspace
+
+# --- Temporales ---
+tmp/
+temp/
+*.tmp
+*.bak
+*.orig
