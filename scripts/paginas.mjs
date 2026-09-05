@@ -1,5 +1,5 @@
 /** Renderizado de las páginas del sitio. */
-import { esc, md, seccion, secciones, definido, plantilla, listaDefs, cielo, BASE, enlace } from './build.mjs';
+import { esc, md, seccion, secciones, definido, plantilla, listaDefs, astrolium, BASE, enlace } from './build.mjs';
 
 const FECHA = { day: 'numeric', month: 'long', year: 'numeric' };
 const fecha = (iso) => iso
@@ -12,12 +12,13 @@ export function portada(d) {
   const s = d.sora.datos;
   const retrato = d.galeria.find((g) => g.datos.slug === 'sora-frontal-uniforme');
 
-  const hero = `<div class="cielo">${cielo()}
+  const hero = `<div class="cielo">${astrolium()}
   <div class="env">
     <div class="presentacion">
-      ${retrato ? `<img class="retrato" src="${BASE}/img/${esc(retrato.datos.archivo)}"
-        width="${retrato.datos.ancho}" height="${retrato.datos.alto}"
-        alt="Sora Winterbourne de frente, con el uniforme de Hufflepuff">` : ''}
+      ${retrato ? `<div class="retrato${retrato.datos.ui_visible ? ' recortado' : ''}">
+        <img src="${BASE}/img/${esc(retrato.datos.archivo)}"
+          width="${retrato.datos.ancho}" height="${retrato.datos.alto}"
+          alt="Sora Winterbourne de frente, con el uniforme de Hufflepuff"></div>` : ''}
       <div>
         <h1>Sora Winterbourne</h1>
         <p class="epigrafe">Primer curso en Hufflepuff. Le faltan tres años de
@@ -92,9 +93,14 @@ export function historia(d) {
     contenido: `
 <section>
   <h2>Antes de Hogwarts</h2>
-  <p class="plomo">Los recuerdos de Sora empiezan a los tres o cuatro años.
-  Entre los cuatro y los siete no hay nada.</p>
   ${md(seccion(d.sora.cuerpo, 'Historia'))}
+  <div class="hueco">
+    <p class="rango">4 &mdash; 7</p>
+    <p>Los recuerdos de Sora empiezan a los tres o cuatro a\u00f1os. Entre los
+    cuatro y los siete no hay nada.</p>
+    <p class="nota">El vac\u00edo que quiere desentra\u00f1ar cuando est\u00e9 listo
+    para afrontarlo.</p>
+  </div>
 </section>
 
 <section>
@@ -110,10 +116,11 @@ export function magia(d) {
   const valores = (campo) => [...new Set(d.hechizos.map((h) => h.datos[campo])
     .filter(definido))].sort();
 
-  const grupo = (campo, etiqueta, lista) => lista.length < 2 ? '' :
-    `<div class="filtros" role="group" aria-label="${esc(etiqueta)}">` + lista.map((v) =>
+  const grupo = (campo, etiqueta, lista, rotulo = (v) => v) => lista.length < 2 ? '' :
+    `<div class="filtros" role="group" aria-label="${esc(etiqueta)}">
+      <span class="filtros__rotulo">${esc(etiqueta)}</span>` + lista.map((v) =>
       `<button class="filtro" type="button" aria-pressed="false"
-        data-campo="${esc(campo)}" data-valor="${esc(v)}">${esc(v)}</button>`).join('') + '</div>';
+        data-campo="${esc(campo)}" data-valor="${esc(v)}">${esc(rotulo(v))}</button>`).join('') + '</div>';
 
   const fichas = d.hechizos.map((h) => {
     const x = h.datos;
@@ -147,13 +154,13 @@ export function magia(d) {
   return plantilla({
     id: 'magia', titulo: 'Magia · Sora Winterbourne',
     descripcion: 'Los hechizos que Sora ha aprendido, y el que todavía no.',
+    entrada: 'Lo que sabe hacer, y una cosa que todavía no: Astrolium es de cuarto '
+      + 'curso y él va por primero, pero ya tiene decidido qué cielo proyecta.',
     contenido: `
 <section>
   <h2>Hechizos</h2>
-  <p class="plomo">Lo que sabe hacer, y una cosa que todavía no: Astrolium es de
-  cuarto curso y él va por primero, pero ya tiene decidido qué cielo proyecta.</p>
-  ${grupo('clase', 'Filtrar por asignatura', valores('clase'))}
-  ${grupo('anio', 'Filtrar por curso', valores('anio').map(String))}
+  ${grupo('clase', 'Asignatura', valores('clase'))}
+  ${grupo('anio', 'Curso', valores('anio').map(String), (v) => `${v}.\u00ba curso`)}
   ${fichas}
   <p id="sin-resultados" hidden>Ningún hechizo cumple ese filtro.</p>
 </section>`,
@@ -188,11 +195,11 @@ export function cartas(d) {
   return plantilla({
     id: 'cartas', titulo: 'Cartas · Sora Winterbourne',
     descripcion: 'La correspondencia de Sora, por hilos.',
+    entrada: 'Las cartas de Sora van a la derecha; las respuestas, a la izquierda. '
+      + 'Aurora las lleva y las trae.',
     contenido: `
 <section>
   <h2>Correspondencia</h2>
-  <p class="plomo">Las cartas de Sora van a la derecha; las respuestas, a la
-  izquierda. Aurora las lleva y las trae.</p>
   ${hilos}
 </section>`,
   });
@@ -281,10 +288,10 @@ export function galeria(d) {
   return plantilla({
     id: 'galeria', titulo: 'Galería · Sora Winterbourne',
     descripcion: 'Capturas de Sora en el juego.',
+    entrada: 'Capturas tomadas dentro del juego, tal como se ve en pantalla.',
     contenido: `
 <section>
-  <h2>Galería</h2>
-  <p class="plomo">Capturas tomadas dentro del juego.</p>
+  <h2>Capturas</h2>
   <div class="galeria">${fotos}</div>
 </section>
 <dialog class="visor">

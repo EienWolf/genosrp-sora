@@ -23,6 +23,10 @@ for (const p of PAGINAS) {
 // Estáticos
 await cp(join(RAIZ, 'css'), join(SALIDA, 'css'), { recursive: true });
 await cp(join(RAIZ, 'js'), join(SALIDA, 'js'), { recursive: true });
+// Lenis se sirve desde el propio dominio, no desde un CDN: sin peticiones a
+// terceros y sin depender de que ese CDN siga en pie.
+await cp(join(RAIZ, 'node_modules', 'lenis', 'dist', 'lenis.min.js'),
+         join(SALIDA, 'js', 'lenis.min.js'));
 if (existsSync(join(RAIZ, 'assets'))) {
   await cp(join(RAIZ, 'assets'), join(SALIDA, 'assets'), {
     recursive: true, filter: (s) => !s.split('/').pop().startsWith('.'),

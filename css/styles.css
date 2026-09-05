@@ -1,10 +1,17 @@
 /* ============================================================
    Sora Winterbourne
+
+   La página es su Astrolium: un cielo proyectado. La profundidad
+   del fondo es ese cielo, el cursor es la punta de varita que lo
+   invoca y las estrellas responden a su paso.
+
    La paleta son sus dos ojos —azul y dorado— que son también las
-   estrellas de Astrolium: Regulus, Arcturus, Sirio, Betelgeuse.
+   estrellas del hechizo: Regulus, Arcturus, Sirio, Betelgeuse.
+   El rojo se reserva para una sola cosa: el hueco de memoria.
    ============================================================ */
 
 :root {
+  --vacio:      #05070f;   /* el fondo del cielo, detrás de todo */
   --noche:      #10162b;
   --noche-alta: #1a2340;
   --noche-baja: #0b1020;
@@ -19,19 +26,21 @@
   --ancho: 60rem;
   --serif: "Fraunces", Georgia, "Times New Roman", serif;
   --sans:  "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif;
+
+  /* Una sola curva para todo el movimiento del sitio: sale rápido y
+     se posa despacio, como algo que aterriza en vez de deslizarse. */
+  --posarse: cubic-bezier(.16, .84, .28, 1);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  *, *::before, *::after { animation: none !important; transition: none !important; }
-}
+/* El fondo vive en <html> para que el cielo fijo (z-index negativo)
+   quede por delante de él y por detrás del contenido. */
+html { background: var(--vacio); }
 
 body {
   margin: 0;
-  background: var(--noche);
+  background: transparent;
   color: var(--plata);
   font-family: var(--sans);
   font-size: 1.0625rem;
@@ -62,13 +71,43 @@ p { max-width: 68ch; }
 
 .env { width: 100%; max-width: var(--ancho); margin-inline: auto; padding-inline: 1.5rem; }
 
+/* ============================================================
+   EL FIRMAMENTO — fondo fijo, tres capas a distinta profundidad
+   ============================================================ */
+
+.firmamento {
+  position: fixed; inset: 0; z-index: -1;
+  overflow: hidden; pointer-events: none;
+  background:
+    radial-gradient(120% 80% at 78% -10%, rgba(74,158,224,.10), transparent 60%),
+    radial-gradient(90% 70% at 12% 104%, rgba(224,166,60,.07), transparent 62%),
+    linear-gradient(180deg, var(--vacio), #0a0f1e 45%, var(--vacio));
+}
+.firmamento .capa {
+  position: absolute; inset: -14%;
+  will-change: transform;
+}
+.firmamento .capa svg { width: 100%; height: 100%; display: block; }
+
+/* Un velo de niebla lentísimo: da sensación de aire entre las capas */
+.firmamento .niebla {
+  position: absolute; inset: -25%;
+  background:
+    radial-gradient(45% 38% at 30% 35%, rgba(74,158,224,.09), transparent 70%),
+    radial-gradient(38% 34% at 72% 62%, rgba(224,166,60,.06), transparent 72%);
+  filter: blur(18px);
+  will-change: transform;
+}
+
 /* ---------- Cabecera ---------- */
 .cabecera {
   position: sticky; top: 0; z-index: 20;
-  background: color-mix(in srgb, var(--noche) 92%, transparent);
-  backdrop-filter: blur(10px);
+  background: color-mix(in srgb, var(--noche) 82%, transparent);
+  backdrop-filter: blur(14px) saturate(1.2);
   border-bottom: 1px solid var(--linea);
+  transition: border-color .4s ease, background .4s ease;
 }
+.cabecera.lejos { border-bottom-color: color-mix(in srgb, var(--oro) 40%, var(--linea)); }
 .cabecera .env { display: flex; align-items: center; gap: 1.5rem; min-height: 3.75rem; flex-wrap: wrap; }
 
 .marca {
@@ -80,86 +119,226 @@ p { max-width: 68ch; }
 .marca::before {
   content: ""; width: 1.1rem; height: .55rem; border-radius: 999px; flex: none;
   background: linear-gradient(90deg, var(--azul) 0 50%, var(--oro) 50% 100%);
+  box-shadow: 0 0 0 0 rgba(224,166,60,.35);
+  transition: box-shadow .5s ease, transform .5s var(--posarse);
 }
+.marca:hover::before { transform: scaleX(1.15); box-shadow: 0 0 14px 1px rgba(224,166,60,.45); }
 
 .menu { display: flex; gap: 1.1rem; list-style: none; margin: 0; padding: 0; flex-wrap: wrap; }
-.menu a { color: var(--plata-2); text-decoration: none; font-size: .95rem; padding-block: .25rem; }
+.menu a {
+  color: var(--plata-2); text-decoration: none; font-size: .95rem;
+  padding-block: .25rem; position: relative;
+}
 .menu a:hover { color: var(--plata); }
-.menu a[aria-current="page"] { color: var(--oro); box-shadow: inset 0 -1px 0 var(--oro); }
+/* El subrayado se traza, no aparece */
+.menu a::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: var(--oro); transform: scaleX(0); transform-origin: right;
+  transition: transform .35s var(--posarse);
+}
+.menu a:hover::after { transform: scaleX(1); transform-origin: left; }
+.menu a[aria-current="page"] { color: var(--oro); }
+.menu a[aria-current="page"]::after { transform: scaleX(1); }
 
-/* ---------- Hero con el cielo de Astrolium ---------- */
+/* Barra de avance de lectura, encajada en el filete de la cabecera */
+.avance {
+  position: absolute; left: 0; bottom: -1px; height: 1px;
+  width: 100%; transform: scaleX(var(--leido, 0)); transform-origin: left;
+  background: linear-gradient(90deg, var(--azul), var(--oro));
+}
+
+/* ============================================================
+   EL HERO — el Astrolium de Sora
+   ============================================================ */
+
 .cielo { position: relative; overflow: hidden; border-bottom: 1px solid var(--linea); }
-.cielo svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.cielo .env { position: relative; padding-block: clamp(3rem, 9vw, 6rem); }
+.cielo .astrolium {
+  position: absolute; inset: -10% -4%;
+  width: auto; height: auto;
+  will-change: transform;
+  /* Las estrellas se apagan hacia el pie del hero: donde empieza el texto
+     no debe quedar nada compitiendo con él. */
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 46%, transparent 88%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 46%, transparent 88%);
+}
+.cielo .env { position: relative; padding-block: clamp(3rem, 8vw, 5.5rem) clamp(2.5rem, 5vw, 3.5rem); }
 
 .presentacion { display: grid; gap: clamp(1.5rem, 4vw, 3rem); grid-template-columns: 1fr; align-items: end; }
 @media (min-width: 46rem) { .presentacion { grid-template-columns: 15rem 1fr; } }
+/* En estrecho el retrato ocupaba toda la pantalla y empujaba el nombre fuera */
+@media (max-width: 45.999rem) { .retrato { max-width: 15rem; } }
 
 .retrato {
   border: 1px solid var(--linea);
   background: var(--noche-baja);
-  filter: saturate(1.05);
+  box-shadow: 0 1.5rem 3.5rem rgba(5,7,15,.6);
+  overflow: hidden;
+  line-height: 0;
 }
+.retrato { position: relative; }
+.retrato img { filter: saturate(1.05) contrast(1.03); }
+.retrato::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(16,22,43,.42), rgba(16,22,43,0) 38%, rgba(16,22,43,.62)),
+    radial-gradient(75% 60% at 50% 42%, transparent 40%, rgba(5,7,15,.45));
+}
+/* ui_visible en la ficha de la imagen: la captura lleva flechas de interfaz
+   pegadas a los bordes. Se recorta un 12 % por lado. */
+.retrato.recortado img { width: 124%; max-width: none; margin-left: -12%; }
 .presentacion h1 { margin-bottom: .2em; }
 .epigrafe { color: var(--plata-2); font-size: 1.15rem; max-width: 40ch; margin: 0; }
+
+/* Las cuatro estrellas con nombre laten, cada una a su ritmo */
+.estrella-viva { animation: latido 6s ease-in-out infinite; }
+@keyframes latido { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+
+/* El destello de difracción late con la estrella, medio compás por detrás */
+.destello { animation: chispazo 6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes chispazo { 0%, 100% { transform: scale(1); } 50% { transform: scale(.55); } }
+
+.halo { animation: respirar 9s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes respirar { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.22); opacity: .55; } }
+
+/* La línea de la constelación se traza sola al cargar */
+.constelacion {
+  fill: none; stroke: var(--plata-3); stroke-width: 1;
+  vector-effect: non-scaling-stroke; opacity: .5;
+}
 
 /* Datos duros: lista de definición con filetes, no tarjetas */
 .datos { margin: 1.75rem 0 0; display: grid; grid-template-columns: auto 1fr; gap: .1rem 1.25rem; font-size: .95rem; }
 .datos dt { color: var(--plata-3); }
 .datos dd { margin: 0; color: var(--plata); }
 
+/* ---------- Pórtico: la apertura de las páginas interiores ---------- */
+.portico {
+  position: relative; overflow: hidden;
+  border-bottom: 1px solid var(--linea);
+  padding-block: clamp(2.5rem, 6vw, 4.25rem);
+}
+/* Un barrido de luz cruza el pórtico una sola vez al entrar */
+.portico::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--oro), transparent);
+  opacity: .55;
+}
+.portico h1 { font-size: clamp(2rem, 5.5vw, 3.1rem); margin-bottom: .15em; }
+.portico .epigrafe { font-size: 1.1rem; }
+
 /* ---------- Secciones ---------- */
-main section { padding-block: clamp(2.5rem, 6vw, 4.5rem); }
+main section { padding-block: clamp(2.5rem, 6vw, 4.5rem); position: relative; }
 main section + section { border-top: 1px solid var(--linea); }
 .plomo { font-size: 1.15rem; color: var(--plata-2); }
+
+/* El titular se firma con un trazo de pluma que se dibuja al entrar */
+main section > h2::after {
+  content: ""; display: block; height: 1px; width: 4rem; margin-top: .55rem;
+  background: linear-gradient(90deg, var(--oro), transparent);
+  transform-origin: left;
+}
 
 /* ---------- Rejilla genérica ---------- */
 .rejilla { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
 
 /* Bloques con filete lateral: el filete marca de qué tipo es la cosa */
-.bloque { border-left: 2px solid var(--linea); padding-left: 1.1rem; }
+.bloque { position: relative; padding-left: 1.1rem; }
+.bloque::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+  background: var(--linea); transform-origin: top;
+}
 .bloque h3 { margin-bottom: .25em; }
 .bloque p { color: var(--plata-2); margin: 0; font-size: .97rem; }
-.bloque--miedo { border-left-color: var(--rojo); }
-.bloque--aspiracion { border-left-color: var(--oro); }
+.bloque--miedo::before { background: var(--rojo); }
+.bloque--aspiracion::before { background: var(--oro); }
 
 /* ---------- Cronología ---------- */
-.crono { list-style: none; margin: 0; padding: 0; }
-.crono > li { position: relative; padding: 0 0 2rem 3.25rem; border-left: 1px solid var(--linea); }
-.crono > li:last-child { border-left-color: transparent; padding-bottom: 0; }
+.crono { list-style: none; margin: 0; padding: 0; position: relative; }
+.crono > li { position: relative; padding: 0 0 2rem 3.25rem; }
+/* La línea de la vida se dibuja conforme se baja */
+.crono > li::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 1px;
+  background: var(--linea); transform-origin: top;
+}
+.crono > li:last-child::before { background: linear-gradient(180deg, var(--linea), transparent); }
 .crono .hito {
   position: absolute; left: -0.85rem; top: 0; width: 1.7rem; height: 1.7rem;
   border-radius: 999px; background: var(--noche); border: 1px solid var(--linea);
   display: grid; place-items: center; font-size: .8rem; color: var(--plata-2);
-  font-family: var(--serif); font-weight: 600;
+  font-family: var(--serif); font-weight: 600; z-index: 1;
+  transition: border-color .5s ease, color .5s ease, box-shadow .5s ease;
+}
+.crono > li.dentro .hito {
+  border-color: var(--oro); color: var(--oro);
+  box-shadow: 0 0 0 4px rgba(224,166,60,.08), 0 0 18px rgba(224,166,60,.25);
 }
 .crono h3 { margin-bottom: .1em; }
 .crono .cuando { color: var(--plata-3); font-size: .9rem; }
 
-/* El hueco: los años que Sora no recuerda */
-.hueco { border-left: 1px dashed var(--rojo) !important; }
-.hueco .hito { border-color: var(--rojo); color: var(--rojo); }
-.hueco h3 { color: var(--rojo); }
+/* ---------- El hueco: los años que Sora no recuerda ----------
+   Aquí el cielo se apaga. Es el único sitio del sitio donde eso pasa. */
+.hueco {
+  position: relative; margin: 2.5rem 0; padding: 2rem 1.75rem;
+  border: 1px dashed color-mix(in srgb, var(--rojo) 45%, transparent);
+  background:
+    radial-gradient(120% 140% at 50% 50%, rgba(5,7,15,.94), rgba(5,7,15,.55));
+  overflow: hidden;
+}
+.hueco::before {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(60% 90% at 50% 50%, rgba(194,84,63,.14), transparent 70%);
+}
+.hueco > * { position: relative; }
+.hueco .rango {
+  font-family: var(--serif); font-size: 2.4rem; font-weight: 600;
+  color: color-mix(in srgb, var(--rojo) 80%, var(--plata-3));
+  margin: 0 0 .1em; letter-spacing: .02em;
+}
+.hueco p { color: var(--plata-2); margin: 0; max-width: 52ch; }
+.hueco .nota { color: var(--plata-3); font-size: .9rem; margin-top: .75rem; }
 
 /* ---------- Hechizos ---------- */
-.filtros { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 2rem; }
+.filtros { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-bottom: 1rem; }
+.filtros:last-of-type { margin-bottom: 2rem; }
+.filtros__rotulo { color: var(--plata-3); font-size: .85rem; margin-right: .35rem; min-width: 5.5rem; }
 .filtro {
   font: inherit; font-size: .9rem; cursor: pointer;
   background: transparent; color: var(--plata-2);
   border: 1px solid var(--linea); border-radius: 999px; padding: .3rem .9rem;
+  transition: color .25s ease, border-color .25s ease, background .25s ease, transform .25s var(--posarse);
 }
-.filtro:hover { color: var(--plata); border-color: var(--plata-3); }
-.filtro[aria-pressed="true"] { background: var(--oro); border-color: var(--oro); color: var(--noche); font-weight: 700; }
+.filtro:hover { color: var(--plata); border-color: var(--plata-3); transform: translateY(-1px); }
+.filtro[aria-pressed="true"] {
+  background: var(--oro); border-color: var(--oro); color: var(--noche); font-weight: 700;
+  box-shadow: 0 0 20px rgba(224,166,60,.3);
+}
 
-.hechizo { border-top: 1px solid var(--linea); padding-block: 1.5rem; }
+.hechizo {
+  border-top: 1px solid var(--linea); padding-block: 1.5rem;
+  position: relative; transition: opacity .35s ease, transform .35s var(--posarse);
+}
 .hechizo:last-child { border-bottom: 1px solid var(--linea); }
+/* Un resplandor recorre el filete al pasar por encima: el hechizo se arma */
+.hechizo::before {
+  content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--oro), transparent);
+  transform: scaleX(0); opacity: 0;
+  transition: transform .6s var(--posarse), opacity .6s ease;
+}
+.hechizo:hover::before, .hechizo[open]::before { transform: scaleX(1); opacity: .8; }
 .hechizo summary { cursor: pointer; list-style: none; display: flex; align-items: baseline; gap: .75rem; flex-wrap: wrap; }
 .hechizo summary::-webkit-details-marker { display: none; }
-.hechizo .nombre { font-family: var(--serif); font-size: 1.3rem; font-weight: 600; color: var(--plata); }
+.hechizo .nombre {
+  font-family: var(--serif); font-size: 1.3rem; font-weight: 600; color: var(--plata);
+  transition: color .3s ease, text-shadow .3s ease;
+}
+.hechizo summary:hover .nombre { color: var(--oro); text-shadow: 0 0 18px rgba(224,166,60,.45); }
 .hechizo .conjuro { color: var(--oro); font-size: .9rem; font-style: italic; }
 .hechizo .curso { margin-left: auto; color: var(--plata-3); font-size: .88rem; }
 .hechizo[open] .nombre { color: var(--oro); }
 .hechizo .cuerpo { padding-top: 1rem; }
+.hechizo[open] .cuerpo { animation: desplegar .5s var(--posarse) both; }
+@keyframes desplegar { from { opacity: 0; transform: translateY(-.5rem); } to { opacity: 1; transform: none; } }
 .hechizo dl { display: grid; grid-template-columns: auto 1fr; gap: .3rem 1.25rem; font-size: .95rem; margin: 1rem 0 0; }
 .hechizo dt { color: var(--plata-3); }
 .hechizo dd { margin: 0; }
@@ -174,32 +353,50 @@ main section + section { border-top: 1px solid var(--linea); }
 .carta .papel {
   background: var(--noche-alta); border: 1px solid var(--linea);
   padding: 1.4rem 1.6rem; font-size: 1rem;
+  box-shadow: 0 .5rem 1.5rem rgba(5,7,15,.45);
+  transition: transform .5s var(--posarse), box-shadow .5s ease, border-color .5s ease;
+}
+.carta:hover .papel {
+  transform: translateY(-3px) rotate(-.25deg);
+  box-shadow: 0 1.2rem 2.6rem rgba(5,7,15,.6);
+  border-color: var(--plata-3);
 }
 .carta .papel > :first-child { margin-top: 0; }
 .carta .papel > :last-child { margin-bottom: 0; }
 /* Las de Sora, a la derecha: se lee de un vistazo quién habla */
 .carta--sora { margin-left: auto; }
 .carta--sora .quien { text-align: right; }
-.carta--sora .papel { border-left: 2px solid var(--oro); }
+.carta--sora .papel { border-left-width: 1px; border-right: 2px solid var(--oro); }
+.carta--sora:hover .papel { transform: translateY(-3px) rotate(.25deg); }
 .carta--otro .papel { border-left: 2px solid var(--azul); }
 .adjunto { font-size: .88rem; color: var(--oro); margin-top: .6rem; }
 
 /* ---------- Galería ---------- */
 .galeria { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); }
 .galeria figure { margin: 0; }
-.galeria button { display: block; width: 100%; padding: 0; border: 1px solid var(--linea); background: var(--noche-baja); cursor: pointer; }
-.galeria button:hover { border-color: var(--oro); }
+.galeria button {
+  display: block; width: 100%; padding: 0; border: 1px solid var(--linea);
+  background: var(--noche-baja); cursor: pointer; overflow: hidden; position: relative;
+  transition: border-color .4s ease, box-shadow .4s ease;
+}
+.galeria button img { transition: transform .7s var(--posarse), filter .5s ease; }
+.galeria button:hover { border-color: var(--oro); box-shadow: 0 0 28px rgba(224,166,60,.18); }
+.galeria button:hover img { transform: scale(1.05); filter: saturate(1.15) brightness(1.05); }
 .galeria figcaption { font-size: .88rem; color: var(--plata-2); padding-top: .5rem; }
 
 dialog.visor { border: none; background: transparent; max-width: min(92vw, 60rem); padding: 0; }
-dialog.visor::backdrop { background: rgba(8, 11, 22, .92); }
-dialog.visor img { border: 1px solid var(--linea); }
+dialog.visor::backdrop { background: rgba(5, 7, 15, .93); backdrop-filter: blur(4px); }
+dialog.visor[open] { animation: abrir-visor .4s var(--posarse) both; }
+@keyframes abrir-visor { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
+dialog.visor img { border: 1px solid var(--linea); box-shadow: 0 2rem 5rem rgba(0,0,0,.7); }
 dialog.visor p { color: var(--plata-2); font-size: .95rem; margin: .75rem 0 0; max-width: none; }
 dialog.visor .cerrar {
   font: inherit; cursor: pointer; margin-top: .75rem;
   background: transparent; border: 1px solid var(--linea); color: var(--plata);
   border-radius: 999px; padding: .3rem 1rem;
+  transition: border-color .3s ease, color .3s ease;
 }
+dialog.visor .cerrar:hover { border-color: var(--oro); color: var(--oro); }
 
 /* ---------- Personas ---------- */
 .persona { border-top: 1px solid var(--linea); padding-block: 1.75rem; }
@@ -212,9 +409,116 @@ dialog.visor .cerrar {
 .pie p { max-width: none; }
 .pie a { color: var(--plata-2); }
 
-/* ---------- Estrellas ---------- */
-.estrella-viva { animation: latido 6s ease-in-out infinite; }
-.estrella-viva:nth-of-type(2) { animation-delay: -2s; }
-.estrella-viva:nth-of-type(3) { animation-delay: -4s; }
-.estrella-viva:nth-of-type(4) { animation-delay: -1s; }
-@keyframes latido { 0%, 100% { opacity: .85; } 50% { opacity: .35; } }
+/* ============================================================
+   LA VARITA — el cursor
+   Un punto de luz (la punta) y un aro que lo persigue con retardo.
+   Solo con ratón y solo si el usuario acepta movimiento.
+   ============================================================ */
+
+/* La bandera del cursor va en <html> con nombre propio: si se llamara igual
+   que el elemento .varita, la regla de abajo pondría <html> en position:fixed
+   y el body se encogería a su contenido. */
+html.varita-activa, html.varita-activa * { cursor: none; }
+
+.varita {
+  position: fixed; top: 0; left: 0; z-index: 9999; pointer-events: none;
+  opacity: 0; transition: opacity .3s ease;   /* aparece al primer movimiento */
+}
+.varita.despierta { opacity: 1; }
+.varita__punta, .varita__aro {
+  position: absolute; top: 0; left: 0; border-radius: 50%;
+  will-change: transform; transform: translate3d(-50%, -50%, 0);
+}
+.varita__punta {
+  width: 7px; height: 7px;
+  background: radial-gradient(circle, #fff 0 30%, var(--oro) 55%, rgba(224,166,60,0) 72%);
+  box-shadow: 0 0 12px 2px rgba(224,166,60,.7), 0 0 26px 6px rgba(74,158,224,.35);
+}
+.varita__aro {
+  width: 34px; height: 34px;
+  border: 1px solid color-mix(in srgb, var(--oro) 55%, transparent);
+  transition: width .35s var(--posarse), height .35s var(--posarse),
+              border-color .35s ease, background .35s ease, opacity .35s ease;
+}
+/* Sobre algo pulsable el aro se abre y se tiñe */
+.varita.activa .varita__aro {
+  width: 54px; height: 54px;
+  border-color: var(--oro);
+  background: rgba(224,166,60,.07);
+}
+/* Al lanzar, se cierra de golpe */
+.varita.lanzando .varita__aro { width: 18px; height: 18px; border-color: var(--azul); }
+
+.chispas { position: fixed; inset: 0; z-index: 9998; pointer-events: none; }
+
+/* ============================================================
+   REVELADOS — solo cuando hay JS y el usuario acepta movimiento
+   ============================================================ */
+
+.animar [data-revelar] {
+  opacity: 0;
+  transition: opacity .8s var(--posarse), transform .8s var(--posarse);
+  transition-delay: calc(var(--i, 0) * 70ms);
+}
+.animar [data-revelar].dentro { opacity: 1; transform: none; }
+
+.animar [data-revelar="alzar"]     { transform: translateY(1.4rem); }
+.animar [data-revelar="derecha"]   { transform: translateX(1.6rem) rotate(.6deg); }
+.animar [data-revelar="izquierda"] { transform: translateX(-1.6rem) rotate(-.6deg); }
+.animar [data-revelar="acercar"]   { transform: scale(.96); }
+.animar [data-revelar="tenue"]     { transform: none; }
+
+/* Los trazos estructurales se dibujan; no aparecen */
+.animar .portico::after {
+  transform: scaleX(0); transform-origin: left;
+  animation: barrer 1.4s var(--posarse) .25s forwards;
+}
+@keyframes barrer { to { transform: scaleX(1); } }
+
+.animar main section > h2::after {
+  transform: scaleX(0);
+  transition: transform 1s var(--posarse) .15s;
+}
+.animar main section.dentro > h2::after { transform: scaleX(1); }
+
+.animar .bloque::before {
+  transform: scaleY(0);
+  transition: transform .9s var(--posarse) calc(var(--i, 0) * 110ms);
+}
+.animar .bloque.dentro::before { transform: scaleY(1); }
+
+/* La línea de la cronología avanza con el scroll, no con la entrada */
+.animar .crono > li::before { transform: scaleY(var(--trazo, 0)); }
+
+.animar .constelacion {
+  stroke-dasharray: 1; stroke-dashoffset: 1;
+  animation: trazar 2.6s var(--posarse) .5s both;
+}
+@keyframes trazar { to { stroke-dashoffset: 0; } }
+
+/* La entrada del hero: una sola secuencia, solo en la portada */
+.animar .presentacion > * { animation: llegar 1s var(--posarse) both; }
+.animar .presentacion > *:nth-child(2) { animation-delay: .18s; }
+@keyframes llegar { from { opacity: 0; transform: translateY(1.5rem); } to { opacity: 1; transform: none; } }
+
+/* ---------- Transición entre páginas ---------- */
+.transicion { position: fixed; inset: 0; z-index: 9997; pointer-events: none; background: var(--vacio); opacity: 0; }
+.animar .transicion { animation: velo .6s ease-out both; }
+@keyframes velo { from { opacity: 1; } to { opacity: 0; } }
+.transicion.cerrando { animation: none; opacity: 1; transition: opacity .24s ease-in; }
+
+/* ============================================================
+   Sin movimiento: se apaga todo, y todo queda visible
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  .firmamento .capa, .firmamento .niebla, .cielo .astrolium { transform: none !important; }
+  [data-revelar] { opacity: 1 !important; transform: none !important; }
+  .crono > li::before { transform: none !important; }
+  .transicion { display: none; }
+}
