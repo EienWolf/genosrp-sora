@@ -33,6 +33,24 @@ def ruta_db(cli):
     return DB_POR_DEFECTO
 
 
+MARCAS_DISCORD = re.compile(r"(\*\*|__|`)")
+
+
+def limpiar_campo(valor):
+    """Quita el marcado de Discord de un valor corto del frontmatter.
+
+    33 de los 142 hechizos traen `**` pegado en conjuro, manifestación o
+    movimiento. Como estos campos se escapan al pintarlos, el `**` nunca se
+    interpretaría: solo se vería. El cuerpo en Markdown no pasa por aquí.
+    """
+    if not isinstance(valor, str):
+        return valor
+    v = re.sub(r"\s{2,}", " ", MARCAS_DISCORD.sub("", valor)).strip(" \t:-")
+    # Siete pronunciaciones vienen entrecomilladas, algunas sin cerrar: las
+    # comillas son del mensaje de Discord, no del dato.
+    return v.strip('"\u00ab\u00bb').strip()
+
+
 def slugify(texto):
     t = unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode()
     return re.sub(r"-+", "-", re.sub(r"[^a-z0-9]+", "-", t.lower())).strip("-")
@@ -105,20 +123,33 @@ def leer_local(ruta):
         m = re.search(rf"^{nombre}:\s*(true|false)\s*$", fm, re.M)
         return (m.group(1) == "true") if m else defecto
 
+    def recortar(lineas):
+        """Quita del final las líneas en blanco y los comentarios.
+
+        El generador escribe cada comentario justo encima de la clave que
+        documenta, así que un comentario al final de un bloque pertenece a la
+        clave siguiente, no a la actual. Sin esto se absorbía en la clave
+        conservada y volvía a escribirse en cada importación: el comentario de
+        `aprendido` se duplicaba una vez por pasada.
+        """
+        while lineas and re.match(r"^\s*(#.*)?$", lineas[-1]):
+            lineas.pop()
+        return lineas
+
     # Claves de primer nivel que el script no conoce: se conservan íntegras.
     extra, pendiente, clave = [], [], None
     for linea in fm.splitlines(keepends=True):
         m = re.match(r"([A-Za-z_][A-Za-z0-9_]*):", linea)
         if m:
             if clave and clave not in CLAVES_GENERADAS:
-                extra.extend(pendiente)
+                extra.extend(recortar(pendiente))
             pendiente, clave = [linea], m.group(1)
         elif clave is None:
             continue
         else:
             pendiente.append(linea)
     if clave and clave not in CLAVES_GENERADAS:
-        extra.extend(pendiente)
+        extra.extend(recortar(pendiente))
 
     # Secciones del cuerpo que el script no genera.
     secciones = []
@@ -138,7 +169,11 @@ def leer_local(ruta):
 # --- Construcción de la ficha ------------------------------------------------
 
 def limpiar(v):
-    return v.strip() if isinstance(v, str) and v.strip() else None
+    """Normaliza un valor del frontmatter. El cuerpo en Markdown no pasa por
+    aquí: allí los `**` sí son negrita de verdad y se conservan."""
+    if not isinstance(v, str):
+        return None
+    return limpiar_campo(v) or None
 
 
 def construir(fila, categorias, relacionados, teoria, local):

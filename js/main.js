@@ -2,10 +2,14 @@
 (function () {
   'use strict';
 
-  // --- Filtros de hechizos -------------------------------------------------
+  // --- Filtros y búsqueda local --------------------------------------------
+  // Sirven igual para los hechizos y para el índice de conversaciones: se
+  // combinan, así que buscar dentro de un filtro activo funciona.
   var filtros = document.querySelectorAll('.filtro');
-  var filtrables = '.hechizo, .fila-hilo';
+  var FILTRABLES = '.hechizo, .fila-hilo';
   var vacio = document.querySelector('#sin-resultados');
+  var recuento = document.querySelector('.recuento');
+  var busca = document.querySelector('[data-busca-local]');
 
   function aplicar() {
     var activos = {};
@@ -14,15 +18,33 @@
         (activos[b.dataset.campo] = activos[b.dataset.campo] || []).push(b.dataset.valor);
       }
     });
+    var campos = Object.keys(activos);
+    var q = busca ? busca.value.trim().toLowerCase() : '';
+    var terminos = q ? q.split(/\s+/) : [];
+
     var visibles = 0;
-    document.querySelectorAll(filtrables).forEach(function (h) {
-      var pasa = Object.keys(activos).every(function (campo) {
-        return activos[campo].indexOf(h.dataset[campo]) !== -1;
+    document.querySelectorAll(FILTRABLES).forEach(function (h) {
+      var pasa = campos.every(function (campo) {
+        return activos[campo].indexOf(h.dataset[campo] || '') !== -1;
       });
+      if (pasa && terminos.length) {
+        var heno = h.dataset.busca || h.textContent.toLowerCase();
+        pasa = terminos.every(function (t) { return heno.indexOf(t) !== -1; });
+      }
       h.hidden = !pasa;
       if (pasa) visibles++;
     });
+
     if (vacio) vacio.hidden = visibles > 0;
+    if (recuento) {
+      var total = Number(recuento.dataset.total) || visibles;
+      // «1 de 142 hechizos»: el sustantivo concuerda con el total, no con lo
+      // que se ve. Solo cuando no hay filtro concuerda con el número mostrado.
+      var todo = visibles === total;
+      var concuerda = todo ? visibles : total;
+      recuento.textContent = (todo ? total : visibles + ' de ' + total) + ' '
+        + (concuerda === 1 ? recuento.dataset.singular : recuento.dataset.plural);
+    }
   }
 
   filtros.forEach(function (b) {
@@ -36,6 +58,7 @@
       aplicar();
     });
   });
+  if (busca) busca.addEventListener('input', aplicar);
 
   // --- Buscador de conversaciones -----------------------------------------
   // El índice puede estar paginado, así que buscar solo en las filas visibles

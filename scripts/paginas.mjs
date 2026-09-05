@@ -112,26 +112,70 @@ export function historia(d) {
 
 // -------------------------------------------------------------------- magia
 
+// Las materias llegan de la base de discord-hechizos como slugs sin acentos
+// («dcao-hechizos», «pociones-teoria»). Estas son las ocho que existen allí,
+// que es el universo completo de asignaturas en las que Sora puede acabar
+// teniendo hechizos. El nombre largo va en el filtro y el corto en la ficha,
+// donde el espacio manda.
+const MATERIAS = {
+  'transfiguracion': { nombre: 'Transfiguración', corto: 'Transfiguración' },
+  'encantamientos':  { nombre: 'Encantamientos', corto: 'Encantamientos' },
+  'dcao-hechizos':   { nombre: 'Defensa contra las Artes Oscuras', corto: 'Defensa' },
+  'hechiceria':      { nombre: 'Hechicería', corto: 'Hechicería' },
+  'duelo':           { nombre: 'Duelo', corto: 'Duelo' },
+  'medimagia':       { nombre: 'Medimagia', corto: 'Medimagia' },
+  'pociones-teoria': { nombre: 'Pociones (teoría)', corto: 'Pociones' },
+  'herbologia':      { nombre: 'Herbología', corto: 'Herbología' },
+};
+// Una materia nueva en la base no debe romper la página: se muestra con el
+// slug arreglado a mano hasta que se le dé nombre aquí arriba.
+const materia = (slug, campo = 'nombre') => MATERIAS[slug]?.[campo]
+  ?? (slug ? slug.replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase()) : 'Sin materia');
+
+const SIN_CURSO = 'Sin curso asignado';
+
 export function magia(d) {
-  const valores = (campo) => [...new Set(d.hechizos.map((h) => h.datos[campo])
-    .filter(definido))].sort();
+  // Por curso y luego por nombre: así se lee como una progresión. Los que la
+  // base no sabe de qué curso son van al final, no mezclados en el primero.
+  const hechizos = [...d.hechizos].sort((a, b) =>
+    (a.datos.anio ?? 99) - (b.datos.anio ?? 99)
+    || String(a.datos.nombre).localeCompare(String(b.datos.nombre), 'es'));
 
-  const grupo = (campo, etiqueta, lista, rotulo = (v) => v) => lista.length < 2 ? '' :
+  const cuenta = (campo, valor) => hechizos.filter((h) =>
+    String(h.datos[campo] ?? '') === String(valor)).length;
+
+  const grupo = (campo, etiqueta, valores, rotulo) => valores.length < 2 ? '' :
     `<div class="filtros" role="group" aria-label="${esc(etiqueta)}">
-      <span class="filtros__rotulo">${esc(etiqueta)}</span>` + lista.map((v) =>
+      <span class="filtros__rotulo">${esc(etiqueta)}</span>
+      <span class="filtros__opciones">` + valores.map((v) =>
       `<button class="filtro" type="button" aria-pressed="false"
-        data-campo="${esc(campo)}" data-valor="${esc(v)}">${esc(rotulo(v))}</button>`).join('') + '</div>';
+        data-campo="${esc(campo)}" data-valor="${esc(v)}">${esc(rotulo(v))}` +
+      `<span class="cuenta">${cuenta(campo, v)}</span></button>`).join('')
+      + '</span></div>';
 
-  const fichas = d.hechizos.map((h) => {
+  const clases = [...new Set(hechizos.map((h) => h.datos.clase).filter(definido))]
+    .sort((a, b) => materia(a).localeCompare(materia(b), 'es'));
+  // El curso vacío también es un filtro: si no, esos hechizos no se pueden
+  // aislar y parecen un fallo.
+  const cursos = [...new Set(hechizos.map((h) => h.datos.anio ?? ''))]
+    .sort((a, b) => (a === '' ? 99 : a) - (b === '' ? 99 : b));
+
+  const fichas = hechizos.map((h) => {
     const x = h.datos;
     const relacionados = (x.relacionados ?? []).map((r) => esc(r.replace(/-/g, ' ')));
+    const curso = definido(x.anio) ? `${x.anio}.º curso` : SIN_CURSO;
+    // Lo que busca el buscador: se prepara aquí para no leer el DOM al teclear.
+    const busca = [x.nombre, x.nombre_alt, x.pronunciacion, materia(x.clase),
+                   x.efecto, x.manifestacion, ...(x.categorias ?? [])]
+      .filter(definido).join(' ').toLowerCase();
     return `<details class="hechizo${x.aprendido === false ? ' pendiente' : ''}"
-      data-clase="${esc(x.clase ?? '')}" data-anio="${esc(x.anio ?? '')}">
+      data-clase="${esc(x.clase ?? '')}" data-anio="${esc(x.anio ?? '')}"
+      data-busca="${esc(busca)}">
       <summary>
         <span class="nombre">${esc(x.nombre)}</span>
         ${x.pronunciacion ? `<span class="conjuro">${esc(x.pronunciacion)}</span>` : ''}
         ${x.aprendido === false ? '<span class="marca-pendiente">aún no</span>' : ''}
-        <span class="curso">${esc(x.clase)} · ${x.anio}.º curso</span>
+        <span class="curso">${esc(materia(x.clase, 'corto'))} · ${esc(curso)}</span>
       </summary>
       <div class="cuerpo">
         ${md(seccion(h.cuerpo, 'Descripción'))}
@@ -142,6 +186,8 @@ export function magia(d) {
           ['Movimiento', esc(x.movimiento)],
           ['Contrahechizo', esc(x.contrahechizo)],
           ['Tipo', esc(x.clasificacion)],
+          ['Categorías', (x.categorias ?? []).map(esc).join(', ') || null],
+          ['Materia', esc(materia(x.clase))],
           ['Lleva a', relacionados.length ? relacionados.join(', ') : null],
         ])}
         ${seccion(h.cuerpo, 'Manifestación de Sora')
@@ -151,6 +197,7 @@ export function magia(d) {
     </details>`;
   }).join('');
 
+  const n = hechizos.length;
   return plantilla({
     id: 'magia', titulo: 'Magia · Sora Winterbourne',
     descripcion: 'Los hechizos que Sora ha aprendido, y el que todavía no.',
@@ -158,9 +205,16 @@ export function magia(d) {
       + 'curso y él va por primero, pero ya tiene decidido qué cielo proyecta.',
     contenido: `
 <section>
-  <h2>Hechizos</h2>
-  ${grupo('clase', 'Asignatura', valores('clase'))}
-  ${grupo('anio', 'Curso', valores('anio').map(String), (v) => `${v}.\u00ba curso`)}
+  <h2>${n} ${n === 1 ? 'hechizo' : 'hechizos'}</h2>
+  <div class="buscador">
+    <label for="buscar-hechizo">Buscar</label>
+    <input id="buscar-hechizo" type="search" autocomplete="off"
+      placeholder="nombre, conjuro, efecto o categoría" data-busca-local>
+  </div>
+  ${grupo('clase', 'Materia', clases, (v) => materia(v))}
+  ${grupo('anio', 'Curso', cursos, (v) => (v === '' ? 'sin curso' : `${v}.º`))}
+  <p class="recuento" data-total="${n}" data-singular="hechizo" data-plural="hechizos"
+    role="status">${n} ${n === 1 ? 'hechizo' : 'hechizos'}</p>
   ${fichas}
   <p id="sin-resultados" hidden>Ningún hechizo cumple ese filtro.</p>
 </section>`,
@@ -284,10 +338,14 @@ export function cartasIndice(d, pagina, total) {
   </div>
   <div class="filtros" role="group" aria-label="Estado">
     <span class="filtros__rotulo">Estado</span>
-    <button class="filtro" type="button" aria-pressed="false"
-      data-campo="estado" data-valor="abierto">esperan respuesta (${nAbiertos})</button>
-    <button class="filtro" type="button" aria-pressed="false"
-      data-campo="estado" data-valor="cerrado">cerradas</button>
+    <span class="filtros__opciones">
+      <button class="filtro" type="button" aria-pressed="false"
+        data-campo="estado" data-valor="abierto">esperan respuesta<span class="cuenta">${
+          nAbiertos}</span></button>
+      <button class="filtro" type="button" aria-pressed="false"
+        data-campo="estado" data-valor="cerrado">cerradas<span class="cuenta">${
+          d.hilos.length - nAbiertos}</span></button>
+    </span>
   </div>
   <ul class="hilos">${filas}</ul>
   <p id="sin-resultados" hidden>Ningún hilo cumple ese filtro.</p>

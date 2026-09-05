@@ -45,6 +45,25 @@ pisaría la siguiente sincronización.
 
 `aprendido` (true/false) también se conserva; nunca lo pises al re-importar.
 
+## Lo que el script normaliza
+
+Los campos cortos vienen de mensajes de Discord y arrastran su marcado: 33 de
+los 142 traen `**` pegado en el conjuro, la manifestación o el movimiento, y
+siete pronunciaciones vienen entrecomilladas. El script los limpia al escribir
+el frontmatter. **El cuerpo en Markdown no se toca**: allí los `**` sí son
+negrita de verdad.
+
+Importar dos veces seguidas no cambia nada. Si al reimportar aparece un diff
+inesperado, es un fallo del script, no del contenido.
+
+## Si aparece una materia nueva
+
+Las asignaturas llegan como slugs sin acentos (`dcao-hechizos`,
+`pociones-teoria`). Sus nombres legibles viven en `MATERIAS`, en
+`scripts/paginas.mjs`. Una materia que no esté ahí no rompe la página —se
+muestra el slug con los guiones quitados— pero se ve peor: si la base añade
+una, dale su nombre en ese mapa.
+
 ## Después de importar
 
 1. Enseña al usuario la ficha generada y qué campos quedaron vacíos: la base

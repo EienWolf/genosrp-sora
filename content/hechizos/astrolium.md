@@ -31,10 +31,6 @@ emotes:
       en perfecta armonía celeste.
 
 # aprendido: false = Sora aún no lo domina.
-
-# aprendido: false = Sora aún no lo domina.
-
-# aprendido: false = Sora aún no lo domina.
 aprendido: false
 # bloqueado: true = esta ficha tiene notas o correcciones propias;
 # la skill no la sobrescribirá.

@@ -2,7 +2,7 @@
 tipo: "hechizo"
 slug: "toquito"
 nombre: "TOQUITO"
-pronunciacion: "\"Toh-KEE-toh\""
+pronunciacion: "Toh-KEE-toh"
 anio: 1
 clase: "duelo"
 categorias: []
