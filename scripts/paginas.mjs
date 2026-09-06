@@ -138,10 +138,12 @@ export function portada(d) {
 // ----------------------------------------------------------------- historia
 
 export function historia(d) {
-  const cursos = d.cursos.map((c) => {
+  // Todo al revés, como las cartas: lo último que ha pasado, arriba. Dentro
+  // de un curso, el resumen va primero porque se escribe al cerrarlo, y
+  // debajo las historias sueltas de ese año.
+  const cursoLi = (c) => {
     const x = c.datos;
-    const comp = d.complementarias.filter((h) => h.datos.curso === x.curso);
-    return `<li>
+    return `<li id="${esc(x.slug ?? '')}">
       <span class="hito">${x.curso}</span>
       <h3>${esc(x.titulo)}</h3>
       <p class="cuando">${esc(x.casa ?? '')}${
@@ -150,15 +152,44 @@ export function historia(d) {
       ${md(seccion(c.cuerpo, 'Resumen'))}
       ${x.clubes?.length ? `<ul>${x.clubes.map((k) =>
         `<li>${esc(k.nombre)}: ${esc(k.estado)}</li>`).join('')}</ul>` : ''}
-      ${comp.map((h) => `<h3>${esc(h.datos.titulo)}</h3>${md(seccion(h.cuerpo, 'Historia'))}`).join('')}
     </li>`;
-  }).join('');
+  };
 
-  // La infancia sale de `hitos` en la ficha. Cada hito es una estrella que
-  // late, salvo el hueco: ahí el cielo se apaga y es lo único que va en rojo.
-  // El color alterna oro/azul y lo lleva el CSS con --color.
-  let n = 0;
-  const infancia = (d.sora.datos.hitos ?? []).map((h) => {
+  // Los cursos son hitos numerados; los sucesos sueltos, estrellas. Así se
+  // distingue de un vistazo el año del suceso que pasó dentro de él.
+  const sueltaLi = (h, suelta = false) => {
+    const x = h.datos;
+    // Colgando de su curso, repetir el año era decir dos veces lo mismo: la
+    // posición ya lo dice. Solo se rotula si la historia va suelta al final.
+    const cuando = fecha(x.fecha)
+      ?? (suelta && definido(x.curso) ? `${ORDINALES[x.curso] ?? x.curso} curso` : null);
+    return `<li class="suceso" id="${esc(x.slug ?? '')}">
+      <span class="hito hito--estrella hito--oro" aria-hidden="true">✦</span>
+      ${cuando ? `<p class="cuando">${esc(cuando)}</p>` : ''}
+      <h3>${esc(x.titulo)}</h3>
+      ${md(seccion(h.cuerpo, 'Historia'))}
+    </li>`;
+  };
+
+  // Sin fecha no hay cronología fiable dentro de un curso: queda el orden del
+  // nombre del archivo, invertido como todo lo demás de esta página.
+  const porFecha = (lista) => [...lista].reverse()
+    .sort((a, b) => String(b.datos.fecha ?? '').localeCompare(String(a.datos.fecha ?? '')));
+
+  const cursos = [...d.cursos].sort((a, b) => (b.datos.curso ?? 0) - (a.datos.curso ?? 0));
+  const colocadas = new Set();
+  const castillo = cursos.map((c) => {
+    const sueltas = porFecha(d.complementarias.filter((h) => h.datos.curso === c.datos.curso));
+    sueltas.forEach((h) => colocadas.add(h));
+    return cursoLi(c) + sueltas.map(sueltaLi).join('');
+  }).join('')
+  // Una historia cuyo curso no existe todavía no se pierde: cae al final.
+  + porFecha(d.complementarias.filter((h) => !colocadas.has(h)))
+      .map((h) => sueltaLi(h, true)).join('');
+
+  // La infancia también al revés, y así enlaza con lo de arriba: la última
+  // que se lee del castillo es la llegada, y la primera de aquí, la carta.
+  const infancia = [...(d.sora.datos.hitos ?? [])].reverse().map((h, i) => {
     if (h.hueco === true) {
       return `<li class="hito-hueco">
         <span class="hito hito--apagado" aria-hidden="true">✧</span>
@@ -168,9 +199,8 @@ export function historia(d) {
         </div>
       </li>`;
     }
-    const color = (n++ % 2) ? 'azul' : 'oro';
-    return `<li style="--paso:${n}">
-      <span class="hito hito--estrella hito--${color}" aria-hidden="true">✦</span>
+    return `<li style="--paso:${i}">
+      <span class="hito hito--estrella hito--${i % 2 ? 'azul' : 'oro'}" aria-hidden="true">✦</span>
       <p class="cuando">${esc(h.edad)}</p>
       ${definido(h.titulo) ? `<h3>${esc(h.titulo)}</h3>` : ''}
       <p>${esc(h.texto)}</p>
@@ -182,17 +212,19 @@ export function historia(d) {
     descripcion: 'De dónde viene Sora y qué le ha pasado en el castillo.',
     contenido: `
 <section>
-  <h1>Antes de Hogwarts</h1>
+  <h1>En el castillo</h1>
+  <p class="plomo">Lo último, arriba. Cada curso trae debajo las historias que
+  pasaron dentro de él.</p>
+  <ol class="crono">${castillo}</ol>
+</section>
+
+<section>
+  <h2>Antes de Hogwarts</h2>
   ${infancia ? `<ol class="crono crono--infancia">${infancia}</ol>` : ''}
   <details class="entera">
     <summary>La versión larga</summary>
     ${md(seccion(d.sora.cuerpo, 'Historia'))}
   </details>
-</section>
-
-<section>
-  <h2>En el castillo</h2>
-  <ol class="crono">${cursos}</ol>
 </section>`,
   });
 }

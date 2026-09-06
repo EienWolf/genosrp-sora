@@ -263,6 +263,10 @@ content/historias/
 └── complementarias/<slug>.md        # sucesos que merecen relato propio
 ```
 
+La página de historia va **al revés, como las cartas**: lo último arriba. Los
+cursos son hitos numerados y las historias complementarias, estrellas; cada
+historia cuelga del curso en el que ocurre.
+
 **Resumen de curso** (`cursos/NN-<slug>.md`): lo relevante del año, escrito al
 terminarlo. El número del archivo da el orden, como en las cartas.
 
@@ -272,7 +276,7 @@ terminarlo. El número del archivo da el orden, como en las cartas.
 | `estado` | `en-curso` o `cerrado` |
 | `hechizos_aprendidos` | Slugs; deben existir en `hechizos/` |
 | `clubes` | `nombre`, `estado`, `contacto` (slug) |
-| `complementarias` | Slugs de las historias de ese curso |
+| `complementarias` | Slugs de las historias de ese curso. Informativo: quien coloca cada historia en la cronología es su propio `curso` |
 
 **Historia complementaria** (`complementarias/<slug>.md`): un suceso concreto
 que merece contarse aparte. Solo se crea si la historia lo justifica; lo
@@ -280,9 +284,18 @@ ordinario se resume en el curso. Ver `PLANTILLA.md.ejemplo`.
 
 | Campo | Notas |
 | ----- | ----- |
-| `titulo`, `curso`, `fecha` | `fecha: null` si no se conoce |
+| `titulo` | |
+| `curso` | **Obligatorio.** Es lo que la sitúa en la cronología |
+| `fecha` | `null` si no se conoce. Ordena las historias dentro del curso |
 | `personajes`, `lugares` | Slugs |
 | `relacionado_con` | Slugs de hechizos, cartas o fichas que toca |
+
+`curso` no es opcional: sin él la historia no sabe dónde ponerse. Si apunta a
+un curso que todavía no existe, no se pierde —cae al final de la cronología—,
+pero eso es una señal de que falta crear el resumen de ese año.
+
+Sin `fecha` no hay cronología fiable dentro del curso, así que el orden lo da
+el nombre del archivo, invertido como el resto de la página.
 
 ### `tipo: imagen`
 
