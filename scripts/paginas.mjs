@@ -138,7 +138,7 @@ export function portada(d) {
 // ----------------------------------------------------------------- historia
 
 export function historia(d) {
-  const cursos = d.cursos.map((c, i) => {
+  const cursos = d.cursos.map((c) => {
     const x = c.datos;
     const comp = d.complementarias.filter((h) => h.datos.curso === x.curso);
     return `<li>
@@ -154,20 +154,40 @@ export function historia(d) {
     </li>`;
   }).join('');
 
+  // La infancia sale de `hitos` en la ficha. Cada hito es una estrella que
+  // late, salvo el hueco: ahí el cielo se apaga y es lo único que va en rojo.
+  // El color alterna oro/azul y lo lleva el CSS con --color.
+  let n = 0;
+  const infancia = (d.sora.datos.hitos ?? []).map((h) => {
+    if (h.hueco === true) {
+      return `<li class="hito-hueco">
+        <span class="hito hito--apagado" aria-hidden="true">✧</span>
+        <div class="hueco">
+          <p class="rango">${esc(h.edad)}</p>
+          <p>${esc(h.texto)}</p>
+        </div>
+      </li>`;
+    }
+    const color = (n++ % 2) ? 'azul' : 'oro';
+    return `<li style="--paso:${n}">
+      <span class="hito hito--estrella hito--${color}" aria-hidden="true">✦</span>
+      <p class="cuando">${esc(h.edad)}</p>
+      ${definido(h.titulo) ? `<h3>${esc(h.titulo)}</h3>` : ''}
+      <p>${esc(h.texto)}</p>
+    </li>`;
+  }).join('');
+
   return plantilla({
     id: 'historia', titulo: 'Historia · Sora Winterbourne',
     descripcion: 'De dónde viene Sora y qué le ha pasado en el castillo.',
     contenido: `
 <section>
   <h1>Antes de Hogwarts</h1>
-  ${md(seccion(d.sora.cuerpo, 'Historia'))}
-  <div class="hueco">
-    <p class="rango">4 &mdash; 7</p>
-    <p>Los recuerdos de Sora empiezan a los tres o cuatro a\u00f1os. Entre los
-    cuatro y los siete no hay nada.</p>
-    <p class="nota">El vac\u00edo que quiere desentra\u00f1ar cuando est\u00e9 listo
-    para afrontarlo.</p>
-  </div>
+  ${infancia ? `<ol class="crono crono--infancia">${infancia}</ol>` : ''}
+  <details class="entera">
+    <summary>La versión larga</summary>
+    ${md(seccion(d.sora.cuerpo, 'Historia'))}
+  </details>
 </section>
 
 <section>
@@ -233,17 +253,23 @@ export function magia(d) {
     const curso = definido(x.anio) ? `${x.anio}.º curso` : SIN_CURSO;
     // Lo que busca el buscador: se prepara aquí para no leer el DOM al teclear.
     const busca = [x.nombre, x.nombre_alt, x.pronunciacion, materia(x.clase),
-                   x.efecto, x.manifestacion, ...(x.categorias ?? [])]
+                   x.resumen, x.voz, x.efecto, x.manifestacion, ...(x.categorias ?? [])]
       .filter(definido).join(' ').toLowerCase();
     return `<details class="hechizo${x.aprendido === false ? ' pendiente' : ''}"
       id="${esc(x.slug ?? '')}"
       data-clase="${esc(x.clase ?? '')}" data-anio="${esc(x.anio ?? '')}"
       data-busca="${esc(busca)}">
       <summary>
-        <span class="nombre">${esc(x.nombre)}</span>
-        ${x.pronunciacion ? `<span class="conjuro">${esc(x.pronunciacion)}</span>` : ''}
-        ${x.aprendido === false ? '<span class="marca-pendiente">aún no</span>' : ''}
-        <span class="curso">${esc(materia(x.clase, 'corto'))} · ${esc(curso)}</span>
+        <span class="rotulo-hechizo">
+          <span class="nombre">${esc(x.nombre)}</span>
+          ${x.aprendido === false
+            ? '<span class="marca-pendiente">aún no</span>'
+            : '<span class="chispa" aria-hidden="true">✦</span>'}
+        </span>
+        <span class="curso">${esc(materia(x.clase, 'corto'))} · ${esc(curso)}${
+          x.pronunciacion ? ` · <span class="conjuro">${esc(x.pronunciacion)}</span>` : ''}</span>
+        ${definido(x.resumen) ? `<span class="resumen">${esc(x.resumen)}</span>` : ''}
+        ${definido(x.voz) ? `<span class="voz">«${esc(x.voz)}»</span>` : ''}
       </summary>
       <div class="cuerpo">
         ${md(seccion(h.cuerpo, 'Descripción'))}
@@ -284,7 +310,7 @@ export function magia(d) {
   ${grupo('anio', 'Curso', cursos, (v) => (v === '' ? 'sin curso' : `${v}.º`))}
   <p class="recuento" data-total="${n}" data-singular="hechizo" data-plural="hechizos"
     role="status">${n} ${n === 1 ? 'hechizo' : 'hechizos'}</p>
-  ${fichas}
+  <div class="rejilla-hechizos">${fichas}</div>
   <p id="sin-resultados" hidden>Ningún hechizo cumple ese filtro.</p>
 </section>`,
   });
@@ -304,6 +330,24 @@ const VIAS = {
   lectura: { texto: 'solo leído', clase: 'via--lectura' },
   casa:    { texto: 'aprendido en casa', clase: 'via--casa' },
 };
+
+/** El color de una poción descrito en palabras: se busca el primero que se
+ *  reconozca, y el texto entero se sigue mostrando tal cual está escrito. */
+const TONOS = [
+  ['rosa', '#e88ab0'], ['rojo', '#c2543f'], ['naranja', '#d98040'],
+  ['púrpura', '#8f6bb8'], ['purpura', '#8f6bb8'], ['morado', '#8f6bb8'],
+  ['verde', '#6fae62'], ['azul', '#4a9ee0'], ['amarillo', '#e0c93c'],
+  ['dorado', '#e0a63c'], ['marrón', '#8a6a44'], ['marron', '#8a6a44'],
+  ['negro', '#2a2216'], ['blanco', '#e8eaf2'], ['incoloro', 'transparent'],
+];
+const tono = (texto) => {
+  const t = String(texto ?? '').toLowerCase();
+  return (TONOS.find(([n]) => t.includes(n)) ?? [, 'var(--tinta-2)'])[1];
+};
+
+/** «34 min» cabe en la caja del caldero como «34′»; lo que no siga ese
+ *  patrón se deja tal cual y la caja se estira. */
+const minutos = (v) => String(v ?? '').replace(/^(\d+)\s*min\.?$/i, '$1′');
 
 export function apuntesIndice(d) {
   const filas = d.cuadernos.map((c) => {
@@ -348,36 +392,52 @@ export function apuntesCuaderno(d, c) {
   const fichas = apuntes.map((a) => {
     const x = a.datos;
     const via = VIAS[x.via];
-    const reposo = x.reposo
-      ? Object.entries(x.reposo).map(([k, v]) =>
-          `${k === 'general' ? '' : k + ': '}${v}`).join(' · ')
-      : null;
-    return `<article class="apunte" id="${esc(x.slug)}">
-      <h3>${esc(x.titulo)}</h3>
+    // Los tiempos por caldero se dibujan uno a uno; lo que no viene por
+    // caldero (`general`) es texto y va debajo, en una línea.
+    const reposo = Object.entries(x.reposo ?? {});
+    const calderos = reposo.filter(([k]) => k !== 'general');
+    const general = reposo.filter(([k]) => k === 'general').map(([, v]) => v).join(' · ');
+
+    return `<article class="pergamino" id="${esc(x.slug)}">
+      <div class="pergamino__hoja">
       <p class="sellos">
         ${via ? `<span class="sello ${via.clase}">${via.texto}</span>` : ''}
         ${x.curso ? `<span class="sello">${x.curso}.º curso</span>` : ''}
         ${x.tema && TEMAS[x.tema] ? `<span class="sello">${esc(TEMAS[x.tema])}</span>` : ''}
         ${x.elaborado === true ? '<span class="sello sello--hecho">lo ha preparado</span>' : ''}
-        ${x.dificultad && x.dificultad !== '?'
+        ${definido(x.dificultad)
           ? `<span class="sello">dificultad ${esc(x.dificultad)}</span>` : ''}
+        ${x.orden ? `<span class="sello sello--numero">apunte n.º ${x.orden}</span>` : ''}
       </p>
+      <h3>${esc(x.titulo)}</h3>
       ${x.ingredientes?.length ? `<div class="receta">
-        <p class="rotulo">Ingredientes</p>
-        <ul>${x.ingredientes.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>
-        ${listaDefs([
-          ['Color final', esc(x.color_final)],
-          ['Aplicación', esc(x.aplicacion)],
-          ['Reposo', esc(reposo)],
-          ['Creador', esc(x.creador)],
-        ])}
+        <div class="receta__lista">
+          <p class="rotulo">ingredientes</p>
+          <ul>${x.ingredientes.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>
+        </div>
+        ${definido(x.color_final) ? `<p class="receta__color">
+          <span class="rotulo">queda</span>
+          <span class="gota" style="--gota:${tono(x.color_final)}" aria-hidden="true"></span>
+          <span class="receta__tono">${esc(x.color_final)}</span>
+        </p>` : ''}
       </div>` : ''}
+      ${calderos.length ? `<div class="reposo">
+        <p class="rotulo">reposo según el caldero</p>
+        <ul class="calderos">${calderos.map(([k, v]) =>
+          `<li class="caldero"><b>${esc(minutos(v))}</b><small>${esc(k)}</small></li>`).join('')}</ul>
+      </div>` : ''}
+      ${listaDefs([
+        ['Reposo', esc(general)],
+        ['Aplicación', esc(x.aplicacion)],
+        ['Creador', esc(x.creador)],
+      ])}
       ${x.advertencias?.length ? `<div class="aviso">
-        <p class="rotulo">Cuidado</p>
+        <p class="rotulo">¡¡ojo!!</p>
         <ul>${x.advertencias.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>
       </div>` : ''}
       ${md(a.cuerpo.replace(/^(#{2,3}) /gm, (_, h) => '#'.repeat(h.length + 2) + ' '))}
       ${x.fuente ? `<p class="fuente">Fuente: ${esc(x.fuente)}</p>` : ''}
+      </div>
     </article>`;
   }).join('');
 
@@ -680,7 +740,7 @@ export function galeria(d) {
         <img src="${BASE}/img/${esc(x.archivo)}" alt="${esc(x.titulo)}"
           width="${x.ancho}" height="${x.alto}" loading="lazy">
       </button>
-      <figcaption>${esc(x.titulo)}</figcaption>
+      <figcaption>${esc(x.titulo.toLowerCase())}</figcaption>
     </figure>`;
   };
 

@@ -52,6 +52,21 @@ le enseñó a preparar brebajes antes de Hogwarts.
 - **Marca lo que no sabe.** «Todavía no lo tengo», «esto no lo hemos dado».
 - Cuando algo le da respeto o le da miedo, lo dice sin dramatizar.
 
+### El énfasis se ve
+
+En el sitio, cada apunte es una hoja de papel escrita a mano, y el énfasis del
+Markdown se pinta como lo que sería en un cuaderno de verdad:
+
+| en el `.md` | en la hoja |
+| --- | --- |
+| `**negrita**` | subrayado con marcador dorado |
+| `*cursiva*` | escrito en tinta azul |
+
+Así que la negrita es **lo que hay que recordar sí o sí** —la frase que se
+lleva el marcador— y la cursiva, los nombres de hechizos y los términos que
+copia del libro. No hace falta ninguna sintaxis nueva: escribe el apunte
+normal y el énfasis se coloca solo.
+
 ### El aparte personal
 
 Cada apunte termina con un aparte suyo, en cita:

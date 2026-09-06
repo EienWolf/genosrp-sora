@@ -14,6 +14,11 @@ relacionados:
   - "tocaso"
 teoria: []
 
+resumen: >-
+  Un proyectil azul que da un toque leve al rival.
+voz: >-
+  Se llama así porque no hace más que eso: un toque. Es mi primero de duelo.
+
 # aprendido: false = Sora aún no lo domina.
 aprendido: true
 # bloqueado: true = esta ficha tiene notas o correcciones propias;

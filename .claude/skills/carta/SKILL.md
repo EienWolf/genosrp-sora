@@ -59,6 +59,9 @@ EOF
   tutores va firmada por los dos).
 - `--fecha` solo si se conoce la fecha in-game. **No la inventes**: sin dato,
   queda `null`.
+- `--desde` y `--hacia` son los lugares que van escritos en el sobre («Dorset»,
+  «Hogwarts»). Misma regla que la fecha: **no se deducen**. Si la carta no dice
+  desde dónde se escribe, quedan en `null` y el sobre sale sin lugar.
 - `--adjunto "…"` para objetos que acompañan la carta (una chapa, un paquete).
 - `--emote "…"` para las líneas `/do` del mensaje.
 

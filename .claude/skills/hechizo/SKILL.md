@@ -45,6 +45,31 @@ pisaría la siguiente sincronización.
 
 `aprendido` (true/false) también se conserva; nunca lo pises al re-importar.
 
+## Los dos campos que el script no puede traer
+
+La base da la ficha técnica, pero no da lo que hace legible la lista de
+hechizos del sitio. Después de importar, rellena a mano:
+
+```yaml
+resumen: >-
+  Para correr mucho más rápido, dejando una estela detrás.
+voz: >-
+  Me hizo sentir que volaba sin escoba por unos segundos.
+```
+
+- **`resumen`** — para qué sirve, en una frase corta (≤ 120 caracteres). Sale
+  en la tarjeta cerrada, debajo del nombre.
+- **`voz`** — cómo lo cuenta Sora, entrecomillado. Se escribe **a partir de lo
+  que ya dice la ficha**: nada de sucesos nuevos ni de datos que no estén.
+  Si el hechizo aparece en una carta suya, cita esa frase tal cual.
+
+Los dos van sueltos en el frontmatter, junto a `aprendido`, y sobreviven a la
+sincronización como cualquier campo propio. **No les pongas un comentario
+encima**: el comentario cuelga de la clave anterior, que sí es generada, y
+`add-hechizo.py` lo descarta en la siguiente pasada.
+
+Sin `resumen` la tarjeta enseña el nombre, la materia y poco más.
+
 ## Lo que el script normaliza
 
 Los campos cortos vienen de mensajes de Discord y arrastran su marcado: 33 de

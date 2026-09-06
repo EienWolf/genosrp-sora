@@ -16,6 +16,11 @@ relacionados:
   - "avis-maxima"
 teoria: []
 
+resumen: >-
+  Saca de la varita entre tres y cinco aves de colores que estallan en confeti.
+voz: >-
+  Nunca sé cuántos pájaros van a salir, y eso es lo mejor que tiene.
+
 # aprendido: false = Sora aún no lo domina.
 aprendido: true
 # bloqueado: true = esta ficha tiene notas o correcciones propias;

@@ -5,7 +5,7 @@
   "description": "Sitio estático GenosRP Sora, publicado en Cloudflare Workers.",
   "type": "module",
   "scripts": {
-    "dev": "python3 -m http.server 8000",
+    "dev": "npm run build && python3 -m http.server 8000 --directory dist",
     "build": "node scripts/generar.mjs",
     "preview": "npm run build && wrangler dev",
     "deploy": "./scripts/deploy.sh",

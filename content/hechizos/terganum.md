@@ -14,6 +14,11 @@ movimiento: "Realizar un suave barrido con la varita hacia el objetivo"
 relacionados: []
 teoria: []
 
+resumen: >-
+  Limpia polvo y manchas superficiales; con líquidos, sangre o grasa no puede.
+voz: >-
+  Sale una brisa amarilla que quita el polvo al instante.
+
 # aprendido: false = Sora aún no lo domina.
 aprendido: true
 # bloqueado: true = esta ficha tiene notas o correcciones propias;

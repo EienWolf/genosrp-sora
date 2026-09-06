@@ -54,6 +54,8 @@ falta por migrar, no es un error.
 | `nombre`, `apellido` | sí | |
 | `nacionalidad` | | |
 | `nacimiento` | | `AAAA-MM-DD` |
+| `lema` | | Una frase suya. Abre la portada |
+| `hitos` | | Cronología anterior a Hogwarts. Ver abajo |
 | `casa` | | Solo si estudia en Hogwarts |
 | `estatus_social` | | |
 | `fisico` | | `estatura`, `complexion`, `cabello`, `ojos` |
@@ -63,6 +65,25 @@ falta por migrar, no es un error.
 
 Secciones esperadas en el cuerpo: `## Descripción física`,
 `## Personalidad`, `## Historia`.
+
+#### `hitos`
+
+La página de historia abre con la cronología anterior a Hogwarts. La prosa
+sigue siendo la fuente y se queda entera en `## Historia`; `hitos` es el
+extracto por el que se navega, no una copia que haya que mantener a la par.
+
+```yaml
+hitos:
+  - edad: "3–4 años"
+    titulo: "El bote"
+    texto: "Resbaló y cayó por la borda…"
+  - edad: "4 – 7 años"
+    hueco: true            # los años que no recuerda
+    texto: "Aquí el cielo se apaga…"
+```
+
+`hueco: true` marca el vacío de memoria y lo pinta en rojo. Es lo **único**
+del sitio que lleva ese color; el resto de hitos alternan oro y azul solos.
 
 #### Guía de interpretación
 
@@ -121,12 +142,19 @@ python3 scripts/add-hechizo.py "wingardium leviosa"
 | `contrahechizo` | `contrahechizo` | Solo 24 de 142 |
 | `relacionados` | tabla `referencias` | Slugs de otros hechizos |
 | `teoria` | tabla `teoria_refs` | Asignaturas de teoría que lo citan |
+| `resumen` | — | **Local.** Para qué sirve, en una frase (≤ 120 car.) |
+| `voz` | — | **Local.** Cómo lo cuenta él. Sale entrecomillado en la tarjeta |
 | `aprendido` | — | **Local.** `false` si Sora aún no lo domina |
 | `bloqueado` | — | **Local.** Ver abajo |
 | `personalizable` | — | **Local.** La ilusión/efecto varía según el mago |
 
 Genera en el cuerpo `## Descripción` y `## Apuntes de clase`. Cualquier otra
 sección que añadas —`## Manifestación de Sora`, `## Notas`…— se conserva.
+
+`resumen` y `voz` son los que hacen que la lista de hechizos se lea: sin
+ellos la tarjeta enseña el nombre y poco más. No vienen de la base, así que
+los escribes tú —a partir de lo que ya dice la ficha, sin inventar datos— y
+`add-hechizo.py` los conserva al sincronizar como cualquier campo propio.
 
 #### `bloqueado`
 
@@ -176,7 +204,8 @@ En el cuerpo, los enlaces van por slug y el sitio resuelve la ruta:
 ```bash
 python3 scripts/add-carta.py --listar
 python3 scripts/add-carta.py --hilo club-de-quidditch \
-    --de sora-winterbourne --para lilwenn-pliego < carta.txt
+    --de sora-winterbourne --para lilwenn-pliego \
+    --desde "Hogwarts" --hacia "Dorset" < carta.txt
 ```
 
 Un hilo es una carpeta; cada carta, un archivo numerado dentro:
@@ -210,9 +239,14 @@ en que se enviaron, y el script les pone un contador global:
 | `hilo`, `orden` | Derivados de la ruta |
 | `de`, `para` | Listas de slugs (una carta puede ir firmada por dos) |
 | `fecha` | `null` si no se conoce. **No se infiere** |
+| `desde`, `hacia` | Lugares que van escritos en el sobre. `null` si no se saben |
 | `asunto` | |
 | `adjuntos` | Objetos que acompañan la carta |
 | `emotes` | Líneas `/do` del mensaje |
+
+`desde` y `hacia` siguen la misma regla que `fecha`: **no se deducen**. Si la
+carta no dice desde dónde se escribe, quedan en `null` y el sobre no lleva
+lugar. De las siete que hay, solo dos lo dicen.
 
 El `estado` del hilo es `abierto` si alguien quedó en responder, `cerrado` si
 la conversación se agotó.

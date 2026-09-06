@@ -19,6 +19,11 @@ relacionados:
   - "revenio"
 teoria: []
 
+resumen: >-
+  Convierte un objeto inerte en un arma sin filo, casi siempre una espada.
+voz: >-
+  Sin filo, en eso insisten mucho. Lo mío por ahora pesa más de lo que corta.
+
 # aprendido: false = Sora aún no lo domina.
 aprendido: true
 # bloqueado: true = esta ficha tiene notas o correcciones propias;

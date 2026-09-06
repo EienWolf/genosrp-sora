@@ -30,6 +30,11 @@ emotes:
       Arcturus, el azul intenso de Regulus y la luz plata de Sirio, girando
       en perfecta armonía celeste.
 
+resumen: >-
+  Proyecta astros ilusorios en el cielo, y solo salen los que el mago se sabe.
+voz: >-
+  Betelgeuse, Arcturus, Regulus y Sirio. Me faltan tres cursos para intentarlo.
+
 # aprendido: false = Sora aún no lo domina.
 aprendido: false
 # bloqueado: true = esta ficha tiene notas o correcciones propias;

@@ -326,7 +326,47 @@ main section > h1::after, main section > h2::after {
   box-shadow: 0 0 0 4px rgba(224,166,60,.08), 0 0 18px rgba(224,166,60,.25);
 }
 .crono h3 { margin-bottom: .1em; }
-.crono .cuando { color: var(--plata-3); font-size: .9rem; }
+.crono .cuando { color: var(--plata-3); font-size: .9rem; margin-bottom: .2rem; }
+
+/* La infancia no se cuenta por cursos sino por edades, y sus hitos no son
+   números en un círculo: son estrellas, que es lo que hay en su cabeza. */
+.crono--infancia { margin-bottom: 2.5rem; }
+.crono--infancia > li { padding-left: 2.6rem; }
+.crono--infancia > li::before { border-left: 1px dashed var(--linea); background: none; width: 0; }
+.crono .hito--estrella {
+  position: absolute; left: -.55rem; top: -.15rem;
+  width: auto; height: auto; border: none; background: none;
+  font-size: 1.3rem; line-height: 1;
+}
+.crono .hito--oro   { color: var(--oro);  text-shadow: 0 0 12px rgba(224,166,60,.7); }
+.crono .hito--azul  { color: var(--azul); text-shadow: 0 0 12px rgba(74,158,224,.7); }
+/* La estrella del hueco no brilla: está apagada */
+.crono .hito--apagado {
+  position: absolute; left: -.5rem; top: -.15rem;
+  width: auto; height: auto; border: none; background: none;
+  font-size: 1.3rem; line-height: 1; color: var(--rojo); opacity: .6;
+}
+.crono--infancia .hito-hueco { padding-bottom: 1rem; }
+.crono--infancia .hueco { margin: 0; max-width: 36rem; padding: 1.5rem 1.6rem; }
+.crono--infancia .hueco .rango { font-size: 2.2rem; }
+
+/* La versión larga, para quien la quiera: la prosa completa de la ficha */
+.entera { margin-top: 1rem; }
+.entera > summary {
+  cursor: pointer; list-style: none;
+  color: var(--plata-3); font-size: .95rem;
+  border-bottom: 1px dashed var(--linea); display: inline-block; padding-bottom: .15rem;
+  transition: color .3s ease, border-color .3s ease;
+}
+.entera > summary::-webkit-details-marker { display: none; }
+.entera > summary::before { content: "▸ "; }
+.entera[open] > summary::before { content: "▾ "; }
+.entera > summary:hover { color: var(--oro); border-color: var(--oro); }
+.entera::details-content {
+  block-size: 0; overflow: clip;
+  transition: block-size .5s var(--posarse), content-visibility .5s allow-discrete;
+}
+.entera[open]::details-content { block-size: auto; }
 
 /* ---------- El hueco: los años que Sora no recuerda ----------
    Aquí el cielo se apaga. Es el único sitio del sitio donde eso pasa. */
@@ -384,29 +424,63 @@ main section > h1::after, main section > h2::after {
   color: var(--plata-3); font-size: .9rem; margin: 0 0 .5rem;
   font-variant-numeric: tabular-nums;
 }
+/* Cada hechizo es una tarjeta: cerrada dice para qué sirve y cómo lo cuenta
+   él; abierta enseña la ficha entera. Sigue siendo <details>, así que los
+   filtros, el buscador y el recuento funcionan sin tocar una línea de JS. */
+.rejilla-hechizos {
+  display: grid; gap: 1.2rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  align-items: start;
+}
 .hechizo {
-  border-top: 1px solid var(--linea); padding-block: 1.5rem;
-  position: relative; transition: opacity .35s ease, transform .35s var(--posarse);
+  border: 1px solid var(--linea);
+  background: color-mix(in srgb, var(--noche-alta) 60%, transparent);
+  padding: 1.1rem 1.2rem;
+  position: relative;
+  transition: opacity .35s ease, transform .35s var(--posarse),
+              border-color .35s ease, box-shadow .35s ease;
 }
-.hechizo:last-child { border-bottom: 1px solid var(--linea); }
-/* Un resplandor recorre el filete al pasar por encima: el hechizo se arma */
-.hechizo::before {
-  content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--oro), transparent);
-  transform: scaleX(0); opacity: 0;
-  transition: transform .6s var(--posarse), opacity .6s ease;
+.hechizo:hover, .hechizo[open] {
+  border-color: var(--oro);
+  box-shadow: 0 0 24px rgba(224,166,60,.18);
 }
-.hechizo:hover::before, .hechizo[open]::before { transform: scaleX(1); opacity: .8; }
-.hechizo summary { cursor: pointer; list-style: none; display: flex; align-items: baseline; gap: .75rem; flex-wrap: wrap; }
+/* Abierta ocupa la fila entera: la ficha completa no cabe en una columna */
+.hechizo[open] { grid-column: 1 / -1; }
+
+.hechizo summary { cursor: pointer; list-style: none; display: grid; gap: .1rem; }
 .hechizo summary::-webkit-details-marker { display: none; }
+.rotulo-hechizo { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; }
 .hechizo .nombre {
-  font-family: var(--serif); font-size: 1.3rem; font-weight: 600; color: var(--plata);
+  font-family: var(--serif); font-size: 1.25rem; font-weight: 600; color: var(--plata);
   transition: color .3s ease, text-shadow .3s ease;
 }
 .hechizo summary:hover .nombre { color: var(--oro); text-shadow: 0 0 18px rgba(224,166,60,.45); }
-.hechizo .conjuro { color: var(--oro); font-size: .9rem; font-style: italic; }
-.hechizo .curso { margin-left: auto; color: var(--plata-3); font-size: .88rem; }
 .hechizo[open] .nombre { color: var(--oro); }
+.hechizo .chispa { color: var(--oro); flex: none; }
+.hechizo .curso { color: var(--oro); font-size: .85rem; font-style: italic; }
+.hechizo .conjuro { color: var(--oro); font-style: italic; }
+.hechizo .resumen { color: var(--plata-2); font-size: .92rem; margin-top: .5rem; }
+/* Lo que dice él va de su puño, como todo lo suyo */
+.hechizo .voz {
+  font-family: var(--mano); font-size: 1.15rem; line-height: 1.3;
+  color: var(--plata-3); margin-top: .35rem;
+}
+
+/* El que todavía no le sale: contorno punteado, como un hueco por rellenar */
+.hechizo.pendiente {
+  border-style: dashed; border-color: var(--azul);
+  background: rgba(74,158,224,.06);
+}
+.hechizo.pendiente:hover, .hechizo.pendiente[open] {
+  border-color: var(--azul); box-shadow: 0 0 24px rgba(74,158,224,.2);
+}
+.pendiente .nombre { color: var(--plata-2); }
+.pendiente .curso, .pendiente .voz { color: var(--azul); }
+.marca-pendiente {
+  flex: none; color: var(--azul); font-size: .78rem;
+  border: 1px solid var(--azul); border-radius: 999px; padding: .05rem .55rem;
+}
+
 .hechizo .cuerpo { padding-top: 1rem; }
 /* ::details-content anima la apertura como un acordeón real. Antes el alto
    saltaba de golpe y solo se desvanecía el contenido dentro del hueco ya
@@ -424,14 +498,15 @@ main section > h1::after, main section > h2::after {
 .hechizo dl { display: grid; grid-template-columns: auto 1fr; gap: .3rem 1.25rem; font-size: .95rem; margin: 1rem 0 0; }
 .hechizo dt { color: var(--plata-3); }
 .hechizo dd { margin: 0; }
-.pendiente .nombre { color: var(--plata-3); }
-.marca-pendiente { color: var(--azul); font-size: .82rem; border: 1px solid var(--azul); border-radius: 999px; padding: .05rem .55rem; }
 
 /* ---------- Cuadernos de apuntes ----------
-   La teoría del castillo reescrita por Sora. El azul marca su voz —los
-   apartes que añade de su cosecha— y el dorado marca las advertencias.
+   La teoría del castillo reescrita por Sora, y escrita de verdad: cada
+   apunte es una hoja de papel manchada, pegada con cinta y torcida un poco.
+   Aquí el esquema se invierte —tinta sobre papel— y con él los acentos: el
+   azul de su voz pasa a --tinta-azul, que sí contrasta sobre claro.
+
    El rojo NO se usa aquí: sigue reservado al hueco de memoria, que es lo
-   único del sitio que lo lleva. */
+   único del sitio que lo lleva. Las advertencias van en dorado. */
 
 .sumario { columns: 2; column-gap: 2.5rem; list-style-position: inside; padding: 0; }
 @media (max-width: 40rem) { .sumario { columns: 1; } }
@@ -439,61 +514,171 @@ main section > h1::after, main section > h2::after {
 .sumario a { color: var(--plata-2); text-decoration: none; }
 .sumario a:hover { color: var(--oro); }
 
-.cuaderno { counter-reset: apunte; }
-.apunte { padding-block: 2.25rem; border-top: 1px solid var(--linea); scroll-margin-top: 5rem; }
-.apunte:first-child { border-top: none; padding-top: 1rem; }
-.apunte > h3 { font-size: 1.5rem; margin-bottom: .5rem; }
-/* Encabezados dentro del apunte: cuelgan de su título, no compiten con él */
-.apunte h4 {
-  font-family: var(--serif); font-weight: 600; font-size: 1.12rem;
-  color: var(--plata); margin: 1.75rem 0 .5rem;
+.cuaderno { display: grid; gap: 3.5rem; }
+/* Ancho de lectura, no de página: una hoja de apuntes no ocupa la mesa
+   entera, y con la letra a mano la medida larga se hace ilegible. */
+.pergamino { max-width: 42rem; width: 100%; margin-inline: auto; scroll-margin-top: 6rem; }
+.pergamino__hoja {
+  position: relative;
+  background: var(--pergamino); color: var(--tinta);
+  padding: 1.9rem 1.7rem 2rem;
+  border-radius: 3px 6px 4px 5px;
+  box-shadow: 0 1.2rem 2.4rem rgba(5,7,15,.6), inset 0 0 60px rgba(120,80,20,.12);
+  transform: rotate(-.6deg);
 }
-.apunte h5 {
-  font-family: var(--sans); font-size: .95rem; font-weight: 700;
-  color: var(--plata-2); margin: 1.25rem 0 .4rem;
+.pergamino:nth-child(even) .pergamino__hoja { transform: rotate(.5deg); border-radius: 5px 3px 6px 4px; }
+/* Las manchas: humedad, un dedo con algo encima, el poso de un frasco */
+.pergamino__hoja::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background:
+    radial-gradient(35% 25% at 85% 12%, rgba(140,95,30,.20), transparent 70%),
+    radial-gradient(28% 20% at 8% 92%, rgba(120,85,30,.18), transparent 70%),
+    radial-gradient(12% 10% at 70% 80%, rgba(80,50,10,.12), transparent 70%);
 }
+/* La cinta que la sujeta, alternando el lado */
+.pergamino__hoja::after {
+  content: ""; position: absolute; top: -.7rem; left: 2rem;
+  width: 4.5rem; height: 1.3rem; background: var(--cinta);
+  transform: rotate(-4deg);
+}
+.pergamino:nth-child(even) .pergamino__hoja::after {
+  left: auto; right: 2.5rem; transform: rotate(5deg);
+}
+.pergamino__hoja > * { position: relative; }
+
+/* Todo lo que va sobre el papel está escrito a mano */
+.pergamino__hoja :is(p, li, dd, dt, blockquote) { font-family: var(--mano); font-size: 1.3rem; line-height: 1.4; }
+.pergamino__hoja p { max-width: none; }
+.pergamino h3 { font-size: 1.6rem; margin: .6rem 0 .8rem; color: var(--tinta); }
+.pergamino h4 {
+  font-family: var(--serif); font-weight: 600; font-size: 1.15rem;
+  color: var(--tinta); margin: 1.6rem 0 .4rem;
+}
+.pergamino h5 {
+  font-family: var(--mano); font-size: 1.15rem; font-weight: 700;
+  color: var(--tinta-2); margin: 1.2rem 0 .3rem;
+}
+/* El énfasis del Markdown se lee como lo que es en un cuaderno: lo que
+   subrayó con el marcador y lo que apuntó en azul. No hace falta sintaxis
+   nueva en el contenido; los apuntes ya vienen escritos así. */
+.pergamino__hoja strong {
+  font-weight: 700;
+  background: linear-gradient(transparent 55%, rgba(224,166,60,.55) 55%);
+}
+.pergamino__hoja em { color: var(--tinta-azul); font-style: italic; }
+.pergamino__hoja a { color: var(--tinta-azul); }
+.pergamino__hoja a:hover { color: #8f6416; }
+.pergamino__hoja :is(ul, ol) { padding-left: 1.4rem; }
+.pergamino__hoja li { margin-bottom: .1rem; }
+
 .rotulo {
-  font-size: .78rem; font-weight: 700; letter-spacing: .03em;
-  color: var(--plata-3); margin: 0 0 .5rem; max-width: none;
+  font-family: var(--mano); font-size: 1rem; color: var(--tinta-2);
+  margin: 0 0 .3rem; max-width: none;
 }
 
-/* Sellos: de dónde viene el apunte y en qué punto está */
-.sellos { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0 0 1.25rem; max-width: none; }
+/* Sellos: de dónde viene el apunte y en qué punto está. Anillos de tinta,
+   como los que se hacen rodeando una palabra con el bolígrafo. */
+.sellos {
+  display: flex; flex-wrap: wrap; gap: .5rem; align-items: baseline;
+  margin: 0 0 .2rem; max-width: none;
+}
 .sello {
-  font-size: .78rem; color: var(--plata-3);
-  border: 1px solid var(--linea); border-radius: 999px; padding: .1rem .65rem;
+  font-family: var(--mano); font-size: 1rem; line-height: 1.35;
+  color: var(--tinta-2);
+  border: 1.5px solid var(--tinta-2); border-radius: 999px; padding: 0 .55rem;
 }
-.sello.via--clase { color: var(--azul); border-color: color-mix(in srgb, var(--azul) 50%, transparent); }
-.sello.via--lectura { color: var(--plata-2); border-style: dashed; }
-.sello.sello--hecho { color: var(--oro); border-color: var(--oro); }
+.sello.via--clase { color: var(--tinta-azul); border-color: var(--tinta-azul); transform: rotate(-2deg); }
+.sello.via--lectura { border-style: dashed; }
+.sello.sello--hecho { color: #8f6416; border-color: #b8892c; transform: rotate(1.5deg); }
+/* El número no lleva anillo: es la foliación, no una etiqueta */
+.sello--numero { margin-left: auto; border: none; padding: 0; }
 
-/* La receta: los datos duros, separados de la prosa */
+/* La receta: los ingredientes en su papel de rayas, y el color al que tiene
+   que quedar, que es como se sabe si ha salido bien. */
 .receta {
-  background: var(--noche-alta); border: 1px solid var(--linea);
-  padding: 1.1rem 1.3rem; margin-bottom: 1.5rem;
+  display: grid; grid-template-columns: 1fr auto; gap: 1rem;
+  align-items: start; margin: 1.2rem 0;
 }
-.receta ul { margin: 0; padding-left: 1.1rem; font-size: .95rem; }
-.receta li { margin-bottom: .15rem; }
-.receta .datos { margin-top: 1rem; font-size: .9rem; }
+@media (max-width: 34rem) { .receta { grid-template-columns: 1fr; } }
+.receta__lista {
+  background: var(--papel); padding: .8rem 1rem .9rem;
+  transform: rotate(-1.5deg);
+  box-shadow: 0 .4rem .9rem rgba(5,7,15,.35);
+  background-image: repeating-linear-gradient(transparent 0 1.55rem, rgba(35,82,138,.25) 1.55rem 1.6rem);
+}
+.receta__lista ul { margin: 0; padding: 0; list-style: none; }
+.receta__lista :is(li, .rotulo) { line-height: 1.6rem; }
+.receta__color {
+  display: grid; justify-items: center; gap: .3rem; max-width: 9rem;
+  margin: 0; text-align: center;
+}
+/* Una gota, no un círculo: el borde irregular es lo que la hace líquida */
+.gota {
+  width: 3rem; height: 3rem;
+  border-radius: 47% 53% 52% 48% / 50% 46% 54% 50%;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--gota) 55%, white), var(--gota) 62%, color-mix(in srgb, var(--gota) 70%, black));
+  box-shadow: inset 0 -4px 8px rgba(0,0,0,.2);
+  border: 1px solid rgba(42,34,22,.25);
+}
+.receta__tono { font-family: var(--mano); font-size: 1.15rem; color: var(--tinta-2); }
+
+/* Los tiempos por caldero, cada uno en su caja dibujada a mano */
+.reposo { margin: 1.2rem 0; }
+.calderos { display: flex; flex-wrap: wrap; gap: .8rem; list-style: none; margin: 0; padding: 0; }
+.caldero {
+  min-width: 4rem; padding: .3rem .5rem;
+  border: 2px solid var(--tinta);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  display: grid; place-items: center; text-align: center; line-height: 1.1;
+  font-family: var(--mano); margin-bottom: 0;
+}
+.caldero:nth-child(2) { border-radius: 15px 225px 15px 255px / 225px 15px 255px 15px; transform: rotate(2deg); }
+.caldero:nth-child(3) { border-radius: 225px 15px 255px 15px / 15px 255px 15px 225px; transform: rotate(-1deg); }
+.caldero:first-child { transform: rotate(-3deg); }
+.caldero b { font-size: 1.4rem; }
+.caldero small { font-size: .95rem; color: var(--tinta-2); }
+
+.pergamino .datos { margin: 1.2rem 0 0; font-size: 1rem; }
+.pergamino .datos dt { color: var(--tinta-2); font-family: var(--mano); }
+.pergamino .datos dd { color: var(--tinta); }
 
 /* Advertencias en dorado, no en rojo: el rojo es del hueco de memoria */
 .aviso {
-  border-left: 2px solid var(--oro); padding: .1rem 0 .1rem 1.1rem;
-  margin-bottom: 1.5rem;
+  margin: 1.4rem 0;
+  padding: .5rem .9rem;
+  border: 2px solid var(--oro);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  transform: rotate(-.5deg);
 }
-.aviso ul { margin: 0; padding-left: 1.1rem; font-size: .95rem; color: var(--plata-2); }
-.aviso li { margin-bottom: .2rem; }
+.aviso .rotulo { color: #b8892c; font-weight: 700; margin-bottom: .1rem; }
+.aviso ul { margin: 0; padding-left: 1.2rem; }
 
-/* Lo que Sora añade de su cosecha, frente a la teoría que copia */
-.apunte blockquote {
-  margin: 1.5rem 0 0; padding: .1rem 0 .1rem 1.2rem;
-  border-left: 2px solid color-mix(in srgb, var(--azul) 65%, transparent);
-  color: var(--plata-2); font-size: .97rem;
+/* Lo que Sora añade de su cosecha: un papelito pegado encima, con la
+   esquina fuera de la hoja. Es lo único suyo del apunte, y se ve. */
+.pergamino blockquote {
+  position: relative;
+  width: min(100%, 16rem); margin: 1.8rem 0 -2.4rem auto;
+  background: var(--papel); color: var(--tinta-azul);
+  padding: .8rem .9rem 1rem;
+  transform: rotate(3deg);
+  box-shadow: 0 .5rem 1rem rgba(5,7,15,.5);
+  clip-path: polygon(0 3%, 8% 0, 30% 2%, 55% 0, 80% 3%, 100% 0,
+                     98% 40%, 100% 70%, 97% 100%, 60% 98%, 30% 100%, 3% 97%, 0 60%);
 }
-.apunte blockquote strong { color: var(--azul); font-weight: 400; font-style: italic; }
-.apunte blockquote p:last-child { margin-bottom: 0; }
+.pergamino:nth-child(even) blockquote {
+  margin-inline: 0 auto; transform: rotate(-3.5deg);
+}
+.pergamino blockquote :is(p, li) { font-size: 1.15rem; line-height: 1.3; }
+.pergamino blockquote strong {
+  display: block; font-family: var(--mano); font-size: 1rem;
+  color: var(--tinta-2); font-weight: 400; background: none;
+}
+.pergamino blockquote p:last-child { margin-bottom: 0; }
 
-.fuente { color: var(--plata-3); font-size: .82rem; margin: 1.5rem 0 0; }
+.fuente {
+  color: var(--tinta-2); font-family: var(--mano) !important;
+  font-size: 1.05rem !important; margin: 1.6rem 0 0;
+}
 
 /* ---------- Índice de conversaciones ---------- */
 .buscador { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; }
@@ -745,18 +930,54 @@ main section > h1::after, main section > h2::after {
 .carta .papel > :last-child { margin-bottom: 0; }
 .adjunto { font-size: 1.05rem; color: var(--tinta-2); }
 
-/* ---------- Galería ---------- */
-.galeria { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); }
-.galeria figure { margin: 0; }
-.galeria button {
-  display: block; width: 100%; padding: 0; border: 1px solid var(--linea);
-  background: var(--noche-baja); cursor: pointer; overflow: hidden; position: relative;
-  transition: border-color .4s ease, box-shadow .4s ease;
+/* ---------- Galería ----------
+   Fotos reveladas y dejadas sobre la mesa, cada una torcida a su manera. Al
+   pasar por encima se enderezan, como si alguien las cogiera para mirarlas.
+   El <img> sigue dentro del <button>: es el que viaja al visor. */
+.galeria {
+  display: grid; gap: 2.2rem 1.6rem;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
 }
-.galeria button img { transition: transform .7s var(--posarse), filter .5s ease; }
-.galeria button:hover { border-color: var(--oro); box-shadow: 0 0 28px rgba(224,166,60,.18); }
-.galeria button:hover img { transform: scale(1.05); filter: saturate(1.15) brightness(1.05); }
-.galeria figcaption { font-size: .88rem; color: var(--plata-2); padding-top: .5rem; }
+.galeria figure {
+  position: relative; margin: 0;
+  background: var(--carton);
+  padding: .6rem .6rem .2rem;
+  box-shadow: 0 1rem 2rem rgba(5,7,15,.6);
+  transform: rotate(-2.5deg);
+  transition: transform .45s var(--posarse), box-shadow .45s ease;
+}
+.galeria figure:nth-child(3n+2) { transform: rotate(1.5deg) translateY(.6rem); }
+.galeria figure:nth-child(3n+3) { transform: rotate(-1deg) translateY(-.3rem); }
+.galeria figure:hover,
+.galeria figure:focus-within {
+  transform: rotate(0) scale(1.04);
+  box-shadow: 0 1.6rem 3rem rgba(5,7,15,.75);
+  z-index: 2;
+}
+/* La cinta que la sujeta, alternando la inclinación */
+.galeria figure::before {
+  content: ""; position: absolute; top: -.6rem; left: 50%;
+  width: 4rem; height: 1.2rem; background: var(--cinta);
+  transform: translateX(-50%) rotate(-3deg);
+}
+.galeria figure:nth-child(even)::before { transform: translateX(-50%) rotate(4deg); }
+
+.galeria button {
+  display: block; width: 100%; padding: 0; border: none;
+  background: #0b1020; cursor: pointer; overflow: hidden; position: relative;
+  aspect-ratio: 1;
+}
+.galeria button img {
+  width: 100%; height: 100%; object-fit: cover; object-position: 50% 22%;
+  transition: transform .7s var(--posarse), filter .5s ease;
+}
+.galeria figure:hover button img { filter: saturate(1.12) brightness(1.05); }
+/* El pie, de su puño, en la banda de cartón que queda debajo */
+.galeria figcaption {
+  font-family: var(--mano); font-size: 1.15rem; line-height: 1.15;
+  color: var(--tinta); padding: .45rem .3rem .55rem;
+  min-height: 2.1rem;
+}
 
 dialog.visor {
   border: none; background: transparent; padding: 0;
@@ -880,6 +1101,8 @@ main section > h1::after, main section > h2::after {
 
 /* La línea de la cronología avanza con el scroll, no con la entrada */
 .animar .crono > li::before { transform: scaleY(var(--trazo, 0)); }
+
+.animar .hito--estrella { animation: latido 6s ease-in-out infinite calc(var(--paso, 0) * 2s - 8s); }
 
 /* La polaroid respira: colgada de la cinta, nunca se queda del todo quieta */
 .animar .polaroid__marco { animation: flotar 9s ease-in-out infinite; }

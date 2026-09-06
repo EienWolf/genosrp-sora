@@ -13,6 +13,7 @@ El sitio publicado no lleva dependencias en el navegador.
 ├── content/            # FUENTE DE VERDAD. Ver content/README.md
 ├── css/styles.css      # Estilos del sitio
 ├── js/main.js          # Filtros de hechizos y visor de galería
+├── js/atmosfera.js     # El cielo, la varita y el movimiento
 ├── wrangler.jsonc      # Configuración del Worker (ruta y assets)
 ├── .claude/skills/     # Skills para añadir hechizos, cartas e imágenes
 └── scripts/
@@ -25,6 +26,7 @@ El sitio publicado no lleva dependencias en el navegador.
     ├── add-imagen.py   # Añade capturas y elige el lote de referencia
     ├── deploy.sh       # Build + wrangler deploy (lee .env)
     └── setup-dns.sh    # Paso único: registro DNS del subdominio
+```
 
 ## El sitio y las máquinas
 
@@ -36,14 +38,11 @@ Esa selección no se aplica a las salidas legibles por máquina. `llms.txt`,
 `llms-full.txt` y `content.json` llevan **todo** lo que hay en `content/`,
 porque nada está marcado como privado. Si una IA consulta el sitio, llega al
 material completo.
-```
 
 ## Desarrollo
 
-Basta con abrir `index.html` en el navegador. Para servirlo por HTTP:
-
 ```bash
-npm run dev        # http://localhost:8000
+npm run dev        # construye y sirve en http://localhost:8000/sora/
 ```
 
 Para probarlo tal cual quedará en producción (con el prefijo `/sora`):

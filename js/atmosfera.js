@@ -147,14 +147,16 @@
         halo.addColorStop(0, s.c + '8c');
         halo.addColorStop(0.35, s.c + '1f');
         halo.addColorStop(1, s.c + '00');
-        ctx.globalAlpha = k * 0.9;
+        // A media luz: el cielo va detrás del texto de todas las páginas, y
+        // a plena intensidad una de estas se plantaba encima de un párrafo.
+        ctx.globalAlpha = k * 0.5;
         ctx.fillStyle = halo;
         ctx.beginPath();
         ctx.arc(ex, ey, s.r * 9, 0, 6.2832);
         ctx.fill();
-        ctx.globalAlpha = k;
+        ctx.globalAlpha = k * 0.7;
         ctx.fillStyle = '#fff';
-        estrella4(ctx, ex, ey, s.r * 2.6);
+        estrella4(ctx, ex, ey, s.r * 1.9);
       }
       ctx.globalAlpha = 1;
     }

@@ -17,6 +17,11 @@ relacionados:
   - "episkey-duo"
 teoria: []
 
+resumen: >-
+  De la punta de la varita sale una venda que cubre la herida y calma el dolor.
+voz: >-
+  El círculo tiene que ser suave y al revés de las agujas. Si voy rápido no sale.
+
 # aprendido: false = Sora aún no lo domina.
 aprendido: true
 # bloqueado: true = esta ficha tiene notas o correcciones propias;

@@ -19,6 +19,11 @@ relacionados:
   - "impulsux"
 teoria: []
 
+resumen: >-
+  Para correr mucho más rápido, dejando una estela detrás.
+voz: >-
+  Me hizo sentir que volaba sin escoba por unos segundos.
+
 # aprendido: false = Sora aún no lo domina.
 aprendido: true
 # bloqueado: true = esta ficha tiene notas o correcciones propias;
