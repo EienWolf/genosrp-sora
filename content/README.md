@@ -334,11 +334,12 @@ Hay dos clases de imagen, y se tratan distinto al armar el lote de referencia:
 | campo | valores |
 | --- | --- |
 | `clase` | `captura` (del juego) · `hoja-referencia` (arte hecho para esto) |
-| `referencia_de` | `personaje` · `accesorio` |
+| `referencia_de` | `personaje` · `accesorio` · `criatura` · `emblema` |
 
-Una hoja del personaje entra siempre en el lote y no compite por ángulo. Una de
-accesorio se lista aparte: no sirve para consistencia de cara, se añade solo si
-ese accesorio sale en la imagen.
+Una hoja del personaje entra siempre en el lote y no compite por ángulo. Todo
+lo que no es del personaje —accesorios, la lechuza, el sello de la familia— se
+lista aparte: no sirve para consistencia de cara, y se añade solo si eso tiene
+que salir en la imagen.
 
 ## Conocidos
 

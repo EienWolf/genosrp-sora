@@ -766,7 +766,7 @@ export function galeria(d) {
   // aptitud como referencia son herramienta interna, no contenido del sitio.
   const foto = (g) => {
     const x = g.datos;
-    return `<figure>
+    return `<figure class="foto--${esc(x.clase ?? 'captura')}">
       <button type="button" data-grande="${BASE}/img/${esc(x.archivo)}"
         data-alt="${esc(x.descripcion)}">
         <img src="${BASE}/img/${esc(x.archivo)}" alt="${esc(x.titulo)}"
@@ -803,8 +803,9 @@ ${hojas.length ? `<section>
     hojas.length === 1 ? 'hoja de referencia' : 'hojas de referencia'}</${
     ilustraciones.length ? 'h2' : 'h1'}>
   <p class="plomo">Hechas a propósito para que un generador de imágenes mantenga
-  al personaje y sus accesorios reconocibles. La del personaje es la única
-  imagen donde se ve la heterocromía.</p>
+  reconocibles al personaje, lo que lleva puesto, su lechuza y el sello con el
+  que su familia lacra las cartas. La del personaje es la única imagen donde se
+  ve la heterocromía.</p>
   <div class="galeria">${hojas.map(foto).join('')}</div>
 </section>` : ''}
 <section>

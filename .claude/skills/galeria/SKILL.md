@@ -21,12 +21,19 @@ ficha sirve para dos cosas distintas y no hay que confundirlas:
 | `captura` | una captura del juego, tal como se ve en pantalla |
 | `hoja-referencia` | arte hecho a propósito como referencia: fondo limpio, varias vistas, paleta |
 
-Y `referencia_de` dice de qué es referencia: `personaje` o `accesorio`.
+Y `referencia_de` dice de qué es referencia:
+
+| valor | qué retrata |
+| --- | --- |
+| `personaje` | a Sora |
+| `accesorio` | algo que lleva puesto: la bufanda, la mochila |
+| `criatura` | su lechuza Aurora |
+| `emblema` | un sello o escudo: el de los Winterbourne |
 
 Importa porque el lote se arma distinto. Una hoja del personaje vale más que
-cualquier captura y no compite por ángulo: entra siempre. Una hoja de accesorio
-**no sirve para consistencia de cara** —no hay cara— y se lista aparte, para
-añadirla solo cuando ese accesorio tenga que salir en la imagen.
+cualquier captura y no compite por ángulo: entra siempre. **Todo lo demás no
+sirve para consistencia de cara** —no hay cara que fijar— y se lista aparte,
+para añadirlo solo cuando eso tenga que salir en la imagen.
 
 ```bash
 scripts/add-imagen.py ~/hoja.jpeg --slug hoja-personaje \

@@ -972,6 +972,11 @@ main section > h1::after, main section > h2::after {
   transition: transform .7s var(--posarse), filter .5s ease;
 }
 .galeria figure:hover button img { filter: saturate(1.12) brightness(1.05); }
+/* Una hoja de referencia es un documento, no un retrato: recortarla a
+   cuadro se come la paleta y los rótulos, que son justo lo que aporta. Se
+   ve entera, sobre el papel de la propia hoja. */
+.foto--hoja-referencia button { background: var(--papel); }
+.foto--hoja-referencia button img { object-fit: contain; object-position: 50% 50%; }
 /* El pie, de su puño, en la banda de cartón que queda debajo */
 .galeria figcaption {
   font-family: var(--mano); font-size: 1.15rem; line-height: 1.15;

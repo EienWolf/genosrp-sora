@@ -81,10 +81,11 @@ def puntuar(m):
     return base + CLASES.get(m.get("clase", "captura"), 0)
 
 
-def es_accesorio(m):
-    """Una hoja de un accesorio no sirve para consistencia de cara: se manda
-    solo cuando ese accesorio tiene que salir en la imagen."""
-    return m.get("referencia_de") == "accesorio"
+def va_aparte(m):
+    """Una hoja que no retrata al personaje no sirve para consistencia de
+    cara: no hay cara que fijar. Va en una lista aparte y se manda solo
+    cuando eso que retrata tiene que salir en la imagen."""
+    return m.get("referencia_de") not in (None, "personaje")
 
 
 def anadir(args):
@@ -114,7 +115,7 @@ alto: {h}
 hash: {esc(digest)}
 origen: {esc(args.origen)}
 # clase:         captura | hoja-referencia
-# referencia_de: personaje | accesorio
+# referencia_de: personaje | accesorio | criatura | emblema
 clase: {esc(args.clase)}
 referencia_de: {esc(args.referencia_de)}
 # retrato_principal: true = es el retrato que abre la portada.
@@ -183,10 +184,10 @@ def referencias(args):
     if not puntuadas:
         return print("No hay imágenes descritas todavía. Usa --pendientes.")
     puntuadas.sort(key=lambda t: -t[0])
-    accesorios = [t for t in puntuadas if es_accesorio(t[1])]
+    aparte = [t for t in puntuadas if va_aparte(t[1])]
     generadas = [t for t in puntuadas if t[1].get("clase") == "ilustracion"]
     puntuadas = [t for t in puntuadas
-                 if not es_accesorio(t[1]) and t[1].get("clase") != "ilustracion"]
+                 if not va_aparte(t[1]) and t[1].get("clase") != "ilustracion"]
 
     # Un lote de referencia necesita variedad de ángulo, no la misma foto cinco
     # veces. Se coge la mejor de cada ángulo, y solo se rellena hasta el mínimo
@@ -209,10 +210,11 @@ def referencias(args):
         aviso = "  ⚠ recortar UI" if m.get("ui_visible") else ""
         print(f"  {p:+3d}  {m.get('archivo'):<34} {m.get('angulo'):<14} "
               f"{m.get('plano') or '—'}{aviso}")
-    if accesorios:
-        print("\n  Accesorios — añádelas solo si ese accesorio sale en la imagen:")
-        for p, m, f in accesorios:
-            print(f"  {p:+3d}  {m.get('archivo'):<34} {m.get('titulo') or ''}")
+    if aparte:
+        print("\n  Aparte — añádelas solo si eso tiene que salir en la imagen:")
+        for p, m, f in aparte:
+            etiqueta = f"[{m.get('referencia_de')}]"
+            print(f"  {p:+3d}  {m.get('archivo'):<34} {etiqueta:<12} {m.get('titulo') or ''}")
     if generadas:
         print("\n  Ilustraciones ya generadas — fuera del lote a propósito:")
         for p, m, f in generadas:
@@ -237,7 +239,7 @@ def main():
     p.add_argument("--clase", default="captura",
                    choices=["captura", "hoja-referencia", "ilustracion"])
     p.add_argument("--referencia-de", dest="referencia_de", default="personaje",
-                   choices=["personaje", "accesorio"])
+                   choices=["personaje", "accesorio", "criatura", "emblema"])
     p.add_argument("--retrato", action="store_true",
                    help="Marca esta imagen como el retrato de la portada")
     p.add_argument("--force", action="store_true", help="Sobrescribe la ficha")
