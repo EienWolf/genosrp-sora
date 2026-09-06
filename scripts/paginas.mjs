@@ -5,11 +5,33 @@ const FECHA = { day: 'numeric', month: 'long', year: 'numeric' };
 const fecha = (iso) => iso
   ? new Date(iso + 'T00:00:00Z').toLocaleDateString('es-ES', { ...FECHA, timeZone: 'UTC' })
   : null;
+/** El día y el mes, sin año: es el cumpleaños, que es lo que se usa jugando. */
+const diaYMes = (iso) => iso
+  ? new Date(iso + 'T00:00:00Z').toLocaleDateString('es-ES',
+      { day: 'numeric', month: 'long', timeZone: 'UTC' })
+  : null;
+const anioDe = (iso) => (iso ? String(iso).slice(0, 4) : null);
+
+const ORDINALES = ['', 'Primer', 'Segundo', 'Tercer', 'Cuarto', 'Quinto',
+                   'Sexto', 'Séptimo', 'Octavo'];
+/** El curso que está cursando ahora sale de content/historias/cursos/: el que
+ *  está `en-curso`. Así no hay un dato que mantener en dos sitios y al subir
+ *  de año basta con cerrar uno y abrir el siguiente. */
+export function cursoActual(d) {
+  const c = (d.cursos ?? []).find((x) => x.datos.estado === 'en-curso')
+    ?? [...(d.cursos ?? [])].sort((a, b) => (b.datos.curso ?? 0) - (a.datos.curso ?? 0))[0];
+  if (!c) return null;
+  const n = c.datos.curso;
+  return { n, edad: c.datos.edad, casa: c.datos.casa,
+           ordinal: ORDINALES[n] ?? `${n}.º`,
+           texto: `${ORDINALES[n] ?? n + '.º'} curso` };
+}
 
 // ------------------------------------------------------------------ portada
 
 export function portada(d) {
   const s = d.sora.datos;
+  const curso = cursoActual(d);
   const retrato = d.galeria.find((g) => g.datos.slug === 'sora-frontal-uniforme');
 
   const hero = `<div class="cielo">${astrolium()}
@@ -21,12 +43,16 @@ export function portada(d) {
           alt="Sora Winterbourne de frente, con el uniforme de Hufflepuff"></div>` : ''}
       <div>
         <h1>Sora Winterbourne</h1>
-        <p class="epigrafe">Primer curso en Hufflepuff. Le faltan tres años de
-        su infancia y le sobran ganas de empezar.</p>
+        <p class="epigrafe">${curso ? esc(curso.texto) : 'Alumno'} en ${esc(s.casa)}.
+        Le faltan tres años de su infancia y le sobran ganas de llenarlos.</p>
         ${listaDefs([
+          ['Curso', curso ? `${esc(curso.texto)}${curso.edad ? `, ${curso.edad} años` : ''}` : null],
           ['Casa', esc(s.casa)],
-          ['Nacimiento', esc(fecha(s.nacimiento))],
+          ['Cumpleaños', esc(diaYMes(s.nacimiento))],
+          ['Año de nacimiento', esc(anioDe(s.nacimiento))],
           ['Nacionalidad', esc(s.nacionalidad)],
+          ['Altura', esc(s.fisico?.altura)],
+          ['Peso', esc(s.fisico?.peso)],
           ['Ojos', 'derecho azul, izquierdo dorado'],
           ['Lechuza', d.criaturas.length ? `<a href="${BASE}/entorno#aurora">Aurora</a>` : null],
         ])}
@@ -43,6 +69,12 @@ export function portada(d) {
   <h2>Cómo es</h2>
   ${md(seccion(d.sora.cuerpo, 'Personalidad'))}
   ${md(seccion(d.sora.cuerpo, 'Descripción física'))}
+  ${listaDefs([
+    ['Voz', esc(s.fisico?.voz)],
+    ['Aroma', esc(s.fisico?.aroma)],
+    ['Gesto', esc(s.fisico?.expresion)],
+    ['Chapitas', (s.chapitas ?? []).map(esc).join(' · ') || null],
+  ])}
   ${s.gustos?.length ? `<p class="plomo">Le gustan ${s.gustos.map((g) =>
       esc(g.toLowerCase())).join(', ')}.</p>` : ''}
 </section>
@@ -79,7 +111,8 @@ export function historia(d) {
       <span class="hito">${x.curso}</span>
       <h3>${esc(x.titulo)}</h3>
       <p class="cuando">${esc(x.casa ?? '')}${x.edad ? `, ${x.edad} años` : ''}${
-        x.estado === 'en-curso' ? ' · en curso' : ''}</p>
+        x.estado === 'en-curso' ? ' · en curso' : ''}${
+        x.resumen_pendiente ? ' · resumen pendiente' : ''}</p>
       ${md(seccion(c.cuerpo, 'Resumen'))}
       ${x.clubes?.length ? `<ul>${x.clubes.map((k) =>
         `<li>${esc(k.nombre)}: ${esc(k.estado)}</li>`).join('')}</ul>` : ''}
@@ -203,7 +236,8 @@ export function magia(d) {
     id: 'magia', titulo: 'Magia · Sora Winterbourne',
     descripcion: 'Los hechizos que Sora ha aprendido, y el que todavía no.',
     entrada: 'Lo que sabe hacer, y una cosa que todavía no: Astrolium es de cuarto '
-      + 'curso y él va por primero, pero ya tiene decidido qué cielo proyecta.',
+      + `curso y él va por ${(cursoActual(d)?.ordinal ?? '').toLowerCase() || 'ahora'}, `
+      + 'pero ya tiene decidido qué cielo proyecta.',
     contenido: `
 <section>
   <h2>${n} ${n === 1 ? 'hechizo' : 'hechizos'}</h2>

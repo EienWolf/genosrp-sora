@@ -9,6 +9,8 @@ nacimiento: 2022-09-07
 casa: Hufflepuff
 estatus_social: Media
 fisico:
+  altura: "1,46 m"
+  peso: "39 kg"
   estatura: Baja
   complexion: Media
   cabello:
@@ -18,6 +20,13 @@ fisico:
     heterocromia: true
     derecho: Azul brillante
     izquierdo: Dorado cálido
+  voz: Alegre y enérgica, de tono amigable
+  aroma: Cálido, a lavanda y vainilla
+  expresion: Mirada curiosa y una sonrisa ligera constante
+# Las chapitas que lleva puestas en el uniforme.
+chapitas:
+  - "P.E.Q.U.E.S"
+  - "Pociones"
 miedos:
   - titulo: Miedo a las aguas profundas (Talasofobia)
     descripcion: >-
