@@ -9,7 +9,10 @@
    Transitions, declarado en el CSS. Interceptar el clic para pintar un velo
    añadía 220 ms de espera a cada navegación y dejaba costuras a la vista.
 
-   Nada de esto se enciende si el usuario pide menos movimiento.
+   Con «menos movimiento» solo se pinta el cielo, y quieto: es fondo, no
+   animación, y sin él la página se queda a oscuras. Todo lo demás —inercia,
+   varita, chispas, revelados— no llega a existir.
+
    Sin JavaScript el sitio se ve entero e igual de legible: los
    estilos de revelado viven bajo .animar, que solo pone este fichero.
    ============================================================ */
@@ -19,9 +22,9 @@
   var raiz = document.documentElement;
   var quieto = window.matchMedia('(prefers-reduced-motion: reduce)');
   var fino = window.matchMedia('(hover: hover) and (pointer: fine)');
-  if (quieto.matches) return;
+  var parado = quieto.matches;
 
-  raiz.classList.add('animar');
+  if (!parado) raiz.classList.add('animar');
 
   var PALETA = ['#e0a63c', '#4a9ee0', '#e8eaf2'];
   var tareas = [];
@@ -39,6 +42,30 @@
   };
   var tope = function (v, a, b) { return v < a ? a : v > b ? b : v; };
 
+  /* Un punto de luz se lee como lunar; con cuatro puntas se lee como
+     estrella. La misma forma sirve para el cielo y para las chispas. */
+  function estrella4(ctx, x, y, r) {
+    ctx.beginPath();
+    for (var k = 0; k < 8; k++) {
+      var ang = k * Math.PI / 4 - Math.PI / 2;
+      var rr = k % 2 ? r * 0.38 : r;
+      ctx.lineTo(x + Math.cos(ang) * rr, y + Math.sin(ang) * rr);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  /* Ajusta un lienzo a la ventana teniendo en cuenta la densidad de
+     píxeles, y devuelve su contexto ya escalado. */
+  function ajustar(lienzo) {
+    var ctx = lienzo.getContext('2d');
+    var dpr = Math.min(devicePixelRatio || 1, 2);
+    lienzo.width = Math.round(innerWidth * dpr);
+    lienzo.height = Math.round(innerHeight * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return ctx;
+  }
+
   // ---------------------------------------------------- el latido único
   var previo = performance.now();
   function latido(ahora) {
@@ -48,6 +75,109 @@
     requestAnimationFrame(latido);
   }
 
+  // ---------------------------------------------------------- el cielo
+  // Tres capas de estrellas a distinta profundidad, más las cuatro que
+  // Astrolium proyecta y que tienen nombre. Se desplazan con el scroll y,
+  // más sutilmente, con el puntero: cuanto más cerca está una capa, más se
+  // mueve, y el cielo cobra volumen.
+  (function () {
+    var lienzo = document.querySelector('canvas.firmamento');
+    if (!lienzo || !lienzo.getContext) return;
+    var ctx = ajustar(lienzo);
+
+    var azar = Math.random;
+    var capas = [0.012, 0.035, 0.08].map(function (prof, i) {
+      var estrellas = [];
+      for (var j = 0; j < 140 + i * 40; j++) {
+        estrellas.push({
+          x: azar(), y: azar(),
+          r: (azar() * 0.9 + 0.3) * (1 + i * 0.5),
+          a: azar() * 0.5 + 0.2,
+          fase: azar() * 6.2832,
+          v: azar() * 1.2 + 0.4,
+        });
+      }
+      return { prof: prof, estrellas: estrellas };
+    });
+
+    // El rojo del sitio está reservado al hueco de memoria; el de Betelgeuse
+    // es más cálido a propósito, y además es su color real.
+    var NOMBRADAS = [
+      { x: .78, y: .18, c: '#4a9ee0', r: 3.2, fase: 0 },   // Regulus
+      { x: .22, y: .26, c: '#e0a63c', r: 3.4, fase: 2 },   // Arcturus
+      { x: .58, y: .42, c: '#f2f4ff', r: 3.6, fase: 4 },   // Sirio
+      { x: .12, y: .58, c: '#e07a5f', r: 2.8, fase: 1 },   // Betelgeuse
+    ];
+
+    var px = 0, py = 0;   // desvío suavizado del puntero
+
+    // El cielo es infinito: al salir por un borde se entra por el opuesto.
+    var vuelta = function (v, techo) { return ((v % techo) + techo) % techo; };
+
+    function pintar(t, mueve) {
+      var y = mueve ? window.scrollY : 0;
+      ctx.clearRect(0, 0, ancho, alto);
+
+      for (var i = 0; i < capas.length; i++) {
+        var cap = capas[i];
+        var dx = px * cap.prof * 900;
+        var dy = -y * cap.prof * 0.8 + py * cap.prof * 500;
+        ctx.fillStyle = '#e8eaf2';
+        for (var j = 0; j < cap.estrellas.length; j++) {
+          var e = cap.estrellas[j];
+          ctx.globalAlpha = mueve
+            ? e.a * (0.65 + 0.35 * Math.sin(t * e.v + e.fase))
+            : e.a;
+          ctx.beginPath();
+          ctx.arc(vuelta(e.x * ancho + dx, ancho), vuelta(e.y * alto + dy, alto),
+                  e.r, 0, 6.2832);
+          ctx.fill();
+        }
+      }
+
+      for (var n = 0; n < NOMBRADAS.length; n++) {
+        var s = NOMBRADAS[n];
+        var p = 0.05;
+        var ex = vuelta(s.x * ancho + px * p * 900, ancho);
+        var ey = vuelta(s.y * alto - y * p * 0.8 + py * p * 500, alto);
+        var k = mueve ? 0.7 + 0.3 * Math.sin(t * 0.8 + s.fase) : 1;
+        // El halo es un degradado, no un disco: si no, la estrella se ve
+        // como un botón recortado sobre el fondo.
+        var halo = ctx.createRadialGradient(ex, ey, 0, ex, ey, s.r * 9);
+        halo.addColorStop(0, s.c + '8c');
+        halo.addColorStop(0.35, s.c + '1f');
+        halo.addColorStop(1, s.c + '00');
+        ctx.globalAlpha = k * 0.9;
+        ctx.fillStyle = halo;
+        ctx.beginPath();
+        ctx.arc(ex, ey, s.r * 9, 0, 6.2832);
+        ctx.fill();
+        ctx.globalAlpha = k;
+        ctx.fillStyle = '#fff';
+        estrella4(ctx, ex, ey, s.r * 2.6);
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    // Con menos movimiento el cielo se pinta una vez y se queda quieto.
+    if (parado) {
+      var repintar = function () { ctx = ajustar(lienzo); pintar(0, false); };
+      repintar();
+      addEventListener('resize', repintar, { passive: true });
+      return;
+    }
+
+    addEventListener('resize', function () { ctx = ajustar(lienzo); }, { passive: true });
+    tareas.push(function (dt, ahora) {
+      px = mezcla(px, raton.dentro ? raton.x / ancho - 0.5 : 0, 0.06);
+      py = mezcla(py, raton.dentro ? raton.y / alto - 0.5 : 0, 0.06);
+      pintar(ahora / 1000, true);
+    });
+  })();
+
+  // A partir de aquí todo es movimiento, y con «menos movimiento» no existe.
+  if (parado) return;
+
   // ------------------------------------------------- scroll con inercia
   // Lenis solo suaviza la rueda; la barra, el teclado y los anclajes
   // siguen siendo los nativos.
@@ -56,30 +186,6 @@
     lenis = new window.Lenis({ duration: 1.05, smoothWheel: true, anchors: true });
     tareas.push(function (dt, ahora) { lenis.raf(ahora); });
   }
-
-  // ------------------------------------------------------- el paralaje
-  (function () {
-    var capas = [].slice.call(document.querySelectorAll('[data-prof]'));
-    if (!capas.length) return;
-    var px = 0, py = 0;   // desvío suavizado del puntero
-
-    tareas.push(function () {
-      var objx = raton.dentro ? (raton.x / ancho - 0.5) : 0;
-      var objy = raton.dentro ? (raton.y / alto - 0.5) : 0;
-      px = mezcla(px, objx, 0.06);
-      py = mezcla(py, objy, 0.06);
-      var y = window.scrollY;
-      for (var i = 0; i < capas.length; i++) {
-        var c = capas[i];
-        var p = parseFloat(c.dataset.prof);
-        // El desvío del puntero crece con la profundidad: las capas
-        // cercanas se mueven más, y el cielo cobra volumen.
-        var dx = px * p * 900;
-        var dy = y * p + py * p * 500;
-        c.style.transform = 'translate3d(' + dx.toFixed(2) + 'px,' + dy.toFixed(2) + 'px,0)';
-      }
-    });
-  })();
 
   // --------------------------------------- partículas: motas y chispas
   // Un solo lienzo para el polvo del aire y para las chispas de la
@@ -91,15 +197,11 @@
     lienzo.setAttribute('aria-hidden', 'true');
     document.body.appendChild(lienzo);
     var ctx = lienzo.getContext('2d');
-    var dpr = 1;
 
     function medir() {
-      dpr = Math.min(devicePixelRatio || 1, 2);
-      lienzo.width = Math.round(innerWidth * dpr);
-      lienzo.height = Math.round(innerHeight * dpr);
       lienzo.style.width = innerWidth + 'px';
       lienzo.style.height = innerHeight + 'px';
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx = ajustar(lienzo);
     }
     medir();
     addEventListener('resize', medir, { passive: true });
@@ -131,6 +233,7 @@
           r: Math.random() * 1.6 + 0.5,
           vida: Math.random() * 0.7 + 0.35,
           total: 1,
+          giro: Math.random() * 6.2832,
           color: PALETA[(Math.random() * PALETA.length) | 0],
         });
         chispas[chispas.length - 1].total = chispas[chispas.length - 1].vida;
@@ -163,12 +266,15 @@
         c.y += c.vy * dt;
         c.vy += 110 * dt;      // gravedad suave
         c.vx *= 0.97;
+        c.giro += dt * 2;
         var k = c.vida / c.total;
         ctx.globalAlpha = k * 0.85;
         ctx.fillStyle = c.color;
-        ctx.beginPath();
-        ctx.arc(c.x, c.y, c.r * k + 0.3, 0, 6.2832);
-        ctx.fill();
+        ctx.save();
+        ctx.translate(c.x, c.y);
+        ctx.rotate(c.giro);
+        estrella4(ctx, 0, 0, c.r * k + 0.4);
+        ctx.restore();
       }
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = 'source-over';

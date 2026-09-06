@@ -26,6 +26,18 @@
   --ancho: 60rem;
   --serif: "Fraunces", Georgia, "Times New Roman", serif;
   --sans:  "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif;
+  --mano:  "Caveat", "Segoe Script", "Bradley Hand", cursive;
+
+  /* EL MUNDO DE PAPEL — todo lo que Sora escribe o toca con las manos se
+     apoya sobre papel, y ahí el esquema se invierte: tinta oscura sobre
+     claro. Son los únicos sitios del sitio donde eso pasa. */
+  --carton:     #ecdfbf;   /* marco de polaroid */
+  --pergamino:  #e9dcb8;   /* hoja de apunte */
+  --papel:      #f4ecd6;   /* carta abierta, nota adhesiva */
+  --tinta:      #2a2216;
+  --tinta-2:    #6b5a3a;   /* la tinta descolorida de los rótulos */
+  --tinta-azul: #23528a;   /* sobre papel, --azul no contrasta */
+  --cinta:      rgba(232, 234, 242, .4);
 
   /* Una sola curva para todo el movimiento del sitio: sale rápido y
      se posa despacio, como algo que aterriza en vez de deslizarse. */
@@ -76,31 +88,22 @@ p { max-width: 68ch; }
 .env { width: 100%; max-width: var(--ancho); margin-inline: auto; padding-inline: 1.5rem; }
 
 /* ============================================================
-   EL FIRMAMENTO — fondo fijo, tres capas a distinta profundidad
+   EL FIRMAMENTO — el cielo fijo, pintado en un lienzo
    ============================================================ */
 
+/* El cielo se pinta en un lienzo: tres capas de estrellas a distinta
+   profundidad más las cuatro con nombre —Betelgeuse, Sirio, Regulus,
+   Arcturus—, todas movidas por js/atmosfera.js. Antes eran ~15 KB de
+   <circle> incrustados en cada página. El degradado se queda en CSS para
+   que el fondo esté puesto antes de que corra un solo byte de JavaScript. */
 .firmamento {
   position: fixed; inset: 0; z-index: -1;
-  overflow: hidden; pointer-events: none;
+  width: 100%; height: 100%;
+  pointer-events: none;
   background:
     radial-gradient(120% 80% at 78% -10%, rgba(74,158,224,.10), transparent 60%),
     radial-gradient(90% 70% at 12% 104%, rgba(224,166,60,.07), transparent 62%),
     linear-gradient(180deg, var(--vacio), #0a0f1e 45%, var(--vacio));
-}
-.firmamento .capa {
-  position: absolute; inset: -14%;
-  will-change: transform;
-}
-.firmamento .capa svg { width: 100%; height: 100%; display: block; }
-
-/* Un velo de niebla lentísimo: da sensación de aire entre las capas */
-.firmamento .niebla {
-  position: absolute; inset: -25%;
-  background:
-    radial-gradient(45% 38% at 30% 35%, rgba(74,158,224,.09), transparent 70%),
-    radial-gradient(38% 34% at 72% 62%, rgba(224,166,60,.06), transparent 72%);
-  filter: blur(18px);
-  will-change: transform;
 }
 
 /* ---------- Cabecera ---------- */
@@ -156,32 +159,44 @@ p { max-width: 68ch; }
    ============================================================ */
 
 .cielo { position: relative; overflow: hidden; border-bottom: 1px solid var(--linea); }
-.cielo .astrolium {
-  position: absolute; inset: -10% -4%;
-  width: auto; height: auto;
-  will-change: transform;
-  /* Las estrellas se apagan hacia el pie del hero: donde empieza el texto
-     no debe quedar nada compitiendo con él. */
-  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 46%, transparent 88%);
-  mask-image: linear-gradient(180deg, #000 0%, #000 46%, transparent 88%);
-}
 .cielo .env { position: relative; padding-block: clamp(3rem, 8vw, 5.5rem) clamp(2.5rem, 5vw, 3.5rem); }
 
 .presentacion { display: grid; gap: clamp(1.5rem, 4vw, 3rem); grid-template-columns: 1fr; align-items: end; }
 @media (min-width: 46rem) { .presentacion { grid-template-columns: 15rem 1fr; } }
 /* En estrecho el retrato ocupaba toda la pantalla y empujaba el nombre fuera */
-@media (max-width: 45.999rem) { .retrato { max-width: 15rem; } }
+@media (max-width: 45.999rem) { .polaroid { max-width: 15rem; } }
 
-.retrato {
-  border: 1px solid var(--linea);
-  background: var(--noche-baja);
-  box-shadow: 0 1.5rem 3.5rem rgba(5,7,15,.6);
-  overflow: hidden;
-  line-height: 0;
+/* ---------- La polaroid ----------
+   El retrato no flota en el cielo: está pegado con cinta, como una foto que
+   alguien ha traído y ha dejado ahí. Es la primera cosa de papel que se ve, y
+   marca la regla del resto del sitio. */
+.polaroid { position: relative; margin: 0; justify-self: start; }
+.polaroid__marco {
+  position: relative;
+  background: var(--carton);
+  padding: .7rem .7rem 2.4rem;
+  box-shadow: 0 1.5rem 3.5rem rgba(5,7,15,.7);
+  transform: rotate(-2deg);
 }
-.retrato { position: relative; }
-.retrato--captura img { filter: saturate(1.05) contrast(1.03); }
-.retrato--captura::after {
+/* La cinta que la sujeta por arriba, medio traslúcida */
+.polaroid__marco::before {
+  content: ""; position: absolute; top: -.6rem; left: 50%;
+  width: 5.5rem; height: 1.4rem; background: var(--cinta);
+  transform: translateX(-50%) rotate(3deg);
+  backdrop-filter: blur(1px);
+}
+.polaroid__foto { position: relative; overflow: hidden; line-height: 0; }
+.polaroid__foto img { width: 100%; }
+.polaroid__pie {
+  position: absolute; left: 1rem; right: 1rem; bottom: .55rem; margin: 0;
+  font-family: var(--mano); font-size: 1.35rem; line-height: 1.1;
+  color: var(--tinta);
+  display: flex; justify-content: space-between; align-items: baseline; gap: .5rem;
+}
+.polaroid__pie span { color: #b8892c; }
+
+.polaroid__foto--captura img { filter: saturate(1.05) contrast(1.03); }
+.polaroid__foto--captura::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background:
     linear-gradient(180deg, rgba(16,22,43,.42), rgba(16,22,43,0) 38%, rgba(16,22,43,.62)),
@@ -189,26 +204,59 @@ p { max-width: 68ch; }
 }
 /* ui_visible en la ficha de la imagen: la captura lleva flechas de interfaz
    pegadas a los bordes. Se recorta un 12 % por lado. */
-.retrato.recortado img { width: 124%; max-width: none; margin-left: -12%; }
+.polaroid__foto.recortado img { width: 124%; max-width: none; margin-left: -12%; }
+
+/* ---------- Las chapas del uniforme ----------
+   Discos de metal esmaltado, prendidos al borde de la foto. */
+.chapas {
+  position: absolute; right: -2.1rem; top: 2.2rem;
+  list-style: none; margin: 0; padding: 0;
+  display: grid; gap: .5rem;
+}
+.chapa {
+  width: 3.4rem; height: 3.4rem; border-radius: 50%;
+  display: grid; place-items: center; text-align: center;
+  font-family: var(--serif); font-size: .55rem; font-weight: 700; line-height: 1.05;
+  letter-spacing: -.02em;
+  /* Nombres como «P.E.Q.U.E.S» no caben en una línea: se parten donde haga
+     falta, y el disco recorta lo que aun así se salga. */
+  padding: .3rem; overflow: hidden; overflow-wrap: anywhere;
+  box-shadow: inset 0 -3px 6px rgba(0,0,0,.4), 0 3px 8px rgba(0,0,0,.5);
+}
+.chapa--oro {
+  background: radial-gradient(circle at 35% 30%, #f4cd7d, #cf922c 62%, #8f6416);
+  color: var(--tinta); transform: rotate(8deg);
+}
+.chapa--azul {
+  background: radial-gradient(circle at 35% 30%, #6fb6ec, #2f6f9e 62%, #1d4a6d);
+  color: var(--plata); transform: rotate(-6deg);
+}
+
+/* ---------- El nombre ---------- */
+/* Escrito a mano, como si lo hubiera anotado él en el margen */
+.rotulo-mano {
+  font-family: var(--mano); font-size: 1.5rem; line-height: 1.2;
+  color: var(--oro); margin: 0 0 .3rem;
+  transform: rotate(-1.5deg); transform-origin: left center;
+  display: inline-block;
+}
+.lema {
+  color: var(--plata-2); font-size: 1.15rem; max-width: 40ch;
+  margin: 0 0 1.4rem; text-wrap: pretty;
+}
+/* Los dos ojos, con su color delante */
+.iris {
+  display: inline-block; width: .8rem; height: .8rem; border-radius: 50%;
+  background: var(--iris); box-shadow: 0 0 8px var(--iris);
+  vertical-align: -.05em; margin-right: .3rem;
+}
+.datos dd .iris:not(:first-child) { margin-left: .6rem; }
+
 .presentacion h1 { margin-bottom: .2em; }
 .epigrafe { color: var(--plata-2); font-size: 1.15rem; max-width: 40ch; margin: 0; }
 
-/* Las cuatro estrellas con nombre laten, cada una a su ritmo */
-.estrella-viva { animation: latido 6s ease-in-out infinite; }
+/* El latido de las estrellas: lo usan los hitos de la cronología. */
 @keyframes latido { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
-
-/* El destello de difracción late con la estrella, medio compás por detrás */
-.destello { animation: chispazo 6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
-@keyframes chispazo { 0%, 100% { transform: scale(1); } 50% { transform: scale(.55); } }
-
-.halo { animation: respirar 9s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
-@keyframes respirar { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.22); opacity: .55; } }
-
-/* La línea de la constelación se traza sola al cargar */
-.constelacion {
-  fill: none; stroke: var(--plata-3); stroke-width: 1;
-  vector-effect: non-scaling-stroke; opacity: .5;
-}
 
 /* Datos duros: lista de definición con filetes, no tarjetas */
 .datos { margin: 1.75rem 0 0; display: grid; grid-template-columns: auto 1fr; gap: .1rem 1.25rem; font-size: .95rem; }
@@ -475,7 +523,20 @@ main section > h1::after, main section > h2::after {
 }
 .fila-hilo > a:hover .fila-texto strong { color: var(--oro); }
 .fila-texto .con { color: var(--plata-3); font-size: .88rem; }
-.lacre--mini { width: 1.7rem; height: 1.7rem; font-size: .8rem; }
+/* El sello en pequeño de las filas del índice. No comparte estilos con el
+   lacre del sobre: aquel es una pieza en 3D que se parte, este es una marca. */
+.lacre--mini {
+  flex: none; width: 1.7rem; height: 1.7rem;
+  border-radius: 47% 53% 52% 48% / 50% 46% 54% 50%;
+  display: grid; place-items: center;
+  font-family: var(--serif); font-weight: 600; font-size: .8rem;
+  color: var(--plata);
+  background: radial-gradient(circle at 34% 28%, #6fb6ec, #2f6f9e 62%, #1d4a6d);
+  box-shadow:
+    inset 0 -3px 6px rgba(0,0,0,.5),
+    inset 0 2px 4px rgba(255,255,255,.28),
+    0 2px 6px rgba(5,7,15,.5);
+}
 .marca-abierto {
   flex: none; color: var(--azul); font-size: .78rem;
   border: 1px solid var(--azul); border-radius: 999px; padding: .05rem .6rem;
@@ -493,125 +554,196 @@ main section > h1::after, main section > h2::after {
 .volver a::before { content: "← "; }
 
 /* ---------- Cartas ----------
-   Cada carta llega cerrada y lacrada. Al abrirla el papel se despliega
-   hacia abajo, como una hoja doblada que cae, y el lacre se ladea roto. */
+   Cada carta es un sobre cerrado sobre la mesa. Al pulsarlo el lacre se
+   parte en dos, la solapa gira hacia atrás y el papel sale de dentro. Todo
+   con <details>: sin JavaScript el sobre sigue abriéndose. */
 .hilo { margin-bottom: 3.5rem; }
 .hilo > h3 { border-bottom: 1px solid var(--linea); padding-bottom: .5rem; margin-bottom: .4rem; }
 .hilo .cuando { color: var(--plata-3); font-size: .9rem; margin: 0 0 1.5rem; }
-.carta { margin-block: 1.1rem; max-width: 44rem; }
-/* Las de Sora, a la derecha: se lee de un vistazo quién habla */
-.carta--sora { margin-left: auto; }
 
+.carta { margin-block: 2rem; }
 .sobre {
-  position: relative;
-  /* Ajustada a su contenido: una carta cerrada es un objeto sobre la mesa,
-     no una fila de interfaz que cruza la pantalla. */
-  width: fit-content;
-  max-width: 100%;
-  background: var(--noche-alta);
-  border: 1px solid var(--linea);
-  box-shadow: 0 .5rem 1.5rem rgba(5,7,15,.45);
-  transition: transform .45s var(--posarse), box-shadow .45s ease, border-color .45s ease;
+  width: min(100%, 30rem);
+  transition: margin-top .65s var(--posarse);
 }
-/* El acento va en un filete propio y no en el borde, para que el hover
-   pueda cambiar el borde sin pisar el color de quien escribe. */
-.sobre::before {
-  content: ""; position: absolute; top: -1px; bottom: -1px; left: -1px; width: 2px;
-  background: var(--azul);
+.sobre[open] { margin-top: calc(min(100%, 30rem) * .32); }
+/* Las de Sora, a la derecha: se lee de un vistazo quién habla */
+.carta--sora .sobre { margin-left: auto; }
+
+.sobre > summary { list-style: none; cursor: pointer; display: block; }
+.sobre > summary::-webkit-details-marker { display: none; }
+
+/* La caja del sobre: proporción de sobre americano y la perspectiva que
+   hace que la solapa gire hacia el lector y no se aplaste. */
+.sobre__caja {
+  position: relative; display: block; width: 100%;
+  aspect-ratio: 26 / 15;
+  perspective: 1200px;
+  filter: drop-shadow(0 1rem 1.6rem rgba(5,7,15,.7));
+  transition: transform .45s var(--posarse);
 }
-.carta--sora .sobre::before { left: auto; right: -1px; background: var(--oro); }
-.carta:hover .sobre:not([open]) {
-  transform: translateY(-2px);
-  border-color: var(--plata-3);
-  box-shadow: 0 1.1rem 2.4rem rgba(5,7,15,.6);
+.sobre > summary:hover .sobre__caja { transform: translateY(-3px); }
+.sobre__pieza {
+  position: absolute; inset: 0;
+  transform-style: preserve-3d;
+  transform: rotate(-1deg);
+  transition: transform .5s var(--posarse);
+}
+.carta--sora .sobre__pieza { transform: rotate(1.2deg); }
+.sobre[open] .sobre__pieza,
+.carta--sora .sobre[open] .sobre__pieza { transform: translateY(4px) rotate(0deg); }
+
+/* El papel que asoma por detrás: sin él, el sobre abierto se ve hueco */
+.sobre__asoma {
+  position: absolute; left: 6%; right: 6%; top: -14%; height: 60%; z-index: 0;
+  background: var(--papel); border-radius: 2px;
+  box-shadow: 0 -2px 8px rgba(0,0,0,.15);
 }
 
-.sobre > summary {
-  list-style: none; cursor: pointer;
-  display: flex; align-items: center; gap: 1rem;
-  padding: .95rem 1.4rem;
+/* El cuerpo del sobre, con los dobleces marcados en diagonal */
+.sobre__cara {
+  position: absolute; inset: 0; z-index: 2; overflow: hidden;
+  background: #e4e3d6; border-radius: 3px;
+  box-shadow: inset 0 0 40px rgba(120,80,20,.12);
 }
-.sobre > summary::-webkit-details-marker { display: none; }
-/* La carta de Sora se lee desde su lado: lacre y texto a la derecha */
-.carta--sora .sobre > summary { flex-direction: row-reverse; }
-.carta--sora .remite { text-align: right; }
+.carta--sora .sobre__cara { background: #efe3c5; }
+.sobre__cara::before {
+  content: ""; position: absolute; inset: 0; opacity: .7;
+  background:
+    linear-gradient(to bottom right, transparent 49.6%, rgba(0,0,0,.08) 50%, transparent 50.4%),
+    linear-gradient(to bottom left,  transparent 49.6%, rgba(0,0,0,.08) 50%, transparent 50.4%);
+}
+
+/* Lo que va escrito en el sobre, de puño y letra */
+.sobre__destino {
+  position: absolute; left: 1.2rem; right: 7.5rem; bottom: 1rem;
+  font-family: var(--mano); color: var(--tinta); line-height: 1.2;
+  display: grid;
+}
+.sobre__rotulo { font-size: .95rem; color: var(--tinta-2); }
+.sobre__nombre { font-family: var(--mano); font-size: 1.55rem; font-weight: 700; }
+.sobre__lugar { font-size: 1rem; color: var(--tinta-2); margin-top: .1rem; }
+.sobre__remite {
+  position: absolute; right: 1.2rem; bottom: 1rem; max-width: 9rem;
+  font-family: var(--mano); font-size: 1.05rem; color: var(--tinta-2);
+  text-align: right; line-height: 1.2; transform: rotate(-2deg);
+  display: grid;
+}
+/* El franqueo: un recuadro punteado donde iría el sello */
+.sobre__franqueo {
+  position: absolute; right: 1rem; top: .9rem;
+  width: 2.4rem; height: 2.9rem;
+  border: 2px dashed rgba(42,34,22,.35);
+  display: grid; place-items: center;
+  color: #b8892c; font-size: 1.2rem; transform: rotate(4deg);
+}
+
+/* La solapa: gira sobre su borde superior hasta caer del otro lado */
+.sobre__solapa {
+  position: absolute; left: 0; top: 0; width: 100%; height: 54%;
+  transform-origin: top center; transform-style: preserve-3d;
+  transform: rotateX(0deg); z-index: 4;
+  transition: transform .65s var(--posarse);
+}
+.sobre[open] .sobre__solapa { transform: rotateX(178deg); z-index: 1; }
+.sobre__solapa-cara {
+  position: absolute; inset: 0;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  background: linear-gradient(180deg, #d6d5c4, #e4e3d6 90%);
+  box-shadow: 0 6px 10px rgba(0,0,0,.18);
+  backface-visibility: visible;
+}
+.carta--sora .sobre__solapa-cara { background: linear-gradient(180deg, #e6d6ad, #efe3c5 90%); }
 
 /* El lacre. El borde irregular es lo que lo hace leer como cera y no como
-   una pastilla de color. */
+   una pastilla de color. Se parte en dos al abrir. */
 .lacre {
-  flex: none; width: 2.5rem; height: 2.5rem;
+  position: absolute; left: 50%; top: 52%; z-index: 6;
+  width: 3rem; height: 3rem; transform: translate(-50%, -50%);
+}
+.lacre__mitad {
+  position: absolute; inset: 0;
+  transition: transform .55s var(--posarse) .1s, opacity .4s ease .4s;
+}
+.lacre__mitad--i { clip-path: inset(0 50% 0 0); }
+.lacre__mitad--d { clip-path: inset(0 0 0 50%); }
+.sobre[open] .lacre__mitad { opacity: 0; }
+.sobre[open] .lacre__mitad--i { transform: translate(-16px, 14px) rotate(-30deg); }
+.sobre[open] .lacre__mitad--d { transform: translate(16px, 12px) rotate(26deg); }
+.lacre__cera {
+  position: absolute; inset: 0;
   border-radius: 47% 53% 52% 48% / 50% 46% 54% 50%;
   display: grid; place-items: center;
-  font-family: var(--serif); font-weight: 600; font-size: 1.05rem;
-  color: var(--noche);
+  font-family: var(--serif); font-weight: 600; font-size: 1.15rem;
+  color: var(--plata);
   background: radial-gradient(circle at 34% 28%, #6fb6ec, #2f6f9e 62%, #1d4a6d);
-  position: relative;
   box-shadow:
     inset 0 -4px 9px rgba(0,0,0,.55),
     inset 0 3px 5px rgba(255,255,255,.3),
-    inset 4px 0 7px rgba(0,0,0,.22),
     0 3px 10px rgba(5,7,15,.6);
-  transition: transform .55s var(--posarse), opacity .5s ease;
 }
-.carta--sora .lacre {
+.carta--sora .lacre__cera {
+  color: var(--tinta);
   background: radial-gradient(circle at 34% 28%, #f4cd7d, #cf922c 62%, #8f6416);
 }
-/* El anillo grabado del sello: es lo que separa la cera de un círculo */
-.lacre::after {
-  content: ""; position: absolute; inset: 4px;
-  border-radius: inherit;
-  border: 1px solid rgba(0,0,0,.3);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.2);
-}
-.sobre[open] .lacre { transform: rotate(-16deg) scale(.86); opacity: .45; }
 
-.remite { display: grid; gap: .08rem; line-height: 1.35; min-width: 0; }
-.remite strong {
-  font-family: var(--serif); font-weight: 600; font-size: 1.05rem; color: var(--plata);
+/* El pie del sobre: la pista de que se abre, y los avisos del hilo */
+.sobre__pie {
+  display: flex; flex-wrap: wrap; gap: .2rem 1rem; align-items: baseline;
+  margin-top: .7rem; font-size: .85rem;
 }
-.remite .para { color: var(--plata-3); font-size: .88rem; }
-.remite .con-adjunto { color: var(--oro); font-size: .82rem; }
-/* El orden va invertido: sin marca no se sabe que la de arriba es la última */
-.remite .reciente { color: var(--plata-3); font-size: .8rem; font-style: italic; }
-
+.carta--sora .sobre__pie { justify-content: flex-end; }
 .abrir {
-  flex: none; color: var(--plata-3); font-size: .85rem;
-  border: 1px solid var(--linea); border-radius: 999px; padding: .12rem .75rem;
-  transition: opacity .35s ease, color .3s ease, border-color .3s ease;
+  font-family: var(--mano); font-size: 1.1rem; color: var(--oro);
+  transition: color .3s ease;
 }
-.sobre > summary:hover .abrir { color: var(--oro); border-color: var(--oro); }
-.sobre[open] .abrir { opacity: 0; }
+.sobre[open] .abrir { color: var(--plata-3); }
+.abrir__abierto, .sobre[open] .abrir__cerrado { display: none; }
+.sobre[open] .abrir__abierto { display: inline; }
+.remite .con-adjunto, .sobre__pie .con-adjunto { color: var(--oro); font-size: .82rem; }
+/* El orden va invertido: sin marca no se sabe que la de arriba es la última */
+.sobre__pie .reciente { color: var(--plata-3); font-size: .8rem; font-style: italic; }
 
-/* El despliegue: ::details-content lleva el alto, el papel lleva el pliegue */
+/* El despliegue: ::details-content lleva el alto, el papel sale de dentro */
 .sobre::details-content {
   block-size: 0; overflow: clip;
-  transition: block-size .55s var(--posarse), content-visibility .55s allow-discrete;
+  transition: block-size .75s var(--posarse), content-visibility .75s allow-discrete;
 }
 .sobre[open]::details-content { block-size: auto; }
-/* Abierta ocupa el ancho de lectura; el cambio va con el mismo tiempo que
-   el despliegue para que sea un solo movimiento. */
-.sobre { transition: transform .45s var(--posarse), box-shadow .45s ease,
-                     border-color .45s ease, width .55s var(--posarse); }
-.sobre[open] { width: 100%; }
 
+/* La hoja. Aquí el esquema se invierte: tinta sobre papel, y de su puño. */
 .carta .papel {
-  position: relative;
-  padding: .2rem 1.4rem 1.35rem;
-  font-size: 1rem;
-  transform: perspective(1400px) rotateX(-82deg);
-  transform-origin: top center;
-  opacity: 0;
-  transition: transform .6s var(--posarse), opacity .4s ease .06s;
+  position: relative; margin-top: 1.2rem;
+  background: var(--papel); color: var(--tinta);
+  padding: 1.4rem 1.5rem 1.5rem; border-radius: 2px;
+  box-shadow: 0 1rem 2rem rgba(5,7,15,.6);
+  background-image: repeating-linear-gradient(transparent 0 1.9rem, rgba(42,34,22,.08) 1.9rem 1.95rem);
+  font-family: var(--mano); font-size: 1.35rem; line-height: 1.9rem;
+  transform: translateY(-70%); opacity: 0;
+  transition: transform .75s var(--posarse) .3s, opacity .4s ease .4s;
 }
-.sobre[open] .papel { transform: perspective(1400px) rotateX(0deg); opacity: 1; }
-/* La marca del doblez por donde se abre */
+.sobre[open] .papel { transform: translateY(0) rotate(-.6deg); opacity: 1; }
+.carta--otro .sobre[open] .papel { transform: translateY(0) rotate(.6deg); }
+/* Las manchas de la tinta y del tiempo */
 .carta .papel::before {
-  content: ""; position: absolute; top: 0; left: 1.4rem; right: 1.4rem; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--linea), transparent);
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(60% 40% at 90% 10%, rgba(150,110,50,.13), transparent 70%),
+    radial-gradient(40% 30% at 5% 95%, rgba(120,90,40,.12), transparent 70%);
 }
-.carta .papel > :first-child { margin-top: .9rem; }
+/* Todo lo que va sobre el papel respeta el rayado: interlineado y márgenes
+   son múltiplos de 1,9 rem, si no la letra flota entre líneas. */
+.carta .papel > * { position: relative; max-width: none; margin: 0 0 1.9rem; }
+.carta .papel :is(h1, h2, h3, h4) { font-family: var(--mano); font-size: 1.55rem; }
+.carta .papel :is(ul, ol) { padding-left: 1.5rem; }
+.carta .papel li { margin-bottom: 0; }
+.carta .papel__asunto { font-size: 1.05rem; color: var(--tinta-2); }
+.carta .papel strong { font-weight: 700; }
+.carta .papel em { color: var(--tinta-azul); }
+.carta .papel a { color: var(--tinta-azul); }
+.carta .papel a:hover { color: #8f6416; }
 .carta .papel > :last-child { margin-bottom: 0; }
-.adjunto { font-size: .88rem; color: var(--oro); margin-top: .9rem; }
+.adjunto { font-size: 1.05rem; color: var(--tinta-2); }
 
 /* ---------- Galería ---------- */
 .galeria { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); }
@@ -749,11 +881,12 @@ main section > h1::after, main section > h2::after {
 /* La línea de la cronología avanza con el scroll, no con la entrada */
 .animar .crono > li::before { transform: scaleY(var(--trazo, 0)); }
 
-.animar .constelacion {
-  stroke-dasharray: 1; stroke-dashoffset: 1;
-  animation: trazar 2.6s var(--posarse) .5s both;
+/* La polaroid respira: colgada de la cinta, nunca se queda del todo quieta */
+.animar .polaroid__marco { animation: flotar 9s ease-in-out infinite; }
+@keyframes flotar {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50%      { transform: translateY(-6px) rotate(-1deg); }
 }
-@keyframes trazar { to { stroke-dashoffset: 0; } }
 
 /* La entrada del hero: una sola secuencia, solo en la portada */
 .animar .presentacion > * { animation: llegar 1s var(--posarse) both; }
@@ -807,7 +940,6 @@ html.viaja-foto::view-transition-new(root) { animation-duration: .2s; }
     transition: none !important;
     scroll-behavior: auto !important;
   }
-  .firmamento .capa, .firmamento .niebla, .cielo .astrolium { transform: none !important; }
   [data-revelar] { opacity: 1 !important; transform: none !important; }
   .crono > li::before { transform: none !important; }
   ::view-transition-group(*),

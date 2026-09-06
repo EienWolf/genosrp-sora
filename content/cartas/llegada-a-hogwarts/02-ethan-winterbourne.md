@@ -9,6 +9,8 @@ de:
 para:
   - "sora-winterbourne"
 fecha: null  # sin fecha conocida
+desde: "Dorset"
+hacia: "Hogwarts"
 asunto: "Selección en Hufflepuff y primeros hechizos"
 ---
 

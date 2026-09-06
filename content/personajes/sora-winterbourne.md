@@ -6,6 +6,9 @@ nombre: Sora
 apellido: Winterbourne
 nacionalidad: Inglés
 nacimiento: 2022-09-07
+# La frase que abre la portada. Una sola, suya, no una descripción.
+lema: >-
+  Un ojo azul, un ojo dorado, y un cielo entero en la cabeza.
 casa: Hufflepuff
 estatus_social: Media
 fisico:
@@ -54,6 +57,38 @@ aspiraciones:
       mente analítica y dominar las técnicas de investigación mágica. Considera
       esta disciplina como el camino definitivo para desentrañar el vacío de su
       infancia cuando esté listo para afrontarlo.
+# La cronología anterior a Hogwarts. La versión larga sigue estando en
+# `## Historia`, que es la fuente; esto es el extracto por el que se navega.
+# `hueco: true` marca los años que no recuerda: es lo único del sitio que se
+# pinta en rojo.
+hitos:
+  - edad: "3–4 años"
+    titulo: "El bote"
+    texto: >-
+      Resbaló y cayó por la borda durante un viaje familiar por mar. Lo
+      sacaron a tiempo, pero el miedo a las aguas profundas se quedó.
+  - edad: "4 – 7 años"
+    hueco: true
+    texto: >-
+      Aquí el cielo se apaga. Tres años que no recuerda, y una vaga
+      intuición de haber dejado a alguien atrás.
+  - edad: "7 años"
+    titulo: "Dorset, los Winterbourne"
+    texto: >-
+      Despierta bajo la custodia de sus tutores. Ethan le enseña a montar en
+      escoba; Lyra, a mirar los brebajes. Expediciones por los acantilados
+      buscando ingredientes.
+  - edad: "8 años"
+    titulo: "Magia accidental"
+    texto: >-
+      Un elefante de peluche fuera de su alcance flota hasta sus brazos,
+      envuelto en un aura azulada.
+  - edad: "11 años"
+    titulo: "La carta"
+    texto: >-
+      Rompió el sello despacio, leyó cada línea en voz alta y corrió a
+      abrazar a los Winterbourne.
+
 parentesco: []
 vinculos:
   - slug: ethan-winterbourne

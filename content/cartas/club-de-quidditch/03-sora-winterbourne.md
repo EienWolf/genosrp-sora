@@ -8,6 +8,8 @@ de:
 para:
   - "lilwenn-pliego"
 fecha: null  # sin fecha conocida
+desde: null  # sin lugar conocido
+hacia: null  # sin lugar conocido
 asunto: "Solicitud de ingreso y pruebas"
 ---
 

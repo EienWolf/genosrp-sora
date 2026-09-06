@@ -83,82 +83,6 @@ function secciones(cuerpo) {
   return out;
 }
 
-// ------------------------------------------------------------------ el cielo
-
-/** Generador pseudoaleatorio con semilla: cada build produce exactamente el
- *  mismo SVG, así que el cielo no ensucia el diff. */
-const azarista = (semilla) => () =>
-  (semilla = (semilla * 1103515245 + 12345) % 2147483648) / 2147483648;
-
-/** Una capa de estrellas anónimas. */
-function capaEstrellas(semilla, n, rMax, oMax) {
-  const azar = azarista(semilla);
-  let d = '';
-  for (let i = 0; i < n; i++) {
-    d += `<circle cx="${(azar() * 100).toFixed(2)}%" cy="${(azar() * 100).toFixed(2)}%"`
-       + ` r="${(azar() * rMax + 0.2).toFixed(2)}" fill="#e8eaf2"`
-       + ` opacity="${(azar() * oMax + 0.04).toFixed(2)}"/>`;
-  }
-  return d;
-}
-
-/** El fondo de todo el sitio: tres capas a distinta profundidad más un velo
- *  de niebla. `data-prof` es el factor de paralaje que lee js/atmosfera.js;
- *  cuanto mayor, más cerca está la capa y más se mueve. */
-function firmamento() {
-  const capas = [
-    { prof: -0.020, estrellas: capaEstrellas(20260907, 130, 0.6, 0.26) },
-    { prof: -0.055, estrellas: capaEstrellas(19970314, 62, 0.95, 0.38) },
-    { prof: -0.105, estrellas: capaEstrellas(11235813, 24, 1.5, 0.5) },
-  ];
-  return `<div class="firmamento" aria-hidden="true">
-<div class="niebla" data-prof="-0.012"></div>
-${capas.map((c) => `<div class="capa" data-prof="${c.prof}">`
-  + `<svg preserveAspectRatio="none">${c.estrellas}</svg></div>`).join('\n')}
-</div>`;
-}
-
-/** El Astrolium: las cuatro estrellas que el hechizo de Sora proyecta, en su
- *  color real, unidas por la línea que se traza sola al cargar. Solo aparece
- *  en la portada, que es donde se explica qué son. */
-function astrolium() {
-  const estrellas = [
-    { n: 'Betelgeuse', x: 9,  y: 13, c: '#c2543f', r: 0.60 },
-    { n: 'Sirio',      x: 27, y: 6,  c: '#e8eaf2', r: 0.72 },
-    { n: 'Regulus',    x: 63, y: 4,  c: '#4a9ee0', r: 0.56 },
-    { n: 'Arcturus',   x: 88, y: 11, c: '#e0a63c', r: 0.66 },
-  ];
-  const id = (e) => 'ast-' + e.n.toLowerCase();
-  // El halo es un degradado radial, no un disco: si no, la estrella se ve
-  // como un botón recortado sobre el fondo.
-  const defs = estrellas.map((e) => `<radialGradient id="${id(e)}">`
-    + `<stop offset="0%" stop-color="${e.c}" stop-opacity=".55"/>`
-    + `<stop offset="35%" stop-color="${e.c}" stop-opacity=".12"/>`
-    + `<stop offset="100%" stop-color="${e.c}" stop-opacity="0"/></radialGradient>`).join('');
-  const halos = estrellas.map((e) =>
-    `<circle class="halo" cx="${e.x}" cy="${e.y}" r="${(e.r * 5).toFixed(2)}" fill="url(#${id(e)})"/>`).join('');
-  // Un rombo finísimo por estrella: el destello de difracción que hace que
-  // un punto de luz se lea como estrella y no como lunar.
-  const destellos = estrellas.map((e) => {
-    const l = e.r * 4.6, a = e.r * 0.5;
-    return `<path class="destello" fill="${e.c}" opacity=".28" d="M${e.x - l} ${e.y}`
-      + `L${e.x} ${e.y - a}L${e.x + l} ${e.y}L${e.x} ${e.y + a}Z"/>`
-      + `<path class="destello" fill="${e.c}" opacity=".22" d="M${e.x} ${e.y - l}`
-      + `L${e.x + a} ${e.y}L${e.x} ${e.y + l}L${e.x - a} ${e.y}Z"/>`;
-  }).join('');
-  const ritmo = [[0, 6], [-2.4, 7.5], [-4.1, 5.5], [-1.2, 8]];
-  const puntos = estrellas.map((e, i) =>
-    `<circle class="estrella-viva" cx="${e.x}" cy="${e.y}" r="${e.r}" fill="${e.c}"`
-    + ` style="animation-delay:${ritmo[i][0]}s;animation-duration:${ritmo[i][1]}s">`
-    + `<title>${e.n}</title></circle>`).join('');
-  const traza = 'M' + estrellas.map((e) => `${e.x} ${e.y}`).join(' L');
-  return `<svg class="astrolium" aria-hidden="true" viewBox="0 0 100 46"
- preserveAspectRatio="xMidYMid slice" data-prof="0.16">
-<defs>${defs}</defs>
-${halos}<path class="constelacion" pathLength="1" d="${traza}"/>${destellos}${puntos}
-</svg>`;
-}
-
 // ---------------------------------------------------------------- plantillas
 
 /** URL canónica de una página: el enrutador de assets sirve sin extensión y
@@ -203,7 +127,7 @@ function plantilla({ id, titulo, descripcion, entrada, rotulo, volver, contenido
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='8' height='16' fill='%234a9ee0'/><rect x='8' width='8' height='16' fill='%23e0a63c'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,400..700,0..100,0..1&family=Atkinson+Hyperlegible:wght@400;700&family=Caveat:wght@400..700&display=swap">
 <link rel="stylesheet" href="${BASE}/css/styles.css">
 <link rel="alternate" type="text/plain" href="${BASE}/llms.txt" title="Índice para modelos de lenguaje">
 <link rel="alternate" type="application/json" href="${BASE}/content.json" title="Todo el contenido en JSON">
@@ -212,7 +136,7 @@ function plantilla({ id, titulo, descripcion, entrada, rotulo, volver, contenido
 </script>
 </head>
 <body>
-${firmamento()}
+<canvas class="firmamento" aria-hidden="true"></canvas>
 <header class="cabecera">
   <div class="env">
     <a class="marca" href="${BASE}/">Sora Winterbourne</a>
@@ -309,5 +233,5 @@ async function cargar() {
   };
 }
 
-export { cargar, ficha, enlace, esc, md, seccion, secciones, definido, plantilla, listaDefs, astrolium,
+export { cargar, ficha, enlace, esc, md, seccion, secciones, definido, plantilla, listaDefs,
          RAIZ, CONTENIDO, SALIDA, BASE, PAGINAS };

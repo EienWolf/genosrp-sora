@@ -168,6 +168,10 @@ def anadir(args, cuerpo):
     fm += "de:\n" + "".join(f"  - {esc(r)}\n" for r in remitentes)
     fm += "para:\n" + "".join(f"  - {esc(d)}\n" for d in destinos)
     fm += f"fecha: {esc(args.fecha) if args.fecha else 'null  # sin fecha conocida'}\n"
+    # De dónde sale y a dónde va: es lo que va escrito en el sobre. Como la
+    # fecha, `null` si no se sabe; no se deduce del texto de la carta.
+    fm += f"desde: {esc(args.desde) if args.desde else 'null  # sin lugar conocido'}\n"
+    fm += f"hacia: {esc(args.hacia) if args.hacia else 'null  # sin lugar conocido'}\n"
     if args.asunto:
         fm += f"asunto: {bloque(args.asunto, 2)}\n"
     if args.adjunto:
@@ -237,6 +241,8 @@ def main():
     p.add_argument("--de", help="Slug(s) del remitente, separados por coma")
     p.add_argument("--para", help="Slug(s) del destinatario, separados por coma")
     p.add_argument("--fecha", help="Fecha in-game, si se conoce")
+    p.add_argument("--desde", help="Lugar desde el que se envía, si se conoce")
+    p.add_argument("--hacia", help="Lugar al que se envía, si se conoce")
     p.add_argument("--estado", default="abierto", help="abierto | cerrado")
     p.add_argument("--adjunto", action="append", help="Objeto que acompaña la carta")
     p.add_argument("--emote", action="append", help="Texto de un /do de la carta")

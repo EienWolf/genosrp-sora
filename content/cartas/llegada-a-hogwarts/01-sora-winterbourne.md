@@ -9,6 +9,8 @@ para:
   - "ethan-winterbourne"
   - "lyra-winterbourne"
 fecha: null  # sin fecha conocida
+desde: "Hogwarts"
+hacia: "Dorset"
 asunto: "Selección en Hufflepuff y primeros hechizos"
 ---
 

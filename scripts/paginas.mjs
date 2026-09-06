@@ -1,5 +1,5 @@
 /** Renderizado de las páginas del sitio. */
-import { esc, md, seccion, secciones, definido, plantilla, listaDefs, astrolium, BASE, enlace } from './build.mjs';
+import { esc, md, seccion, secciones, definido, plantilla, listaDefs, BASE, enlace } from './build.mjs';
 
 const FECHA = { day: 'numeric', month: 'long', year: 'numeric' };
 const fecha = (iso) => iso
@@ -30,6 +30,20 @@ export function cursoActual(d) {
 
 // ------------------------------------------------------------------ portada
 
+/** El color con el que se pinta un rasgo descrito en palabras. */
+const color = (texto) => {
+  const t = String(texto ?? '').toLowerCase();
+  if (t.includes('azul')) return 'var(--azul)';
+  if (t.includes('dorad') || t.includes('ámbar') || t.includes('ambar')) return 'var(--oro)';
+  return 'var(--plata-2)';
+};
+
+/** Las chapas del uniforme, alternando el metal: dorada, azul, dorada… */
+const chapas = (lista) => (lista ?? []).length
+  ? `<ul class="chapas">` + lista.map((c, i) =>
+      `<li class="chapa chapa--${i % 2 ? 'azul' : 'oro'}">${esc(c)}</li>`).join('') + `</ul>`
+  : '';
+
 export function portada(d) {
   const s = d.sora.datos;
   const curso = cursoActual(d);
@@ -38,16 +52,35 @@ export function portada(d) {
   const retrato = d.galeria.find((g) => g.datos.retrato_principal === true)
     ?? d.galeria.find((g) => g.datos.rostro_visible === true);
 
-  const hero = `<div class="cielo">${astrolium()}
+  // Los dos ojos se dicen con su color al lado: es el rasgo por el que se le
+  // reconoce, y en una lista de datos se leía como una fila más.
+  const ojo = (lado, valor) => definido(valor)
+    ? `<span class="iris" style="--iris:${color(valor)}" aria-hidden="true"></span>`
+      + `${lado} ${esc(String(valor).toLowerCase())}`
+    : null;
+  const ojos = [ojo('derecho', s.fisico?.ojos?.derecho), ojo('izquierdo', s.fisico?.ojos?.izquierdo)]
+    .filter(Boolean).join(' ');
+
+  const hero = `<div class="cielo">
   <div class="env">
     <div class="presentacion">
-      ${retrato ? `<div class="retrato retrato--${esc(retrato.datos.clase ?? 'captura')}${
-        retrato.datos.ui_visible ? ' recortado' : ''}">
-        <img src="${BASE}/img/${esc(retrato.datos.archivo)}"
-          width="${retrato.datos.ancho}" height="${retrato.datos.alto}"
-          alt="${esc(retrato.datos.titulo)}: ${esc(retrato.datos.atuendo ?? '')}"></div>` : ''}
+      ${retrato ? `<figure class="polaroid">
+        <div class="polaroid__marco">
+          <div class="polaroid__foto polaroid__foto--${esc(retrato.datos.clase ?? 'captura')}${
+            retrato.datos.ui_visible ? ' recortado' : ''}">
+            <img src="${BASE}/img/${esc(retrato.datos.archivo)}"
+              width="${retrato.datos.ancho}" height="${retrato.datos.alto}"
+              alt="${esc(retrato.datos.titulo)}: ${esc(retrato.datos.atuendo ?? '')}"></div>
+          ${curso ? `<figcaption class="polaroid__pie">Sora, ${esc(curso.texto.toLowerCase())}
+            <span aria-hidden="true">✦</span></figcaption>` : ''}
+        </div>
+        ${chapas(s.chapitas)}
+      </figure>` : ''}
       <div>
+        ${curso && definido(s.casa) ? `<p class="rotulo-mano">${esc(s.casa.toLowerCase())} · ${
+          esc(curso.texto.toLowerCase())} <span aria-hidden="true">✦</span></p>` : ''}
         <h1>Sora Winterbourne</h1>
+        ${definido(s.lema) ? `<p class="lema">${esc(s.lema)}</p>` : ''}
         ${listaDefs([
           ['Curso', curso ? esc(curso.texto) : null],
           ['Casa', esc(s.casa)],
@@ -55,7 +88,7 @@ export function portada(d) {
           ['Nacionalidad', esc(s.nacionalidad)],
           ['Altura', esc(s.fisico?.altura)],
           ['Peso', esc(s.fisico?.peso)],
-          ['Ojos', 'derecho azul, izquierdo dorado'],
+          ['Ojos', ojos || null],
           ['Lechuza', d.criaturas.length ? `<a href="${BASE}/entorno#aurora">Aurora</a>` : null],
         ])}
       </div>
@@ -75,7 +108,6 @@ export function portada(d) {
     ['Voz', esc(s.fisico?.voz)],
     ['Aroma', esc(s.fisico?.aroma)],
     ['Gesto', esc(s.fisico?.expresion)],
-    ['Chapitas', (s.chapitas ?? []).map(esc).join(' · ') || null],
   ])}
   ${s.gustos?.length ? `<p class="plomo">Le gustan ${s.gustos.map((g) =>
       esc(g.toLowerCase())).join(', ')}.</p>` : ''}
@@ -280,7 +312,7 @@ export function apuntesIndice(d) {
     const preparados = c.apuntes.filter((a) => a.datos.elaborado === true).length;
     return `<li class="fila-hilo" id="${esc(m.slug ?? '')}">
       <a href="${rutaCuaderno(m.slug)}">
-        <span class="lacre lacre--mini" aria-hidden="true">${
+        <span class="lacre--mini" aria-hidden="true">${
           esc((m.titulo ?? '?').charAt(0).toUpperCase())}</span>
         <span class="fila-texto">
           <strong>${esc(m.titulo ?? m.slug)}</strong>
@@ -409,21 +441,44 @@ function tarjetaCarta(d, c, { abierta, ultima }) {
   const de = (x.de ?? []).map(d.nombreDe).join(' y ');
   const para = (x.para ?? []).map(d.nombreDe).join(' y ');
   const adjuntos = x.adjuntos ?? [];
+  const inicial = esc(de.trim().charAt(0).toUpperCase());
+  // El lacre se parte por la mitad al abrir: dos mitades idénticas, cada una
+  // recortada a su lado, que salen despedidas en direcciones opuestas.
+  const mitad = (lado) => `<span class="lacre__mitad lacre__mitad--${lado}">`
+    + `<span class="lacre__cera">${inicial}</span></span>`;
+
   return `<article class="carta carta--${deSora ? 'sora' : 'otro'}">
     <details class="sobre"${abierta ? ' open' : ''}>
       <summary>
-        <span class="lacre" aria-hidden="true">${esc(de.trim().charAt(0).toUpperCase())}</span>
-        <span class="remite">
-          <strong>${esc(de)}</strong>
-          <span class="para">para ${esc(para)}</span>
+        <span class="sobre__caja">
+          <span class="sobre__pieza">
+            <span class="sobre__asoma" aria-hidden="true"></span>
+            <span class="sobre__cara">
+              <span class="sobre__destino">
+                <span class="sobre__rotulo">para</span>
+                <strong class="sobre__nombre">${esc(para)}</strong>
+                ${definido(x.hacia) ? `<span class="sobre__lugar">${esc(x.hacia)}</span>` : ''}
+              </span>
+              <span class="sobre__franqueo" aria-hidden="true">✦</span>
+              <span class="sobre__remite">de ${esc(de)}${
+                definido(x.desde) ? `<span class="sobre__lugar">${esc(x.desde)}</span>` : ''}</span>
+            </span>
+            <span class="sobre__solapa" aria-hidden="true"><span class="sobre__solapa-cara"></span></span>
+            <span class="lacre" aria-hidden="true">${mitad('i')}${mitad('d')}</span>
+          </span>
+        </span>
+        <span class="sobre__pie">
+          <span class="abrir"><span class="abrir__cerrado">Romper el lacre</span
+            ><span class="abrir__abierto">Cerrar el sobre</span></span>
           ${ultima ? '<span class="reciente">la última del hilo</span>' : ''}
           ${adjuntos.length ? `<span class="con-adjunto">Lleva ${
             adjuntos.length === 1 ? 'un adjunto' : `${adjuntos.length} adjuntos`}</span>` : ''}
         </span>
-        <span class="abrir" aria-hidden="true">Leer</span>
       </summary>
-      <div class="papel">${md(c.cuerpo)}
-      ${adjuntos.map((a) => `<p class="adjunto">Adjunto: ${esc(a)}</p>`).join('')}</div>
+      <div class="papel">
+        ${definido(x.asunto) ? `<p class="papel__asunto">${esc(x.asunto)}</p>` : ''}
+        ${md(c.cuerpo)}
+        ${adjuntos.map((a) => `<p class="adjunto">Adjunto: ${esc(a)}</p>`).join('')}</div>
     </details>
   </article>`;
 }
@@ -453,7 +508,7 @@ export function cartasIndice(d, pagina, total) {
       data-estado="${abierto ? 'abierto' : 'cerrado'}"
       data-busca="${esc([meta.titulo, meta.asunto, ...otros].filter(Boolean).join(' ').toLowerCase())}">
       <a href="${rutaHilo(meta.slug)}">
-        <span class="lacre lacre--mini" aria-hidden="true">${esc((otros[0] ?? '?').charAt(0).toUpperCase())}</span>
+        <span class="lacre--mini" aria-hidden="true">${esc((otros[0] ?? '?').charAt(0).toUpperCase())}</span>
         <span class="fila-texto">
           <strong>${esc(meta.titulo ?? meta.slug)}</strong>
           <span class="con">${otros.length ? `con ${esc(otros.join(' y '))} · ` : ''}${
