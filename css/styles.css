@@ -867,6 +867,14 @@ main section > h1::after, main section > h2::after {
     inset 0 3px 5px rgba(255,255,255,.3),
     0 3px 10px rgba(5,7,15,.6);
 }
+/* El sello de la familia, hundido en la cera. Va como máscara para que tome
+   el color del lacre: claro sobre el azul, oscuro sobre el dorado. */
+.lacre__emblema {
+  width: 64%; height: 64%;
+  background: currentColor; opacity: .92;
+  -webkit-mask: url("../assets/winterbourne.svg") no-repeat center / contain;
+  mask: url("../assets/winterbourne.svg") no-repeat center / contain;
+}
 .carta--sora .lacre__cera {
   color: var(--tinta);
   background: radial-gradient(circle at 34% 28%, #f4cd7d, #cf922c 62%, #8f6416);

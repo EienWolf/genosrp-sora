@@ -11,6 +11,7 @@ El sitio publicado no lleva dependencias en el navegador.
 ```
 .
 ├── content/            # FUENTE DE VERDAD. Ver content/README.md
+├── assets/             # SVG: el sello de la familia, el favicon, el emblema de Genos
 ├── css/styles.css      # Estilos del sitio
 ├── js/main.js          # Filtros de hechizos y visor de galería
 ├── js/atmosfera.js     # El cielo, la varita y el movimiento

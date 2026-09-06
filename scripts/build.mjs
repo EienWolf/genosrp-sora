@@ -124,7 +124,7 @@ function plantilla({ id, titulo, descripcion, entrada, rotulo, volver, contenido
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(titulo)}</title>
 <meta name="description" content="${esc(descripcion)}">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='8' height='16' fill='%234a9ee0'/><rect x='8' width='8' height='16' fill='%23e0a63c'/></svg>">
+<link rel="icon" type="image/svg+xml" href="${BASE}/assets/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,400..700,0..100,0..1&family=Atkinson+Hyperlegible:wght@400;700&family=Caveat:wght@400..700&display=swap">

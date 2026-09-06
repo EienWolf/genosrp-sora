@@ -533,11 +533,18 @@ function tarjetaCarta(d, c, { abierta, ultima }) {
   const de = (x.de ?? []).map(d.nombreDe).join(' y ');
   const para = (x.para ?? []).map(d.nombreDe).join(' y ');
   const adjuntos = x.adjuntos ?? [];
-  const inicial = esc(de.trim().charAt(0).toUpperCase());
+  // Los Winterbourne lacran con el sello de la familia; quien no lo es,
+  // con su inicial. Se mira el apellido de quien firma, así que Sora lleva
+  // el mismo sello que sus tutores: es de los suyos.
+  const deLaCasa = (x.de ?? []).length > 0 && (x.de ?? []).every((slug) =>
+    String(d.porSlug[slug]?.datos?.apellido ?? '').toLowerCase() === 'winterbourne');
+  const cuno = deLaCasa
+    ? '<span class="lacre__emblema"></span>'
+    : esc(de.trim().charAt(0).toUpperCase());
   // El lacre se parte por la mitad al abrir: dos mitades idénticas, cada una
   // recortada a su lado, que salen despedidas en direcciones opuestas.
   const mitad = (lado) => `<span class="lacre__mitad lacre__mitad--${lado}">`
-    + `<span class="lacre__cera">${inicial}</span></span>`;
+    + `<span class="lacre__cera">${cuno}</span></span>`;
 
   return `<article class="carta carta--${deSora ? 'sora' : 'otro'}">
     <details class="sobre"${abierta ? ' open' : ''}>
