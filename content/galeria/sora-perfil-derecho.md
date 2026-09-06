@@ -10,6 +10,8 @@ origen: "captura del juego"
 # referencia_de: personaje | accesorio
 clase: "captura"
 referencia_de: "personaje"
+# retrato_principal: true = es el retrato que abre la portada.
+retrato_principal: false
 
 # Descripción — la rellena la skill `galeria` mirando la imagen
 titulo: "Sora de perfil derecho"

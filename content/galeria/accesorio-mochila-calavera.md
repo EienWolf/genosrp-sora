@@ -10,6 +10,8 @@ origen: "concept art del accesorio"
 # referencia_de: personaje | accesorio
 clase: "hoja-referencia"
 referencia_de: "accesorio"
+# retrato_principal: true = es el retrato que abre la portada.
+retrato_principal: false
 
 # Descripción — la rellena la skill `galeria` mirando la imagen
 titulo: "Mochila calavera"

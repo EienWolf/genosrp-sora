@@ -180,8 +180,8 @@ p { max-width: 68ch; }
   line-height: 0;
 }
 .retrato { position: relative; }
-.retrato img { filter: saturate(1.05) contrast(1.03); }
-.retrato::after {
+.retrato--captura img { filter: saturate(1.05) contrast(1.03); }
+.retrato--captura::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background:
     linear-gradient(180deg, rgba(16,22,43,.42), rgba(16,22,43,0) 38%, rgba(16,22,43,.62)),

@@ -33,15 +33,19 @@ export function cursoActual(d) {
 export function portada(d) {
   const s = d.sora.datos;
   const curso = cursoActual(d);
-  const retrato = d.galeria.find((g) => g.datos.slug === 'sora-frontal-uniforme');
+  // Qué imagen abre la portada lo decide el contenido, no este archivo: la
+  // ficha que lleve `retrato_principal: true`.
+  const retrato = d.galeria.find((g) => g.datos.retrato_principal === true)
+    ?? d.galeria.find((g) => g.datos.rostro_visible === true);
 
   const hero = `<div class="cielo">${astrolium()}
   <div class="env">
     <div class="presentacion">
-      ${retrato ? `<div class="retrato${retrato.datos.ui_visible ? ' recortado' : ''}">
+      ${retrato ? `<div class="retrato retrato--${esc(retrato.datos.clase ?? 'captura')}${
+        retrato.datos.ui_visible ? ' recortado' : ''}">
         <img src="${BASE}/img/${esc(retrato.datos.archivo)}"
           width="${retrato.datos.ancho}" height="${retrato.datos.alto}"
-          alt="Sora Winterbourne de frente, con el uniforme de Hufflepuff"></div>` : ''}
+          alt="${esc(retrato.datos.titulo)}: ${esc(retrato.datos.atuendo ?? '')}"></div>` : ''}
       <div>
         <h1>Sora Winterbourne</h1>
         ${listaDefs([
@@ -627,25 +631,38 @@ export function galeria(d) {
 
   // La del personaje primero: es la referencia principal y las de accesorio
   // solo se mandan cuando ese accesorio sale.
-  const hojas = d.galeria.filter((g) => g.datos.clase === 'hoja-referencia')
+  const de = (clase) => d.galeria.filter((g) => (g.datos.clase ?? 'captura') === clase);
+  // La del personaje primero: es la referencia principal y las de accesorio
+  // solo se mandan cuando ese accesorio sale.
+  const hojas = de('hoja-referencia')
     .sort((a, b) => (a.datos.referencia_de === 'personaje' ? 0 : 1)
                   - (b.datos.referencia_de === 'personaje' ? 0 : 1));
-  const capturas = d.galeria.filter((g) => g.datos.clase !== 'hoja-referencia');
+  const ilustraciones = de('ilustracion');
+  const capturas = de('captura');
 
   return plantilla({
     id: 'galeria', titulo: 'Galería · Sora Winterbourne',
-    descripcion: 'Hojas de referencia del personaje y capturas de Sora en el juego.',
+    descripcion: 'Retratos, hojas de referencia y capturas de Sora en el juego.',
     contenido: `
+${ilustraciones.length ? `<section>
+  <h1>${ilustraciones.length === 1 ? 'Retrato' : `${ilustraciones.length} retratos`}</h1>
+  <p class="plomo">Ilustrado a partir de las hojas de referencia, con la luz
+  montada sobre los dos colores de sus ojos.</p>
+  <div class="galeria">${ilustraciones.map(foto).join('')}</div>
+</section>` : ''}
 ${hojas.length ? `<section>
-  <h1>${hojas.length} ${hojas.length === 1 ? 'hoja de referencia' : 'hojas de referencia'}</h1>
+  <${ilustraciones.length ? 'h2' : 'h1'}>${hojas.length} ${
+    hojas.length === 1 ? 'hoja de referencia' : 'hojas de referencia'}</${
+    ilustraciones.length ? 'h2' : 'h1'}>
   <p class="plomo">Hechas a propósito para que un generador de imágenes mantenga
   al personaje y sus accesorios reconocibles. La del personaje es la única
   imagen donde se ve la heterocromía.</p>
   <div class="galeria">${hojas.map(foto).join('')}</div>
 </section>` : ''}
 <section>
-  <${hojas.length ? 'h2' : 'h1'}>${capturas.length} ${
-    capturas.length === 1 ? 'captura' : 'capturas'} del juego</${hojas.length ? 'h2' : 'h1'}>
+  <${hojas.length || ilustraciones.length ? 'h2' : 'h1'}>${capturas.length} ${
+    capturas.length === 1 ? 'captura' : 'capturas'} del juego</${
+    hojas.length || ilustraciones.length ? 'h2' : 'h1'}>
   <p class="plomo">Tomadas dentro del juego, tal como se ven en pantalla.</p>
   <div class="galeria">${capturas.map(foto).join('')}</div>
 </section>

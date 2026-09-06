@@ -10,6 +10,8 @@ origen: "hoja de referencia de personaje"
 # referencia_de: personaje | accesorio
 clase: "hoja-referencia"
 referencia_de: "personaje"
+# retrato_principal: true = es el retrato que abre la portada.
+retrato_principal: false
 
 # Descripción — la rellena la skill `galeria` mirando la imagen
 titulo: "Hoja de referencia del personaje"

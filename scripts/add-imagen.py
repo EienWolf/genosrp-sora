@@ -22,7 +22,7 @@ SIN_DESCRIBIR = "PENDIENTE"
 # Una hoja de referencia no es una captura: está hecha a propósito para esto,
 # con fondo limpio, varias vistas y paleta. Vale más que cualquier captura por
 # buena que sea, así que pesa aparte y no compite por ángulo.
-CLASES = {"captura": 0, "hoja-referencia": 6}
+CLASES = {"captura": 0, "hoja-referencia": 6, "ilustracion": 0}
 
 CRITERIOS = {
     "fondo": {"neutro": 2, "escenario": 0},
@@ -117,6 +117,8 @@ origen: {esc(args.origen)}
 # referencia_de: personaje | accesorio
 clase: {esc(args.clase)}
 referencia_de: {esc(args.referencia_de)}
+# retrato_principal: true = es el retrato que abre la portada.
+retrato_principal: {'true' if args.retrato else 'false'}
 
 # Descripción — la rellena la skill `galeria` mirando la imagen
 titulo: {esc(args.titulo) if args.titulo else esc(SIN_DESCRIBIR)}
@@ -182,7 +184,9 @@ def referencias(args):
         return print("No hay imágenes descritas todavía. Usa --pendientes.")
     puntuadas.sort(key=lambda t: -t[0])
     accesorios = [t for t in puntuadas if es_accesorio(t[1])]
-    puntuadas = [t for t in puntuadas if not es_accesorio(t[1])]
+    generadas = [t for t in puntuadas if t[1].get("clase") == "ilustracion"]
+    puntuadas = [t for t in puntuadas
+                 if not es_accesorio(t[1]) and t[1].get("clase") != "ilustracion"]
 
     # Un lote de referencia necesita variedad de ángulo, no la misma foto cinco
     # veces. Se coge la mejor de cada ángulo, y solo se rellena hasta el mínimo
@@ -209,6 +213,10 @@ def referencias(args):
         print("\n  Accesorios — añádelas solo si ese accesorio sale en la imagen:")
         for p, m, f in accesorios:
             print(f"  {p:+3d}  {m.get('archivo'):<34} {m.get('titulo') or ''}")
+    if generadas:
+        print("\n  Ilustraciones ya generadas — fuera del lote a propósito:")
+        for p, m, f in generadas:
+            print(f"       {m.get('archivo'):<34} reenviarlas arrastra su propia desviación")
     faltan = [a for a in ANGULOS if a not in usados]
     if faltan:
         print(f"\n  Sin cubrir: {', '.join(faltan)}")
@@ -227,9 +235,11 @@ def main():
     p.add_argument("--titulo", help="Título de la imagen")
     p.add_argument("--origen", default="captura del juego", help="Procedencia")
     p.add_argument("--clase", default="captura",
-                   choices=["captura", "hoja-referencia"])
+                   choices=["captura", "hoja-referencia", "ilustracion"])
     p.add_argument("--referencia-de", dest="referencia_de", default="personaje",
                    choices=["personaje", "accesorio"])
+    p.add_argument("--retrato", action="store_true",
+                   help="Marca esta imagen como el retrato de la portada")
     p.add_argument("--force", action="store_true", help="Sobrescribe la ficha")
     p.add_argument("--listar", action="store_true")
     p.add_argument("--pendientes", action="store_true", help="Fichas sin describir")
