@@ -137,6 +137,38 @@ sobreviven a la sincronización sin necesidad de bloquear nada.
 - `true` → intocable. Solo para cuando corrijas un dato *que viene de la base*,
   que es lo único que la sincronización pisaría.
 
+### `tipo: cuaderno` y `tipo: apunte`
+
+**No se editan a mano.** Se crean con la skill `apunte`:
+
+```bash
+python3 scripts/add-apunte.py --listar
+python3 scripts/add-apunte.py --cuaderno pociones --titulo "…" --tema pocion < texto.md
+```
+
+Un cuaderno es una carpeta; cada apunte, un archivo numerado dentro:
+
+```
+content/apuntes/pociones/
+├── cuaderno.md                # titulo, materia, estado
+├── 01-la-mesa.md
+└── 02-el-equipo.md
+```
+
+A diferencia de los hechizos, aquí **la teoría de la asignatura es la fuente y
+la redacción es de Sora**. Los hechos —cantidades, tiempos, colores— se copian
+exactos; el texto lo escribe él. Dos campos llevan esa distinción:
+
+| campo | qué dice |
+| --- | --- |
+| `via` | `clase`, `lectura` o `casa`: cómo llegó a ese conocimiento |
+| `elaborado` | si lo ha preparado con sus manos, no solo estudiado |
+
+El aparte en cita (`> **Nota mía.**`) es lo único que Sora añade de su cosecha.
+
+En el cuerpo, los enlaces van por slug y el sitio resuelve la ruta:
+`hechizo:celera`, `apunte:pocima-para-dormir`, `pagina:magia`.
+
 ### `tipo: carta` y `tipo: hilo-cartas`
 
 **No se editan a mano.** Se generan con la skill `carta`:

@@ -38,6 +38,8 @@ export function llmsTxt(d) {
   l.push(`- [Historia](${URL_BASE}/historia): su pasado y su paso por el castillo.`);
   l.push(`- [Magia](${URL_BASE}/magia): ${d.hechizos.length} hechizos.`);
   l.push(`- [Cartas](${URL_BASE}/cartas): índice de ${d.hilos.length} conversaciones.`);
+  l.push(`- [Apuntes](${URL_BASE}/apuntes): ${d.cuadernos.length} cuadernos de teoría `
+    + `reescritos por el personaje.`);
   l.push(`- [Entorno](${URL_BASE}/entorno): tutores, terapeuta, su lechuza y conocidos.`);
   l.push(`- [Galería](${URL_BASE}/galeria): ${d.galeria.length} capturas del juego.`);
   l.push('');
@@ -114,6 +116,15 @@ export function llmsFullTxt(d) {
       l.push(c.cuerpo); l.push('');
     }
   }
+  l.push('# Apuntes'); l.push('');
+  l.push('La teoría de las asignaturas, reescrita por Sora a partir de la del');
+  l.push('castillo. `via` dice cómo llegó a ella y `elaborado` si la ha preparado.');
+  l.push('');
+  for (const c of d.cuadernos) {
+    l.push(`## Cuaderno: ${c.meta?.datos.titulo ?? ''}`); l.push('');
+    if (c.meta?.cuerpo) { l.push(c.meta.cuerpo); l.push(''); }
+    for (const a of c.apuntes) ficha(a.datos.titulo, a);
+  }
   l.push('# Conocidos'); l.push('');
   l.push('```json'); l.push(JSON.stringify(d.conocidos, null, 2)); l.push('```'); l.push('');
   l.push('# Galería'); l.push('');
@@ -145,6 +156,20 @@ export function hiloMd(d, h) {
   return l.join('\n');
 }
 
+/** Un cuaderno entero en Markdown, para servirlo junto a su página. */
+export function cuadernoMd(d, c) {
+  const meta = c.meta?.datos ?? {};
+  const l = [`# ${meta.titulo ?? meta.slug}`, ''];
+  l.push('```yaml'); l.push(JSON.stringify(meta, null, 2)); l.push('```'); l.push('');
+  if (c.meta?.cuerpo) { l.push(c.meta.cuerpo); l.push(''); }
+  for (const a of [...c.apuntes].sort((x, y) => (x.datos.orden ?? 0) - (y.datos.orden ?? 0))) {
+    l.push(`## ${a.datos.titulo}`); l.push('');
+    l.push('```yaml'); l.push(JSON.stringify(a.datos, null, 2)); l.push('```'); l.push('');
+    l.push(a.cuerpo); l.push('');
+  }
+  return l.join('\n');
+}
+
 export function contentJson(d) {
   const limpia = (f) => ({ ...f.datos, ruta: f.ruta, cuerpo: f.cuerpo });
   return JSON.stringify({
@@ -157,6 +182,10 @@ export function contentJson(d) {
     hechizos: d.hechizos.map(limpia),
     cronologia: { cursos: d.cursos.map(limpia), complementarias: d.complementarias.map(limpia) },
     cartas: d.hilos.map((h) => ({ ...(h.meta?.datos ?? {}), cartas: h.cartas.map(limpia) })),
+    apuntes: d.cuadernos.map((c) => ({
+      ...(c.meta?.datos ?? {}), cuerpo: c.meta?.cuerpo ?? '',
+      apuntes: c.apuntes.map(limpia),
+    })),
     conocidos: d.conocidos,
     galeria: d.galeria.map(limpia),
   }, null, 2);

@@ -169,6 +169,7 @@ export function magia(d) {
                    x.efecto, x.manifestacion, ...(x.categorias ?? [])]
       .filter(definido).join(' ').toLowerCase();
     return `<details class="hechizo${x.aprendido === false ? ' pendiente' : ''}"
+      id="${esc(x.slug ?? '')}"
       data-clase="${esc(x.clase ?? '')}" data-anio="${esc(x.anio ?? '')}"
       data-busca="${esc(busca)}">
       <summary>
@@ -217,6 +218,119 @@ export function magia(d) {
     role="status">${n} ${n === 1 ? 'hechizo' : 'hechizos'}</p>
   ${fichas}
   <p id="sin-resultados" hidden>Ningún hechizo cumple ese filtro.</p>
+</section>`,
+  });
+}
+
+// ------------------------------------------------------------------ apuntes
+
+// Los cuadernos son la teoría de las asignaturas reescrita por Sora. A
+// diferencia de los hechizos, aquí la fuente es la teoría del castillo y la
+// redacción es suya: el sitio marca de dónde viene cada apunte y si lo ha
+// llegado a preparar o solo lo ha leído.
+export const rutaCuaderno = (slug) => `${BASE}/apuntes/${slug}`;
+
+const TEMAS = { fundamentos: 'Fundamentos', equipo: 'Equipo', pocion: 'Pociones' };
+const VIAS = {
+  clase:   { texto: 'visto en clase', clase: 'via--clase' },
+  lectura: { texto: 'solo leído', clase: 'via--lectura' },
+  casa:    { texto: 'aprendido en casa', clase: 'via--casa' },
+};
+
+export function apuntesIndice(d) {
+  const filas = d.cuadernos.map((c) => {
+    const m = c.meta?.datos ?? {};
+    const n = c.apuntes.length;
+    const preparados = c.apuntes.filter((a) => a.datos.elaborado === true).length;
+    return `<li class="fila-hilo" id="${esc(m.slug ?? '')}">
+      <a href="${rutaCuaderno(m.slug)}">
+        <span class="lacre lacre--mini" aria-hidden="true">${
+          esc((m.titulo ?? '?').charAt(0).toUpperCase())}</span>
+        <span class="fila-texto">
+          <strong>${esc(m.titulo ?? m.slug)}</strong>
+          <span class="con">${n} ${n === 1 ? 'apunte' : 'apuntes'}${
+            preparados ? ` · ${preparados} preparados` : ''}</span>
+        </span>
+        ${m.estado === 'en-curso' ? '<span class="marca-abierto">en curso</span>' : ''}
+      </a>
+    </li>`;
+  }).join('');
+
+  return plantilla({
+    id: 'apuntes', titulo: 'Apuntes · Sora Winterbourne',
+    descripcion: 'Los cuadernos donde Sora reescribe la teoría de sus asignaturas.',
+    entrada: 'La teoría de las asignaturas, copiada del castillo y reescrita por él '
+      + 'con sus palabras. Separa lo que ha preparado de lo que solo ha leído.',
+    contenido: `
+<section>
+  <h2>${d.cuadernos.length} ${d.cuadernos.length === 1 ? 'cuaderno' : 'cuadernos'}</h2>
+  <ul class="hilos">${filas}</ul>
+</section>`,
+  });
+}
+
+export function apuntesCuaderno(d, c) {
+  const m = c.meta?.datos ?? {};
+  const apuntes = [...c.apuntes].sort((a, b) =>
+    (a.datos.orden ?? 0) - (b.datos.orden ?? 0));
+
+  const indice = apuntes.map((a) =>
+    `<li><a href="#${esc(a.datos.slug)}">${esc(a.datos.titulo)}</a></li>`).join('');
+
+  const fichas = apuntes.map((a) => {
+    const x = a.datos;
+    const via = VIAS[x.via];
+    const reposo = x.reposo
+      ? Object.entries(x.reposo).map(([k, v]) =>
+          `${k === 'general' ? '' : k + ': '}${v}`).join(' · ')
+      : null;
+    return `<article class="apunte" id="${esc(x.slug)}">
+      <h3>${esc(x.titulo)}</h3>
+      <p class="sellos">
+        ${via ? `<span class="sello ${via.clase}">${via.texto}</span>` : ''}
+        ${x.curso ? `<span class="sello">${x.curso}.º curso</span>` : ''}
+        ${x.tema && TEMAS[x.tema] ? `<span class="sello">${esc(TEMAS[x.tema])}</span>` : ''}
+        ${x.elaborado === true ? '<span class="sello sello--hecho">lo ha preparado</span>' : ''}
+        ${x.dificultad && x.dificultad !== '?'
+          ? `<span class="sello">dificultad ${esc(x.dificultad)}</span>` : ''}
+      </p>
+      ${x.ingredientes?.length ? `<div class="receta">
+        <p class="rotulo">Ingredientes</p>
+        <ul>${x.ingredientes.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>
+        ${listaDefs([
+          ['Color final', esc(x.color_final)],
+          ['Aplicación', esc(x.aplicacion)],
+          ['Reposo', esc(reposo)],
+          ['Creador', esc(x.creador)],
+        ])}
+      </div>` : ''}
+      ${x.advertencias?.length ? `<div class="aviso">
+        <p class="rotulo">Cuidado</p>
+        <ul>${x.advertencias.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>
+      </div>` : ''}
+      ${md(a.cuerpo.replace(/^(#{2,3}) /gm, (_, h) => '#'.repeat(h.length + 2) + ' '))}
+      ${x.fuente ? `<p class="fuente">Fuente: ${esc(x.fuente)}</p>` : ''}
+    </article>`;
+  }).join('');
+
+  const preparados = apuntes.filter((a) => a.datos.elaborado === true).length;
+  return plantilla({
+    id: 'apuntes',
+    rotulo: m.titulo ?? m.slug,
+    titulo: `${m.titulo ?? m.slug} · Sora Winterbourne`,
+    descripcion: `${apuntes.length} apuntes de ${m.titulo ?? m.slug}, escritos por Sora.`,
+    entrada: m.subtitulo ?? '',
+    volver: { href: `${BASE}/apuntes`, texto: 'Todos los cuadernos' },
+    contenido: `
+<section>
+  <h2>Sobre este cuaderno</h2>
+  ${md(seccion(c.meta?.cuerpo ?? '', 'Sobre este cuaderno'))}
+  <p class="recuento" data-total="${apuntes.length}">${apuntes.length} apuntes${
+    preparados ? `, ${preparados} preparados` : ''}</p>
+  <ol class="sumario">${indice}</ol>
+</section>
+<section class="cuaderno">
+  ${fichas}
 </section>`,
   });
 }

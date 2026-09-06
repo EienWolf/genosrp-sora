@@ -385,6 +385,74 @@ main section > h2::after {
 .pendiente .nombre { color: var(--plata-3); }
 .marca-pendiente { color: var(--azul); font-size: .82rem; border: 1px solid var(--azul); border-radius: 999px; padding: .05rem .55rem; }
 
+/* ---------- Cuadernos de apuntes ----------
+   La teoría del castillo reescrita por Sora. El azul marca su voz —los
+   apartes que añade de su cosecha— y el dorado marca las advertencias.
+   El rojo NO se usa aquí: sigue reservado al hueco de memoria, que es lo
+   único del sitio que lo lleva. */
+
+.sumario { columns: 2; column-gap: 2.5rem; list-style-position: inside; padding: 0; }
+@media (max-width: 40rem) { .sumario { columns: 1; } }
+.sumario li { color: var(--plata-3); font-size: .95rem; margin-bottom: .3rem; break-inside: avoid; }
+.sumario a { color: var(--plata-2); text-decoration: none; }
+.sumario a:hover { color: var(--oro); }
+
+.cuaderno { counter-reset: apunte; }
+.apunte { padding-block: 2.25rem; border-top: 1px solid var(--linea); scroll-margin-top: 5rem; }
+.apunte:first-child { border-top: none; padding-top: 1rem; }
+.apunte > h3 { font-size: 1.5rem; margin-bottom: .5rem; }
+/* Encabezados dentro del apunte: cuelgan de su título, no compiten con él */
+.apunte h4 {
+  font-family: var(--serif); font-weight: 600; font-size: 1.12rem;
+  color: var(--plata); margin: 1.75rem 0 .5rem;
+}
+.apunte h5 {
+  font-family: var(--sans); font-size: .95rem; font-weight: 700;
+  color: var(--plata-2); margin: 1.25rem 0 .4rem;
+}
+.rotulo {
+  font-size: .78rem; font-weight: 700; letter-spacing: .03em;
+  color: var(--plata-3); margin: 0 0 .5rem; max-width: none;
+}
+
+/* Sellos: de dónde viene el apunte y en qué punto está */
+.sellos { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0 0 1.25rem; max-width: none; }
+.sello {
+  font-size: .78rem; color: var(--plata-3);
+  border: 1px solid var(--linea); border-radius: 999px; padding: .1rem .65rem;
+}
+.sello.via--clase { color: var(--azul); border-color: color-mix(in srgb, var(--azul) 50%, transparent); }
+.sello.via--lectura { color: var(--plata-2); border-style: dashed; }
+.sello.sello--hecho { color: var(--oro); border-color: var(--oro); }
+
+/* La receta: los datos duros, separados de la prosa */
+.receta {
+  background: var(--noche-alta); border: 1px solid var(--linea);
+  padding: 1.1rem 1.3rem; margin-bottom: 1.5rem;
+}
+.receta ul { margin: 0; padding-left: 1.1rem; font-size: .95rem; }
+.receta li { margin-bottom: .15rem; }
+.receta .datos { margin-top: 1rem; font-size: .9rem; }
+
+/* Advertencias en dorado, no en rojo: el rojo es del hueco de memoria */
+.aviso {
+  border-left: 2px solid var(--oro); padding: .1rem 0 .1rem 1.1rem;
+  margin-bottom: 1.5rem;
+}
+.aviso ul { margin: 0; padding-left: 1.1rem; font-size: .95rem; color: var(--plata-2); }
+.aviso li { margin-bottom: .2rem; }
+
+/* Lo que Sora añade de su cosecha, frente a la teoría que copia */
+.apunte blockquote {
+  margin: 1.5rem 0 0; padding: .1rem 0 .1rem 1.2rem;
+  border-left: 2px solid color-mix(in srgb, var(--azul) 65%, transparent);
+  color: var(--plata-2); font-size: .97rem;
+}
+.apunte blockquote strong { color: var(--azul); font-weight: 400; font-style: italic; }
+.apunte blockquote p:last-child { margin-bottom: 0; }
+
+.fuente { color: var(--plata-3); font-size: .82rem; margin: 1.5rem 0 0; }
+
 /* ---------- Índice de conversaciones ---------- */
 .buscador { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; }
 .buscador label { color: var(--plata-3); font-size: .85rem; min-width: 5.5rem; }

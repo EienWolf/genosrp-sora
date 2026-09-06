@@ -29,7 +29,15 @@ marked.setOptions({ mangle: false, headerIds: false });
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-const md = (s) => (s ? marked.parse(String(s)) : '');
+/* Enlaces entre fichas por slug. En content/ se escribe `hechizo:celera` y la
+   ruta la decide el sitio, así que el contenido no depende de cómo estén
+   organizadas las URLs ni se rompe si cambian. */
+const resolver = (html) => html
+  .replace(/href="pagina:([a-z0-9-]+)"/g, `href="${BASE}/$1"`)
+  .replace(/href="hechizo:([a-z0-9-]+)"/g, `href="${BASE}/magia#$1"`)
+  .replace(/href="apunte:([a-z0-9-]+)"/g, 'href="#$1"');
+
+const md = (s) => (s ? resolver(marked.parse(String(s))) : '');
 const definido = (v) => v !== null && v !== undefined && v !== '' && v !== '?';
 
 /** Divide una ficha en frontmatter y cuerpo. Corta solo por una línea que
@@ -161,6 +169,7 @@ const PAGINAS = [
   { id: 'index', archivo: 'index.html', menu: 'Sora' },
   { id: 'historia', archivo: 'historia.html', menu: 'Historia' },
   { id: 'magia', archivo: 'magia.html', menu: 'Magia' },
+  { id: 'apuntes', archivo: 'apuntes.html', menu: 'Apuntes' },
   { id: 'cartas', archivo: 'cartas.html', menu: 'Cartas' },
   { id: 'entorno', archivo: 'entorno.html', menu: 'Entorno' },
   { id: 'galeria', archivo: 'galeria.html', menu: 'Galería' },
@@ -267,6 +276,21 @@ async function cargar() {
     }
   }
 
+  const cuadernos = [];
+  const dirApuntes = join(CONTENIDO, 'apuntes');
+  if (existsSync(dirApuntes)) {
+    for (const nombre of (await readdir(dirApuntes, { withFileTypes: true }))
+      .filter((e) => e.isDirectory()).map((e) => e.name).sort()) {
+      const dir = join(dirApuntes, nombre);
+      const archivos = (await readdir(dir)).filter((f) => /^\d\d-.*\.md$/.test(f)).sort();
+      cuadernos.push({
+        meta: existsSync(join(dir, 'cuaderno.md'))
+          ? await leerFicha(join(dir, 'cuaderno.md')) : null,
+        apuntes: await Promise.all(archivos.map((f) => leerFicha(join(dir, f)))),
+      });
+    }
+  }
+
   return {
     sora: porSlug['sora-winterbourne'],
     personajes, porSlug, nombreDe,
@@ -276,7 +300,7 @@ async function cargar() {
     complementarias: await leerCarpeta('historias/complementarias'),
     galeria: await leerCarpeta('galeria'),
     conocidos: conocidos.conocidos ?? [],
-    hilos,
+    hilos, cuadernos,
   };
 }
 

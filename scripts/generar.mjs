@@ -5,7 +5,8 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { cargar, RAIZ, CONTENIDO, SALIDA, PAGINAS } from './build.mjs';
 import * as P from './paginas.mjs';
-import { llmsTxt, llmsFullTxt, contentJson, robotsTxt, sitemapXml, hiloMd } from './maquina.mjs';
+import { llmsTxt, llmsFullTxt, contentJson, robotsTxt, sitemapXml, hiloMd,
+         cuadernoMd } from './maquina.mjs';
 
 const d = await cargar();
 
@@ -23,7 +24,7 @@ const escribir = async (rel, texto, { enMapa = true } = {}) => {
 // Páginas fijas
 const render = { index: P.portada, historia: P.historia, magia: P.magia,
                  entorno: P.entorno, galeria: P.galeria };
-for (const p of PAGINAS.filter((p) => p.id !== 'cartas')) {
+for (const p of PAGINAS.filter((p) => p.id !== 'cartas' && p.id !== 'apuntes')) {
   await escribir(p.archivo, render[p.id](d));
   console.log(`· ${p.archivo}`);
 }
@@ -50,6 +51,19 @@ for (let i = 0; i < orden.length; i++) {
 }
 await escribir('cartas/indice.json', P.indiceJson(d), { enMapa: false });
 console.log(`· cartas.html + ${orden.length} hilos (índice en ${paginasIndice.length} pág.)`);
+
+// Apuntes: un índice de cuadernos y una página por cuaderno. Están pensados
+// para crecer —el usuario irá añadiendo teoría por partes y habrá más libros—
+// así que siguen la misma estructura que las cartas.
+await mkdir(join(SALIDA, 'apuntes'), { recursive: true });
+await escribir('apuntes.html', P.apuntesIndice(d));
+for (const c of d.cuadernos) {
+  const slug = c.meta?.datos?.slug;
+  if (!slug) continue;
+  await escribir(`apuntes/${slug}.html`, P.apuntesCuaderno(d, c));
+  await escribir(`apuntes/${slug}.md`, cuadernoMd(d, c), { enMapa: false });
+}
+console.log(`· apuntes.html + ${d.cuadernos.length} cuadernos`);
 
 // Estáticos
 await cp(join(RAIZ, 'css'), join(SALIDA, 'css'), { recursive: true });
