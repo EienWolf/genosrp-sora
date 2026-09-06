@@ -637,7 +637,8 @@ export function galeria(d) {
   const hojas = de('hoja-referencia')
     .sort((a, b) => (a.datos.referencia_de === 'personaje' ? 0 : 1)
                   - (b.datos.referencia_de === 'personaje' ? 0 : 1));
-  const ilustraciones = de('ilustracion');
+  const ilustraciones = de('ilustracion')
+    .sort((a, b) => (a.datos.retrato_principal ? 0 : 1) - (b.datos.retrato_principal ? 0 : 1));
   const capturas = de('captura');
 
   return plantilla({
