@@ -282,6 +282,17 @@ de ángulo**, no cantidad: tres capturas de ángulos distintos dan más
 consistencia que cinco casi iguales, así que el lote puede salir con menos de
 las que pidas.
 
+Hay dos clases de imagen, y se tratan distinto al armar el lote de referencia:
+
+| campo | valores |
+| --- | --- |
+| `clase` | `captura` (del juego) · `hoja-referencia` (arte hecho para esto) |
+| `referencia_de` | `personaje` · `accesorio` |
+
+Una hoja del personaje entra siempre en el lote y no compite por ángulo. Una de
+accesorio se lista aparte: no sirve para consistencia de cara, se añade solo si
+ese accesorio sale en la imagen.
+
 ## Conocidos
 
 `conocidos.yml` recoge a las personas que aparecen en el rol —normalmente

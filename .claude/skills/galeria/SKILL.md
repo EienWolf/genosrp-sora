@@ -13,6 +13,26 @@ ficha sirve para dos cosas distintas y no hay que confundirlas:
 2. **Elegir el lote de referencia** para el generador de imágenes: los campos
    de aptitud.
 
+
+## Dos clases de imagen
+
+| `clase` | qué es |
+| --- | --- |
+| `captura` | una captura del juego, tal como se ve en pantalla |
+| `hoja-referencia` | arte hecho a propósito como referencia: fondo limpio, varias vistas, paleta |
+
+Y `referencia_de` dice de qué es referencia: `personaje` o `accesorio`.
+
+Importa porque el lote se arma distinto. Una hoja del personaje vale más que
+cualquier captura y no compite por ángulo: entra siempre. Una hoja de accesorio
+**no sirve para consistencia de cara** —no hay cara— y se lista aparte, para
+añadirla solo cuando ese accesorio tenga que salir en la imagen.
+
+```bash
+scripts/add-imagen.py ~/hoja.jpeg --slug hoja-personaje \
+    --clase hoja-referencia --referencia-de personaje --origen "hoja de referencia"
+```
+
 ## 1. Añadir
 
 ```bash

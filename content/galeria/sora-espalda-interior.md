@@ -6,6 +6,10 @@ ancho: 686
 alto: 709
 hash: "6560175c0dbe663d"
 origen: "captura del juego"
+# clase:         captura | hoja-referencia
+# referencia_de: personaje | accesorio
+clase: "captura"
+referencia_de: "personaje"
 
 # Descripción — la rellena la skill `galeria` mirando la imagen
 titulo: "Sora de espaldas en interior de madera"

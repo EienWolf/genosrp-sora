@@ -19,6 +19,11 @@ SIN_DESCRIBIR = "PENDIENTE"
 
 # Qué hace buena a una referencia, y cuánto pesa. El objetivo es consistencia
 # de personaje: cara nítida, color fiel y sin adornos que el generador copie.
+# Una hoja de referencia no es una captura: está hecha a propósito para esto,
+# con fondo limpio, varias vistas y paleta. Vale más que cualquier captura por
+# buena que sea, así que pesa aparte y no compite por ángulo.
+CLASES = {"captura": 0, "hoja-referencia": 6}
+
 CRITERIOS = {
     "fondo": {"neutro": 2, "escenario": 0},
     "iluminacion": {"neutra": 3, "calida": -2, "oscura": -2, "dominante": -3},
@@ -72,7 +77,14 @@ def puntuar(m):
     """Puntúa una ficha como candidata a referencia. None si falta describirla."""
     if m.get("descripcion") == SIN_DESCRIBIR or not m.get("angulo"):
         return None
-    return sum(tabla.get(m.get(campo), 0) for campo, tabla in CRITERIOS.items())
+    base = sum(tabla.get(m.get(campo), 0) for campo, tabla in CRITERIOS.items())
+    return base + CLASES.get(m.get("clase", "captura"), 0)
+
+
+def es_accesorio(m):
+    """Una hoja de un accesorio no sirve para consistencia de cara: se manda
+    solo cuando ese accesorio tiene que salir en la imagen."""
+    return m.get("referencia_de") == "accesorio"
 
 
 def anadir(args):
@@ -101,6 +113,10 @@ ancho: {w}
 alto: {h}
 hash: {esc(digest)}
 origen: {esc(args.origen)}
+# clase:         captura | hoja-referencia
+# referencia_de: personaje | accesorio
+clase: {esc(args.clase)}
+referencia_de: {esc(args.referencia_de)}
 
 # Descripción — la rellena la skill `galeria` mirando la imagen
 titulo: {esc(args.titulo) if args.titulo else esc(SIN_DESCRIBIR)}
@@ -165,12 +181,16 @@ def referencias(args):
     if not puntuadas:
         return print("No hay imágenes descritas todavía. Usa --pendientes.")
     puntuadas.sort(key=lambda t: -t[0])
+    accesorios = [t for t in puntuadas if es_accesorio(t[1])]
+    puntuadas = [t for t in puntuadas if not es_accesorio(t[1])]
 
     # Un lote de referencia necesita variedad de ángulo, no la misma foto cinco
     # veces. Se coge la mejor de cada ángulo, y solo se rellena hasta el mínimo
     # de 3: añadir una redundante o una de color falseado empeora el resultado.
     lote, usados = [], set()
     for p, m, f in puntuadas:
+        if m.get("clase") == "hoja-referencia" and len(lote) < args.max:
+            lote.append((p, m, f)); continue      # no compite por ángulo
         if m.get("angulo") not in usados and len(lote) < args.max and p >= 0:
             lote.append((p, m, f)); usados.add(m.get("angulo"))
     for p, m, f in puntuadas:
@@ -185,6 +205,10 @@ def referencias(args):
         aviso = "  ⚠ recortar UI" if m.get("ui_visible") else ""
         print(f"  {p:+3d}  {m.get('archivo'):<34} {m.get('angulo'):<14} "
               f"{m.get('plano') or '—'}{aviso}")
+    if accesorios:
+        print("\n  Accesorios — añádelas solo si ese accesorio sale en la imagen:")
+        for p, m, f in accesorios:
+            print(f"  {p:+3d}  {m.get('archivo'):<34} {m.get('titulo') or ''}")
     faltan = [a for a in ANGULOS if a not in usados]
     if faltan:
         print(f"\n  Sin cubrir: {', '.join(faltan)}")
@@ -202,6 +226,10 @@ def main():
     p.add_argument("--slug", help="Nombre en la galería")
     p.add_argument("--titulo", help="Título de la imagen")
     p.add_argument("--origen", default="captura del juego", help="Procedencia")
+    p.add_argument("--clase", default="captura",
+                   choices=["captura", "hoja-referencia"])
+    p.add_argument("--referencia-de", dest="referencia_de", default="personaje",
+                   choices=["personaje", "accesorio"])
     p.add_argument("--force", action="store_true", help="Sobrescribe la ficha")
     p.add_argument("--listar", action="store_true")
     p.add_argument("--pendientes", action="store_true", help="Fichas sin describir")

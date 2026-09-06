@@ -613,7 +613,7 @@ ${conocidos ? `<section>
 export function galeria(d) {
   // Del catálogo de imágenes solo salen título y descripción: los campos de
   // aptitud como referencia son herramienta interna, no contenido del sitio.
-  const fotos = d.galeria.map((g) => {
+  const foto = (g) => {
     const x = g.datos;
     return `<figure>
       <button type="button" data-grande="${BASE}/img/${esc(x.archivo)}"
@@ -623,15 +623,31 @@ export function galeria(d) {
       </button>
       <figcaption>${esc(x.titulo)}</figcaption>
     </figure>`;
-  }).join('');
+  };
+
+  // La del personaje primero: es la referencia principal y las de accesorio
+  // solo se mandan cuando ese accesorio sale.
+  const hojas = d.galeria.filter((g) => g.datos.clase === 'hoja-referencia')
+    .sort((a, b) => (a.datos.referencia_de === 'personaje' ? 0 : 1)
+                  - (b.datos.referencia_de === 'personaje' ? 0 : 1));
+  const capturas = d.galeria.filter((g) => g.datos.clase !== 'hoja-referencia');
 
   return plantilla({
     id: 'galeria', titulo: 'Galería · Sora Winterbourne',
-    descripcion: 'Capturas de Sora en el juego.',
+    descripcion: 'Hojas de referencia del personaje y capturas de Sora en el juego.',
     contenido: `
+${hojas.length ? `<section>
+  <h1>${hojas.length} ${hojas.length === 1 ? 'hoja de referencia' : 'hojas de referencia'}</h1>
+  <p class="plomo">Hechas a propósito para que un generador de imágenes mantenga
+  al personaje y sus accesorios reconocibles. La del personaje es la única
+  imagen donde se ve la heterocromía.</p>
+  <div class="galeria">${hojas.map(foto).join('')}</div>
+</section>` : ''}
 <section>
-  <h1>Capturas</h1>
-  <div class="galeria">${fotos}</div>
+  <${hojas.length ? 'h2' : 'h1'}>${capturas.length} ${
+    capturas.length === 1 ? 'captura' : 'capturas'} del juego</${hojas.length ? 'h2' : 'h1'}>
+  <p class="plomo">Tomadas dentro del juego, tal como se ven en pantalla.</p>
+  <div class="galeria">${capturas.map(foto).join('')}</div>
 </section>
 <dialog class="visor">
   <img alt="">

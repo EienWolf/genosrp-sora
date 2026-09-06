@@ -6,6 +6,10 @@ ancho: 637
 alto: 582
 hash: "81266269072e4170"
 origen: "captura del juego"
+# clase:         captura | hoja-referencia
+# referencia_de: personaje | accesorio
+clase: "captura"
+referencia_de: "personaje"
 
 # Descripción — la rellena la skill `galeria` mirando la imagen
 titulo: "Sora de perfil derecho"
