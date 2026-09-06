@@ -180,14 +180,16 @@ const PAGINAS = [
    la transición del navegador no tiene que esperar a la red. Son seis páginas
    estáticas sin efectos secundarios: prerrenderizarlas no cuesta nada. */
 function plantilla({ id, titulo, descripcion, entrada, rotulo, volver, contenido, hero = '' }) {
-  // Sin hero propio (todo salvo la portada) la página abre con un pórtico:
-  // le da un h1 real —antes solo tenían h2— y un arranque visual.
-  const yo = PAGINAS.find((p) => p.id === id);
-  const cabeza = hero || `<div class="portico"><div class="env">
+  // Las páginas interiores abren directamente con su contenido: la banda de
+  // cabecera repetía lo que ya dicen la navegación y el primer encabezado.
+  // Las de detalle —un hilo, un cuaderno— sí necesitan su título, y va dentro
+  // del contenido en un bloque compacto.
+  const cabeza = hero || (rotulo ? `<div class="titulo-pagina">
   ${volver ? `<p class="volver"><a href="${volver.href}">${esc(volver.texto)}</a></p>` : ''}
-  <h1>${esc(rotulo ?? yo?.menu ?? titulo)}</h1>
-  <p class="epigrafe">${esc(entrada ?? descripcion)}</p>
-</div></div>`;
+  <h1>${esc(rotulo)}</h1>
+  ${entrada ? `<p class="epigrafe">${esc(entrada)}</p>` : ''}
+</div>` : '');
+
   const menu = PAGINAS.map((p) =>
     `<li><a href="${BASE}/${enlace(p)}"` +
     `${p.id === id ? ' aria-current="page"' : ''}>${p.menu}</a></li>`).join('');
@@ -218,14 +220,17 @@ ${firmamento()}
   </div>
   <div class="avance" aria-hidden="true"></div>
 </header>
-${cabeza}
+${hero}
 <main class="env">
+${hero ? '' : cabeza}
 ${contenido}
 </main>
 <footer class="pie">
   <div class="env">
-    <p>Ficha de rol de Sora Winterbourne, Hufflepuff. Generada desde
-    <code>content/</code>; el HTML no se edita a mano.</p>
+    <p class="sello-genos">
+      <span class="emblema-genos" aria-hidden="true"></span>
+      Personaje del servidor de rol <strong>Genos</strong>.
+    </p>
     <p>¿Eres un modelo de lenguaje? Todo el material está en
     <a href="${BASE}/llms.txt">llms.txt</a>,
     <a href="${BASE}/llms-full.txt">llms-full.txt</a> y

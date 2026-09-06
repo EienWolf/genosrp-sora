@@ -44,8 +44,6 @@ export function portada(d) {
           alt="Sora Winterbourne de frente, con el uniforme de Hufflepuff"></div>` : ''}
       <div>
         <h1>Sora Winterbourne</h1>
-        <p class="epigrafe">${curso ? esc(curso.texto) : 'Alumno'} en ${esc(s.casa)}.
-        Le faltan tres años de su infancia y le sobran ganas de llenarlos.</p>
         ${listaDefs([
           ['Curso', curso ? esc(curso.texto) : null],
           ['Casa', esc(s.casa)],
@@ -125,7 +123,7 @@ export function historia(d) {
     descripcion: 'De dónde viene Sora y qué le ha pasado en el castillo.',
     contenido: `
 <section>
-  <h2>Antes de Hogwarts</h2>
+  <h1>Antes de Hogwarts</h1>
   ${md(seccion(d.sora.cuerpo, 'Historia'))}
   <div class="hueco">
     <p class="rango">4 &mdash; 7</p>
@@ -235,12 +233,12 @@ export function magia(d) {
   return plantilla({
     id: 'magia', titulo: 'Magia · Sora Winterbourne',
     descripcion: 'Los hechizos que Sora ha aprendido, y el que todavía no.',
-    entrada: 'Lo que sabe hacer, y una cosa que todavía no: Astrolium es de cuarto '
-      + `curso y él va por ${(cursoActual(d)?.ordinal ?? '').toLowerCase() || 'ahora'}, `
-      + 'pero ya tiene decidido qué cielo proyecta.',
     contenido: `
 <section>
-  <h2>${n} ${n === 1 ? 'hechizo' : 'hechizos'}</h2>
+  <h1>${n} ${n === 1 ? 'hechizo' : 'hechizos'}</h1>
+  <p class="plomo">Lo que sabe hacer, y una cosa que todavía no: Astrolium es de
+  cuarto curso y él va por ${(cursoActual(d)?.ordinal ?? '').toLowerCase()}, pero ya
+  tiene decidido qué cielo proyecta.</p>
   <div class="buscador">
     <label for="buscar-hechizo">Buscar</label>
     <input id="buscar-hechizo" type="search" autocomplete="off"
@@ -293,11 +291,11 @@ export function apuntesIndice(d) {
   return plantilla({
     id: 'apuntes', titulo: 'Apuntes · Sora Winterbourne',
     descripcion: 'Los cuadernos donde Sora reescribe la teoría de sus asignaturas.',
-    entrada: 'La teoría de las asignaturas, copiada del castillo y reescrita por él '
-      + 'con sus palabras. Separa lo que ha preparado de lo que solo ha leído.',
     contenido: `
 <section>
-  <h2>${d.cuadernos.length} ${d.cuadernos.length === 1 ? 'cuaderno' : 'cuadernos'}</h2>
+  <h1>${d.cuadernos.length} ${d.cuadernos.length === 1 ? 'cuaderno' : 'cuadernos'}</h1>
+  <p class="plomo">La teoría de las asignaturas, copiada del castillo y reescrita
+  por él con sus palabras. Separa lo que ha preparado de lo que solo ha leído.</p>
   <ul class="hilos">${filas}</ul>
 </section>`,
   });
@@ -473,12 +471,11 @@ export function cartasIndice(d, pagina, total) {
   return plantilla({
     id: 'cartas', titulo: `Cartas · Sora Winterbourne${pagina ? ` (${pagina + 1})` : ''}`,
     descripcion: 'La correspondencia de Sora, por hilos.',
-    entrada: 'Cada conversación tiene su propia página. Los hilos que esperan '
-      + 'respuesta van arriba; el resto, por lo que se movió hace menos. '
-      + 'Aurora las trae.',
     contenido: `
 <section>
-  <h2>${d.hilos.length} ${d.hilos.length === 1 ? 'conversación' : 'conversaciones'}</h2>
+  <h1>${d.hilos.length} ${d.hilos.length === 1 ? 'conversación' : 'conversaciones'}</h1>
+  <p class="plomo">Las de Sora van a la derecha; las respuestas, a la izquierda.
+  Los hilos que esperan respuesta van arriba. Aurora las trae.</p>
   <div class="buscador">
     <label for="buscar-hilo">Buscar</label>
     <input id="buscar-hilo" type="search" autocomplete="off"
@@ -592,7 +589,7 @@ export function entorno(d) {
     descripcion: 'La gente y los animales alrededor de Sora.',
     contenido: `
 <section>
-  <h2>Su familia</h2>
+  <h1>Su familia</h1>
   <p class="plomo">Los Winterbourne no son sus padres biológicos, pero llevan
   siendo su casa desde que tiene siete años.</p>
   ${personas}
@@ -631,10 +628,9 @@ export function galeria(d) {
   return plantilla({
     id: 'galeria', titulo: 'Galería · Sora Winterbourne',
     descripcion: 'Capturas de Sora en el juego.',
-    entrada: 'Capturas tomadas dentro del juego, tal como se ve en pantalla.',
     contenido: `
 <section>
-  <h2>Capturas</h2>
+  <h1>Capturas</h1>
   <div class="galeria">${fotos}</div>
 </section>
 <dialog class="visor">

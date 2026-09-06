@@ -215,20 +215,13 @@ p { max-width: 68ch; }
 .datos dt { color: var(--plata-3); }
 .datos dd { margin: 0; color: var(--plata); }
 
-/* ---------- Pórtico: la apertura de las páginas interiores ---------- */
-.portico {
-  position: relative; overflow: hidden;
-  border-bottom: 1px solid var(--linea);
-  padding-block: clamp(2.5rem, 6vw, 4.25rem);
-}
-/* Un barrido de luz cruza el pórtico una sola vez al entrar */
-.portico::after {
-  content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--oro), transparent);
-  opacity: .55;
-}
-.portico h1 { font-size: clamp(2rem, 5.5vw, 3.1rem); margin-bottom: .15em; }
-.portico .epigrafe { font-size: 1.1rem; }
+/* ---------- Título de las páginas de detalle ----------
+   Un hilo o un cuaderno sí necesitan decir cómo se llaman. El resto de
+   páginas abren directamente con su contenido: la banda de cabecera repetía
+   lo que ya dicen la navegación y el primer encabezado. */
+.titulo-pagina { padding-block: clamp(2rem, 5vw, 3rem) 0; }
+.titulo-pagina h1 { font-size: clamp(1.9rem, 5vw, 2.8rem); margin-bottom: .15em; }
+.titulo-pagina .epigrafe { font-size: 1.05rem; }
 
 /* ---------- Secciones ---------- */
 /* Las cartas entran desplazadas y giradas hacia su lado; ese giro ensancha
@@ -243,7 +236,8 @@ main section + section { border-top: 1px solid var(--linea); }
 .plomo { font-size: 1.15rem; color: var(--plata-2); }
 
 /* El titular se firma con un trazo de pluma que se dibuja al entrar */
-main section > h2::after {
+main section > h1 { font-size: clamp(1.6rem, 3.4vw, 2.2rem); }
+main section > h1::after, main section > h2::after {
   content: ""; display: block; height: 1px; width: 4rem; margin-top: .55rem;
   background: linear-gradient(90deg, var(--oro), transparent);
   transform-origin: left;
@@ -662,6 +656,19 @@ dialog.visor .cerrar:hover { border-color: var(--oro); color: var(--oro); }
 .desconocido { color: var(--plata-3); font-style: italic; }
 
 /* ---------- Pie ---------- */
+.sello-genos { display: flex; align-items: center; gap: .7rem; }
+.sello-genos strong { color: var(--oro); font-weight: 400; }
+/* El emblema va como máscara y no como <img>: así lo tiñe el CSS. Un SVG
+   con currentColor cargado en un <img> no hereda el color de la página y
+   salía casi negro sobre el fondo oscuro. */
+.emblema-genos {
+  flex: none; width: 2rem; height: 2rem; display: block;
+  background: var(--oro); opacity: .8;
+  -webkit-mask: url("../assets/genos.svg") no-repeat center / contain;
+  mask: url("../assets/genos.svg") no-repeat center / contain;
+  transition: opacity .4s ease;
+}
+.sello-genos:hover .emblema-genos { opacity: 1; }
 .pie { border-top: 1px solid var(--linea); padding-block: 2.5rem; color: var(--plata-3); font-size: .9rem; }
 .pie p { max-width: none; }
 .pie a { color: var(--plata-2); }
@@ -726,17 +733,12 @@ html.varita-activa, html.varita-activa * { cursor: none; }
 .animar [data-revelar="tenue"]     { transform: none; }
 
 /* Los trazos estructurales se dibujan; no aparecen */
-.animar .portico::after {
-  transform: scaleX(0); transform-origin: left;
-  animation: barrer 1.4s var(--posarse) .25s forwards;
-}
-@keyframes barrer { to { transform: scaleX(1); } }
-
-.animar main section > h2::after {
+.animar main section > h1 { font-size: clamp(1.6rem, 3.4vw, 2.2rem); }
+main section > h1::after, main section > h2::after {
   transform: scaleX(0);
   transition: transform 1s var(--posarse) .15s;
 }
-.animar main section.dentro > h2::after { transform: scaleX(1); }
+.animar main section.dentro > :is(h1, h2)::after { transform: scaleX(1); }
 
 .animar .bloque::before {
   transform: scaleY(0);
