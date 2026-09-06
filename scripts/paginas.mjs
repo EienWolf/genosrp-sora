@@ -10,7 +10,8 @@ const diaYMes = (iso) => iso
   ? new Date(iso + 'T00:00:00Z').toLocaleDateString('es-ES',
       { day: 'numeric', month: 'long', timeZone: 'UTC' })
   : null;
-const anioDe = (iso) => (iso ? String(iso).slice(0, 4) : null);
+// El año de nacimiento y la edad no se publican: fijarían la fecha del rol.
+// El dato vive en content/ y llega entero a llms-full.txt y content.json.
 
 const ORDINALES = ['', 'Primer', 'Segundo', 'Tercer', 'Cuarto', 'Quinto',
                    'Sexto', 'Séptimo', 'Octavo'];
@@ -46,10 +47,9 @@ export function portada(d) {
         <p class="epigrafe">${curso ? esc(curso.texto) : 'Alumno'} en ${esc(s.casa)}.
         Le faltan tres años de su infancia y le sobran ganas de llenarlos.</p>
         ${listaDefs([
-          ['Curso', curso ? `${esc(curso.texto)}${curso.edad ? `, ${curso.edad} años` : ''}` : null],
+          ['Curso', curso ? esc(curso.texto) : null],
           ['Casa', esc(s.casa)],
           ['Cumpleaños', esc(diaYMes(s.nacimiento))],
-          ['Año de nacimiento', esc(anioDe(s.nacimiento))],
           ['Nacionalidad', esc(s.nacionalidad)],
           ['Altura', esc(s.fisico?.altura)],
           ['Peso', esc(s.fisico?.peso)],
@@ -110,7 +110,7 @@ export function historia(d) {
     return `<li>
       <span class="hito">${x.curso}</span>
       <h3>${esc(x.titulo)}</h3>
-      <p class="cuando">${esc(x.casa ?? '')}${x.edad ? `, ${x.edad} años` : ''}${
+      <p class="cuando">${esc(x.casa ?? '')}${
         x.estado === 'en-curso' ? ' · en curso' : ''}${
         x.resumen_pendiente ? ' · resumen pendiente' : ''}</p>
       ${md(seccion(c.cuerpo, 'Resumen'))}
