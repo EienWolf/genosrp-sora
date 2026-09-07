@@ -7,7 +7,8 @@ edad: 12
 casa: "Hufflepuff"
 estado: "en-curso"
 hechizos_aprendidos:
-  - red-spark-i-verdimillious
+  - red-spark
+  - verdimillious
 clubes:
   - nombre: "Club de Pociones"
     estado: "admitido"
