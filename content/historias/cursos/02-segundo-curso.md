@@ -9,6 +9,12 @@ estado: "en-curso"
 hechizos_aprendidos:
   - red-spark
   - verdimillious
+  - salire
+  - wingardium-leviosa
+  - circuli-colore
+  - protego
+  - walkspeeden
+  - riddikulus
 clubes:
   - nombre: "Club de Pociones"
     estado: "admitido"
