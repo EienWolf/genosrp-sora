@@ -1,12 +1,13 @@
 ---
 tipo: "apunte"
 cuaderno: "pociones"
-orden: 10
+orden: 19
 slug: "herbovitalizante"
 titulo: "Poción herbovitalizante (Wiggenweld)"
 tema: "pocion"
 via: "lectura"
 elaborado: false
+oculto: true
 dificultad: "?"
 aplicacion: "bebida"
 ingredientes:

@@ -1,12 +1,13 @@
 ---
 tipo: "apunte"
 cuaderno: "pociones"
-orden: 12
+orden: 21
 slug: "herbicida"
 titulo: "Poción herbicida"
 tema: "pocion"
 via: "clase"
 elaborado: false
+oculto: true
 curso: 1
 dificultad: "media"
 aplicacion: "sobre la planta"

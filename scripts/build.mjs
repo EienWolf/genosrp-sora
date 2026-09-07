@@ -212,10 +212,13 @@ async function cargar() {
       .filter((e) => e.isDirectory()).map((e) => e.name).sort()) {
       const dir = join(dirApuntes, nombre);
       const archivos = (await readdir(dir)).filter((f) => /^\d\d-.*\.md$/.test(f)).sort();
+      // `oculto: true` funciona como `aprendido: false` en los hechizos: el
+      // apunte se queda en content/ con sus notas, pero no se publica.
+      const fichas = await Promise.all(archivos.map((f) => leerFicha(join(dir, f))));
       cuadernos.push({
         meta: existsSync(join(dir, 'cuaderno.md'))
           ? await leerFicha(join(dir, 'cuaderno.md')) : null,
-        apuntes: await Promise.all(archivos.map((f) => leerFicha(join(dir, f)))),
+        apuntes: fichas.filter((a) => a.datos.oculto !== true),
       });
     }
   }
@@ -224,7 +227,10 @@ async function cargar() {
     sora: porSlug['sora-winterbourne'],
     personajes, porSlug, nombreDe,
     criaturas: await leerCarpeta('criaturas'),
-    hechizos: await leerCarpeta('hechizos'),
+    // Los que Sora todavía no domina se dan de alta en content/ para poder
+    // anotarlos antes de tiempo, pero no se publican: fuera de aquí el sitio
+    // solo enseña lo que sabe hacer, páginas y volcados para máquinas incluidos.
+    hechizos: (await leerCarpeta('hechizos')).filter((h) => h.datos.aprendido !== false),
     cursos: await leerCarpeta('historias/cursos'),
     complementarias: await leerCarpeta('historias/complementarias'),
     galeria: await leerCarpeta('galeria'),

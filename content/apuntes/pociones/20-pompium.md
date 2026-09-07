@@ -1,12 +1,13 @@
 ---
 tipo: "apunte"
 cuaderno: "pociones"
-orden: 11
+orden: 20
 slug: "pompium"
 titulo: "Poción Pompium"
 tema: "pocion"
 via: "clase"
 elaborado: false
+oculto: true
 curso: 1
 dificultad: "media"
 aplicacion: "bebida"

@@ -1,12 +1,13 @@
 ---
 tipo: "apunte"
 cuaderno: "pociones"
-orden: 8
+orden: 17
 slug: "protectora-llamas"
 titulo: "Poción protectora contra las llamas"
 tema: "pocion"
 via: "clase"
 elaborado: false
+oculto: true
 curso: 1
 dificultad: "media"
 aplicacion: "bebida"

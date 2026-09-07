@@ -8,7 +8,7 @@ nacionalidad: Inglés
 nacimiento: 2022-09-07
 # La frase que abre la portada. Una sola, suya, no una descripción.
 lema: >-
-  Un ojo azul, un ojo dorado, y un cielo entero en la cabeza.
+  Un ojo azul, un ojo dorado, y un cielo entero en la cabeza. Quiere ser pocionero, cazador de Quidditch y, algún día, detective.
 casa: Hufflepuff
 estatus_social: Media
 fisico:
@@ -54,9 +54,7 @@ aspiraciones:
   - titulo: Ser un gran investigador
     descripcion: >-
       Impulsado por el deseo de descubrir la verdad, aspira a desarrollar una
-      mente analítica y dominar las técnicas de investigación mágica. Considera
-      esta disciplina como el camino definitivo para desentrañar el vacío de su
-      infancia cuando esté listo para afrontarlo.
+      mente analítica y dominar las técnicas de investigación mágica.
 # La cronología anterior a Hogwarts. La versión larga sigue estando en
 # `## Historia`, que es la fuente; esto es el extracto por el que se navega.
 # `hueco: true` marca los años que no recuerda: es lo único del sitio que se
@@ -218,6 +216,3 @@ No era solo el entusiasmo de iniciar sus clases de magia o de tener por fin su
 propia escoba; para Sora, sostener esa carta significaba el primer paso hacia la
 madurez. Sabía que cruzar las puertas de Hogwarts marcaría el inicio oficial de
 su independencia.
-
-*La historia continúa en [`content/historias/`](../historias/): un resumen por
-curso, más las historias complementarias que lo merezcan.*

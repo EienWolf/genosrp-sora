@@ -1,12 +1,13 @@
 ---
 tipo: "apunte"
 cuaderno: "pociones"
-orden: 4
+orden: 13
 slug: "cura-de-forunculos"
 titulo: "Poción cura de forúnculos"
 tema: "pocion"
 via: "clase"
 elaborado: false
+oculto: true
 curso: 1
 dificultad: "básica"
 aplicacion: "tópica"

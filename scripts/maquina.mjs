@@ -40,7 +40,7 @@ export function llmsTxt(d) {
   l.push(`- [Cartas](${URL_BASE}/cartas): índice de ${d.hilos.length} conversaciones.`);
   l.push(`- [Apuntes](${URL_BASE}/apuntes): ${d.cuadernos.length} cuadernos de teoría `
     + `reescritos por el personaje.`);
-  l.push(`- [Entorno](${URL_BASE}/entorno): tutores, terapeuta, su lechuza y conocidos.`);
+  l.push(`- [Entorno](${URL_BASE}/entorno): tutores, terapeuta y su lechuza.`);
   l.push(`- [Galería](${URL_BASE}/galeria): ${d.galeria.length} capturas del juego.`);
   l.push('');
   l.push('## Conversaciones');
@@ -68,7 +68,7 @@ export function llmsTxt(d) {
   l.push('## Cómo está organizado');
   l.push('');
   l.push('- Cada entidad es un archivo; las referencias entre fichas van por `slug`.');
-  l.push('- `aprendido: false` marca un hechizo que Sora todavía no domina.');
+  l.push('- Solo salen los hechizos que Sora domina: los que aún no, no se publican.');
   l.push('- `"?"` en un dato significa desconocido y pendiente, no vacío.');
   l.push('- `bloqueado` y los campos de aptitud de las imágenes son herramientas');
   l.push('  internas de mantenimiento, no información sobre el personaje.');

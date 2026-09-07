@@ -1,12 +1,13 @@
 ---
 tipo: "apunte"
 cuaderno: "pociones"
-orden: 16
+orden: 25
 slug: "crecehuesos"
 titulo: "Poción crecehuesos"
 tema: "pocion"
 via: "lectura"
 elaborado: false
+oculto: true
 dificultad: "avanzada"
 aplicacion: "bebida"
 creador: "Linfred de Stinchcombe"

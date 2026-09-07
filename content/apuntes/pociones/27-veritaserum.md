@@ -1,12 +1,13 @@
 ---
 tipo: "apunte"
 cuaderno: "pociones"
-orden: 18
+orden: 27
 slug: "veritaserum"
 titulo: "Veritaserum"
 tema: "pocion"
 via: "lectura"
 elaborado: false
+oculto: true
 dificultad: "muy elevada"
 aplicacion: "bebida"
 color_final: "Incoloro, inodoro e insípido"

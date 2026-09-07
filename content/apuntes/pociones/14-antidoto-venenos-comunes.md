@@ -1,12 +1,13 @@
 ---
 tipo: "apunte"
 cuaderno: "pociones"
-orden: 5
+orden: 14
 slug: "antidoto-venenos-comunes"
 titulo: "Antídoto para venenos comunes"
 tema: "pocion"
 via: "clase"
 elaborado: false
+oculto: true
 curso: 1
 dificultad: "básica de aprender, difícil de dominar"
 aplicacion: "bebida"

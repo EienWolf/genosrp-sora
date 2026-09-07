@@ -1,12 +1,13 @@
 ---
 tipo: "apunte"
 cuaderno: "pociones"
-orden: 7
+orden: 16
 slug: "pimentonica"
 titulo: "Poción pimentónica"
 tema: "pocion"
 via: "clase"
 elaborado: false
+oculto: true
 curso: 1
 dificultad: "básica"
 aplicacion: "bebida"

@@ -1,12 +1,13 @@
 ---
 tipo: "apunte"
 cuaderno: "pociones"
-orden: 14
+orden: 23
 slug: "invisibilidad"
 titulo: "Poción de invisibilidad"
 tema: "pocion"
 via: "lectura"
 elaborado: false
+oculto: true
 dificultad: "?"
 aplicacion: "bebida"
 ingredientes:

@@ -1,12 +1,13 @@
 ---
 tipo: "apunte"
 cuaderno: "pociones"
-orden: 15
+orden: 24
 slug: "crecepelos"
 titulo: "Poción crecepelos"
 tema: "pocion"
 via: "lectura"
 elaborado: false
+oculto: true
 dificultad: "?"
 aplicacion: "tópica"
 advertencias:

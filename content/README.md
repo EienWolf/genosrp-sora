@@ -144,12 +144,17 @@ python3 scripts/add-hechizo.py "wingardium leviosa"
 | `teoria` | tabla `teoria_refs` | Asignaturas de teoría que lo citan |
 | `resumen` | — | **Local.** Para qué sirve, en una frase (≤ 120 car.) |
 | `voz` | — | **Local.** Cómo lo cuenta él. Sale entrecomillado en la tarjeta |
-| `aprendido` | — | **Local.** `false` si Sora aún no lo domina |
+| `aprendido` | — | **Local.** `false` si Sora aún no lo domina. **No se publica** |
 | `bloqueado` | — | **Local.** Ver abajo |
 | `personalizable` | — | **Local.** La ilusión/efecto varía según el mago |
 
 Genera en el cuerpo `## Descripción` y `## Apuntes de clase`. Cualquier otra
 sección que añadas —`## Manifestación de Sora`, `## Notas`…— se conserva.
+
+Un hechizo con `aprendido: false` se queda fuera del sitio entero —páginas,
+`llms.txt` y `content.json`— hasta que Sora lo domine. Darlo de alta antes
+sirve para tener la ficha lista y anotada; publicarlo, no: la web solo enseña
+lo que sabe hacer.
 
 `resumen` y `voz` son los que hacen que la lista de hechizos se lea: sin
 ellos la tarjeta enseña el nombre y poco más. No vienen de la base, así que
@@ -185,14 +190,22 @@ content/apuntes/pociones/
 
 A diferencia de los hechizos, aquí **la teoría de la asignatura es la fuente y
 la redacción es de Sora**. Los hechos —cantidades, tiempos, colores— se copian
-exactos; el texto lo escribe él. Dos campos llevan esa distinción:
+exactos; el texto lo escribe él. Tres campos llevan esa distinción:
 
 | campo | qué dice |
 | --- | --- |
 | `via` | `clase`, `lectura` o `casa`: cómo llegó a ese conocimiento |
 | `elaborado` | si lo ha preparado con sus manos, no solo estudiado |
+| `oculto` | `true` = se guarda pero **no se publica** |
 
 El aparte en cita (`> **Nota mía.**`) es lo único que Sora añade de su cosecha.
+
+`oculto` es a los apuntes lo que `aprendido: false` a los hechizos: el archivo
+se queda entero en `content/` —con sus notas, sus avisos y su redacción— y
+desaparece del sitio, de `llms.txt` y de `content.json` hasta que se le quite.
+Las recetas del cuaderno de pociones están así: fuera queda la teoría básica,
+que es lo único que se publica. Se crea ya oculto con `--oculto`, y
+`--listar` marca cuáles lo están.
 
 En el cuerpo, los enlaces van por slug y el sitio resuelve la ruta:
 `hechizo:celera`, `apunte:pocima-para-dormir`, `pagina:magia`.
@@ -270,10 +283,16 @@ historia cuelga del curso en el que ocurre.
 **Resumen de curso** (`cursos/NN-<slug>.md`): lo relevante del año, escrito al
 terminarlo. El número del archivo da el orden, como en las cartas.
 
+En la cronología el curso se abre con la `sinopsis`, los hechizos que aprendió
+ese año y los clubes; el `## Resumen` entero queda debajo, en «La versión
+larga». Sin `sinopsis` no hay desplegable y el resumen se enseña tal cual: eso
+sirve mientras el curso está en marcha y todavía no hay nada que sintetizar.
+
 | Campo | Notas |
 | ----- | ----- |
 | `curso`, `titulo`, `edad`, `casa` | |
 | `estado` | `en-curso` o `cerrado` |
+| `sinopsis` | El año en tres o cuatro frases. Es lo que se lee en la cronología |
 | `hechizos_aprendidos` | Slugs; deben existir en `hechizos/` |
 | `clubes` | `nombre`, `estado`, `contacto` (slug) |
 | `complementarias` | Slugs de las historias de ese curso. Informativo: quien coloca cada historia en la cronología es su propio `curso` |

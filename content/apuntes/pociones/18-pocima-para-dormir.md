@@ -1,12 +1,13 @@
 ---
 tipo: "apunte"
 cuaderno: "pociones"
-orden: 9
+orden: 18
 slug: "pocima-para-dormir"
 titulo: "Pócima para dormir"
 tema: "pocion"
 via: "lectura"
 elaborado: false
+oculto: true
 curso: 2
 dificultad: "simple"
 aplicacion: "bebida"

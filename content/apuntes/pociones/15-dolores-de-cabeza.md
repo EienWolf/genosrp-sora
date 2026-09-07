@@ -1,12 +1,13 @@
 ---
 tipo: "apunte"
 cuaderno: "pociones"
-orden: 6
+orden: 15
 slug: "dolores-de-cabeza"
 titulo: "Poción para dolores de cabeza"
 tema: "pocion"
 via: "clase"
 elaborado: false
+oculto: true
 curso: 1
 dificultad: "básica"
 aplicacion: "bebida"

@@ -143,15 +143,29 @@ export function historia(d) {
   // debajo las historias sueltas de ese año.
   const cursoLi = (c) => {
     const x = c.datos;
+    // Los hechizos del año enlazan a su ficha en Magia. Los que Sora todavía
+    // no domina no se publican, así que un slug que no esté en `d.hechizos`
+    // no se lista aquí: aparecerá el día que lo aprenda.
+    const hechizos = (x.hechizos_aprendidos ?? [])
+      .map((slug) => d.hechizos.find((h) => h.datos.slug === slug)).filter(Boolean)
+      .map((h) => `<a href="${BASE}/magia#${esc(h.datos.slug)}">${esc(h.datos.nombre)}</a>`)
+      .join(', ');
+    const clubes = (x.clubes ?? []).map((k) =>
+      `${esc(k.nombre)} <span class="matiz">(${esc(k.estado)})</span>`).join(', ');
+    // De un vistazo: la sinopsis, lo que aprendió y dónde estuvo. El resumen
+    // entero se despliega, porque si no la cronología no se puede recorrer.
+    const largo = md(seccion(c.cuerpo, 'Resumen'));
     return `<li id="${esc(x.slug ?? '')}">
       <span class="hito">${x.curso}</span>
       <h3>${esc(x.titulo)}</h3>
       <p class="cuando">${esc(x.casa ?? '')}${
         x.estado === 'en-curso' ? ' · en curso' : ''}${
         x.resumen_pendiente ? ' · resumen pendiente' : ''}</p>
-      ${md(seccion(c.cuerpo, 'Resumen'))}
-      ${x.clubes?.length ? `<ul>${x.clubes.map((k) =>
-        `<li>${esc(k.nombre)}: ${esc(k.estado)}</li>`).join('')}</ul>` : ''}
+      ${definido(x.sinopsis) ? `<p class="sinopsis">${esc(x.sinopsis)}</p>` : ''}
+      ${listaDefs([['Hechizos', hechizos || null], ['Clubes', clubes || null]])}
+      ${largo && definido(x.sinopsis)
+        ? `<details class="entera"><summary>La versión larga</summary>${largo}</details>`
+        : largo}
     </li>`;
   };
 
@@ -213,8 +227,6 @@ export function historia(d) {
     contenido: `
 <section>
   <h1>En el castillo</h1>
-  <p class="plomo">Lo último, arriba. Cada curso trae debajo las historias que
-  pasaron dentro de él.</p>
   <ol class="crono">${castillo}</ol>
 </section>
 
@@ -287,16 +299,13 @@ export function magia(d) {
     const busca = [x.nombre, x.nombre_alt, x.pronunciacion, materia(x.clase),
                    x.resumen, x.voz, x.efecto, x.manifestacion, ...(x.categorias ?? [])]
       .filter(definido).join(' ').toLowerCase();
-    return `<details class="hechizo${x.aprendido === false ? ' pendiente' : ''}"
-      id="${esc(x.slug ?? '')}"
+    return `<details class="hechizo" id="${esc(x.slug ?? '')}"
       data-clase="${esc(x.clase ?? '')}" data-anio="${esc(x.anio ?? '')}"
       data-busca="${esc(busca)}">
       <summary>
         <span class="rotulo-hechizo">
           <span class="nombre">${esc(x.nombre)}</span>
-          ${x.aprendido === false
-            ? '<span class="marca-pendiente">aún no</span>'
-            : '<span class="chispa" aria-hidden="true">✦</span>'}
+          <span class="chispa" aria-hidden="true">✦</span>
         </span>
         <span class="curso">${esc(materia(x.clase, 'corto'))} · ${esc(curso)}${
           x.pronunciacion ? ` · <span class="conjuro">${esc(x.pronunciacion)}</span>` : ''}</span>
@@ -326,13 +335,10 @@ export function magia(d) {
   const n = hechizos.length;
   return plantilla({
     id: 'magia', titulo: 'Magia · Sora Winterbourne',
-    descripcion: 'Los hechizos que Sora ha aprendido, y el que todavía no.',
+    descripcion: 'Los hechizos que Sora ha aprendido.',
     contenido: `
 <section>
   <h1>${n} ${n === 1 ? 'hechizo' : 'hechizos'}</h1>
-  <p class="plomo">Lo que sabe hacer, y una cosa que todavía no: Astrolium es de
-  cuarto curso y él va por ${(cursoActual(d)?.ordinal ?? '').toLowerCase()}, pero ya
-  tiene decidido qué cielo proyecta.</p>
   <div class="buscador">
     <label for="buscar-hechizo">Buscar</label>
     <input id="buscar-hechizo" type="search" autocomplete="off"
@@ -356,7 +362,10 @@ export function magia(d) {
 // llegado a preparar o solo lo ha leído.
 export const rutaCuaderno = (slug) => `${BASE}/apuntes/${slug}`;
 
-const TEMAS = { fundamentos: 'Fundamentos', equipo: 'Equipo', pocion: 'Pociones' };
+// Los temas que admite add-apunte.py. Si falta uno, el apunte se publica
+// igual pero sin su sello, así que van todos.
+const TEMAS = { fundamentos: 'Fundamentos', equipo: 'Equipo', pocion: 'Pociones',
+                concepto: 'Concepto', criatura: 'Criaturas', planta: 'Plantas' };
 const VIAS = {
   clase:   { texto: 'visto en clase', clase: 'via--clase' },
   lectura: { texto: 'solo leído', clase: 'via--lectura' },
@@ -594,8 +603,23 @@ function cartasDelHilo(d, h) {
 
 // ---------------------------------------------------- índice de conversaciones
 
+/** La lechuza de Sora: quien trae y lleva todas estas cartas. Se busca por el
+ *  dueño y no por el slug, así que si algún día cambia de lechuza el índice
+ *  sigue enseñando a la que corresponde. */
+const lechuza = (d) => d.criaturas.find((c) => c.datos.propietario === 'sora-winterbourne');
+
 export function cartasIndice(d, pagina, total) {
   const hilos = paginasIndice(d)[pagina] ?? [];
+  // Quien trae las cartas abre la página. El emote sale de su propia ficha
+  // (content/criaturas/aurora.md), que es donde se escribe una sola vez.
+  const ave = lechuza(d);
+  const emote = ave?.datos.emotes?.find((e) => e.comando === 'do');
+  const emoteAurora = emote ? `<p class="emote"><span class="emote__cmd">/${
+    esc(emote.comando)}</span> ${esc(emote.texto)}</p>` : '';
+  // Decorativa: el texto de al lado ya dice quién es, así que no lleva alt.
+  const imagenAurora = ave ? `<img class="aurora"
+    src="${BASE}/assets/img/${esc(ave.datos.slug)}.png"
+    alt="" width="720" height="720" aria-hidden="true">` : '';
   const nAbiertos = d.hilos.filter((h) => h.meta?.datos?.estado === 'abierto').length;
 
   const filas = hilos.map((h) => {
@@ -631,24 +655,28 @@ export function cartasIndice(d, pagina, total) {
     descripcion: 'La correspondencia de Sora, por hilos.',
     contenido: `
 <section>
-  <h1>${d.hilos.length} ${d.hilos.length === 1 ? 'conversación' : 'conversaciones'}</h1>
-  <p class="plomo">Las de Sora van a la derecha; las respuestas, a la izquierda.
-  Los hilos que esperan respuesta van arriba. Aurora las trae.</p>
-  <div class="buscador">
-    <label for="buscar-hilo">Buscar</label>
-    <input id="buscar-hilo" type="search" autocomplete="off"
-      placeholder="título, asunto o con quién" data-indice="${BASE}/cartas/indice.json">
-  </div>
-  <div class="filtros" role="group" aria-label="Estado">
-    <span class="filtros__rotulo">Estado</span>
-    <span class="filtros__opciones">
-      <button class="filtro" type="button" aria-pressed="false"
-        data-campo="estado" data-valor="abierto">esperan respuesta<span class="cuenta">${
-          nAbiertos}</span></button>
-      <button class="filtro" type="button" aria-pressed="false"
-        data-campo="estado" data-valor="cerrado">cerradas<span class="cuenta">${
-          d.hilos.length - nAbiertos}</span></button>
-    </span>
+  <div class="entra-aurora">
+    <div class="entra-aurora__texto">
+      <h1>${d.hilos.length} ${d.hilos.length === 1 ? 'conversación' : 'conversaciones'}</h1>
+      ${emoteAurora}
+      <div class="buscador">
+        <label for="buscar-hilo">Buscar</label>
+        <input id="buscar-hilo" type="search" autocomplete="off"
+          placeholder="título, asunto o con quién" data-indice="${BASE}/cartas/indice.json">
+      </div>
+      <div class="filtros" role="group" aria-label="Estado">
+        <span class="filtros__rotulo">Estado</span>
+        <span class="filtros__opciones">
+          <button class="filtro" type="button" aria-pressed="false"
+            data-campo="estado" data-valor="abierto">esperan respuesta<span class="cuenta">${
+              nAbiertos}</span></button>
+          <button class="filtro" type="button" aria-pressed="false"
+            data-campo="estado" data-valor="cerrado">cerradas<span class="cuenta">${
+              d.hilos.length - nAbiertos}</span></button>
+        </span>
+      </div>
+    </div>
+    ${imagenAurora}
   </div>
   <ul class="hilos">${filas}</ul>
   <p id="sin-resultados" hidden>Ningún hilo cumple ese filtro.</p>
@@ -735,13 +763,6 @@ export function entorno(d) {
     </article>`;
   }).join('');
 
-  const conocidos = d.conocidos.map((c) => `<article class="persona">
-    <h3>${esc(c.nombre)}</h3>
-    <p class="papel-social">${esc(definido(c.cargo) ? c.cargo : c.relacion)}</p>
-    ${definido(c.casa) ? listaDefs([['Casa', esc(c.casa)]]) : ''}
-    ${c.info?.length ? `<ul>${c.info.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>` : ''}
-  </article>`).join('');
-
   return plantilla({
     id: 'entorno', titulo: 'Entorno · Sora Winterbourne',
     descripcion: 'La gente y los animales alrededor de Sora.',
@@ -756,13 +777,7 @@ export function entorno(d) {
 <section>
   <h2>Aurora</h2>
   ${criaturas}
-</section>
-
-${conocidos ? `<section>
-  <h2>Conocidos del castillo</h2>
-  <p class="plomo">Gente con la que Sora ya ha tratado.</p>
-  ${conocidos}
-</section>` : ''}`,
+</section>`,
   });
 }
 
@@ -811,8 +826,7 @@ ${hojas.length ? `<section>
     ilustraciones.length ? 'h2' : 'h1'}>
   <p class="plomo">Hechas a propósito para que un generador de imágenes mantenga
   reconocibles al personaje, lo que lleva puesto, su lechuza y el sello con el
-  que su familia lacra las cartas. La del personaje es la única imagen donde se
-  ve la heterocromía.</p>
+  que su familia lacra las cartas.</p>
   <div class="galeria">${hojas.map(foto).join('')}</div>
 </section>` : ''}
 <section>

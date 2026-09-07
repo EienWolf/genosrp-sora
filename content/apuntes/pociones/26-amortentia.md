@@ -1,12 +1,13 @@
 ---
 tipo: "apunte"
 cuaderno: "pociones"
-orden: 17
+orden: 26
 slug: "amortentia"
 titulo: "Amortentia (filtro del amor)"
 tema: "pocion"
 via: "lectura"
 elaborado: false
+oculto: true
 dificultad: "?"
 aplicacion: "bebida"
 color_final: "Rosa"

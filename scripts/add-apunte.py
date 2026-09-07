@@ -17,7 +17,7 @@ llega por stdin y lo escribe quien redacta.
 Uso:
   scripts/add-apunte.py --listar
   scripts/add-apunte.py --cuaderno pociones --titulo "Poción de la risa" \\
-      --tema pocion --via clase --curso 1 \\
+      --tema pocion --via clase --curso 1 --oculto \\
       --ingrediente "2 raíces" --ingrediente "1 pluma" \\
       --aviso "No darla a menores" < cuerpo.md
   scripts/add-apunte.py --nuevo-cuaderno herbologia --titulo-cuaderno "Cuaderno de herbología" \\
@@ -58,9 +58,12 @@ def listar():
         print(f"\n{d.name}  ({len(fichas)} apuntes)")
         for f in fichas:
             m = re.search(r'^titulo:\s*"(.*)"$', f.read_text(encoding="utf-8"), re.M)
-            via = re.search(r"^via:\s*\"?(\w+)", f.read_text(encoding="utf-8"), re.M)
+            texto = f.read_text(encoding="utf-8")
+            via = re.search(r"^via:\s*\"?(\w+)", texto, re.M)
+            oculto = re.search(r"^oculto:\s*true\s*$", texto, re.M)
             print(f"  {f.name[:2]}. {m.group(1) if m else f.stem}"
-                  f"{'  [' + via.group(1) + ']' if via else ''}")
+                  f"{'  [' + via.group(1) + ']' if via else ''}"
+                  f"{'  (oculto)' if oculto else ''}")
 
 
 def nuevo_cuaderno(args, cuerpo):
@@ -103,6 +106,8 @@ def anadir(args, cuerpo):
           f"slug: {esc(slug)}", f"titulo: {esc(args.titulo)}",
           f"tema: {esc(args.tema)}", f"via: {esc(args.via)}",
           f"elaborado: {'true' if args.elaborado else 'false'}"]
+    if args.oculto:
+        fm.append("oculto: true")
     for clave, valor in (("curso", args.curso), ("dificultad", args.dificultad),
                          ("aplicacion", args.aplicacion), ("color_final", args.color),
                          ("creador", args.creador)):
@@ -137,6 +142,8 @@ def main():
                    help="clase = visto en clase; lectura = solo leído; casa = aprendido en casa")
     p.add_argument("--elaborado", action="store_true",
                    help="Sora lo ha preparado con sus manos, no solo estudiado")
+    p.add_argument("--oculto", action="store_true",
+                   help="se guarda en content/ pero no se publica en el sitio")
     p.add_argument("--curso", type=int)
     p.add_argument("--dificultad")
     p.add_argument("--aplicacion")

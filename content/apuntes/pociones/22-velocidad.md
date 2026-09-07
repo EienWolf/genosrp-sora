@@ -1,12 +1,13 @@
 ---
 tipo: "apunte"
 cuaderno: "pociones"
-orden: 13
+orden: 22
 slug: "velocidad"
 titulo: "Poción de velocidad"
 tema: "pocion"
 via: "clase"
 elaborado: false
+oculto: true
 curso: 1
 dificultad: "?"
 aplicacion: "bebida"

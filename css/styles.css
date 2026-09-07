@@ -267,7 +267,7 @@ p { max-width: 68ch; }
    Un hilo o un cuaderno sí necesitan decir cómo se llaman. El resto de
    páginas abren directamente con su contenido: la banda de cabecera repetía
    lo que ya dicen la navegación y el primer encabezado. */
-.titulo-pagina { padding-block: clamp(2rem, 5vw, 3rem) 0; }
+.titulo-pagina { padding-block: clamp(1rem, 2vw, 1.5rem) 0; }
 .titulo-pagina h1 { font-size: clamp(1.9rem, 5vw, 2.8rem); margin-bottom: .15em; }
 .titulo-pagina .epigrafe { font-size: 1.05rem; }
 
@@ -281,6 +281,11 @@ main {
 }
 main section { padding-block: clamp(2.5rem, 6vw, 4.5rem); position: relative; }
 main section + section { border-top: 1px solid var(--linea); }
+/* La primera sección abre justo debajo de la cabecera fija, que ya pone aire
+   de sobra: ahí el hueco de arriba se queda en un tercio y el titular entra
+   en pantalla sin tener que bajar. Entre secciones el ritmo no cambia. */
+main > section:first-of-type { padding-block-start: clamp(1rem, 2vw, 1.5rem); }
+main > .titulo-pagina + section { padding-block-start: clamp(1.5rem, 3vw, 2.25rem); }
 .plomo { font-size: 1.15rem; color: var(--plata-2); }
 
 /* El titular se firma con un trazo de pluma que se dibuja al entrar */
@@ -327,6 +332,11 @@ main section > h1::after, main section > h2::after {
 }
 .crono h3 { margin-bottom: .1em; }
 .crono .cuando { color: var(--plata-3); font-size: .9rem; margin-bottom: .2rem; }
+/* El curso se lee de un vistazo: la sinopsis, lo que aprendió y dónde estuvo.
+   El resumen entero espera dentro de «La versión larga». */
+.crono .sinopsis { font-size: 1.05rem; color: var(--plata); max-width: 42rem; }
+.crono .datos { margin-top: 1.1rem; max-width: 42rem; }
+.matiz { color: var(--plata-3); }
 
 /* La infancia no se cuenta por cursos sino por edades, y sus hitos no son
    números en un círculo: son estrellas, que es lo que hay en su cabeza. */
@@ -464,21 +474,6 @@ main section > h1::after, main section > h2::after {
 .hechizo .voz {
   font-family: var(--mano); font-size: 1.15rem; line-height: 1.3;
   color: var(--plata-3); margin-top: .35rem;
-}
-
-/* El que todavía no le sale: contorno punteado, como un hueco por rellenar */
-.hechizo.pendiente {
-  border-style: dashed; border-color: var(--azul);
-  background: rgba(74,158,224,.06);
-}
-.hechizo.pendiente:hover, .hechizo.pendiente[open] {
-  border-color: var(--azul); box-shadow: 0 0 24px rgba(74,158,224,.2);
-}
-.pendiente .nombre { color: var(--plata-2); }
-.pendiente .curso, .pendiente .voz { color: var(--azul); }
-.marca-pendiente {
-  flex: none; color: var(--azul); font-size: .78rem;
-  border: 1px solid var(--azul); border-radius: 999px; padding: .05rem .55rem;
 }
 
 .hechizo .cuerpo { padding-top: 1rem; }
@@ -680,7 +675,43 @@ main section > h1::after, main section > h2::after {
   font-size: 1.05rem !important; margin: 1.6rem 0 0;
 }
 
-/* ---------- Índice de conversaciones ---------- */
+/* ---------- Índice de conversaciones ----------
+   Quien trae las cartas abre la página: Aurora arriba a la derecha y, debajo
+   del titular, el emote con el que se la ve llegar en partida. */
+/* Dos columnas: a la izquierda todo lo que se lee y se pulsa —titular,
+   emote, buscador y filtros—; a la derecha la lechuza, que se estira hasta
+   donde empiezan los hilos. Así ocupa el hueco que había vacío. */
+.entra-aurora {
+  display: grid; align-items: stretch; margin-bottom: 1.75rem;
+  grid-template-columns: minmax(0, 1fr) clamp(9rem, 24vw, 18rem);
+  gap: 1.5rem;
+}
+.entra-aurora .emote { max-width: 34rem; }
+.entra-aurora .buscador { margin-top: 1.5rem; margin-bottom: 0; }
+.entra-aurora .filtros { margin-top: 1rem; }
+.aurora {
+  width: 100%; height: 100%; min-height: 9rem;
+  object-fit: contain; object-position: top right;
+  opacity: .95; pointer-events: none;
+  filter: drop-shadow(0 0 28px rgba(224,166,60,.22));
+}
+/* La acción de rol, tal cual se escribe en el chat del servidor */
+.emote {
+  margin-top: .9rem; padding-left: .9rem;
+  border-left: 2px solid color-mix(in srgb, var(--oro) 55%, transparent);
+  color: var(--plata-2); font-size: 1.02rem; line-height: 1.5;
+}
+.emote__cmd { color: var(--oro); font-weight: 700; }
+@media (max-width: 44rem) {
+  /* Sin sitio para dos columnas: la lechuza se pone encima del titular y
+     se queda pequeña, que aquí manda el texto. */
+  .entra-aurora { grid-template-columns: 1fr; gap: .5rem; }
+  .aurora {
+    order: -1; height: auto; max-height: 8rem;
+    object-position: center; margin-bottom: .5rem;
+  }
+}
+
 .buscador { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; }
 .buscador label { color: var(--plata-3); font-size: .85rem; min-width: 5.5rem; }
 .buscador input {
