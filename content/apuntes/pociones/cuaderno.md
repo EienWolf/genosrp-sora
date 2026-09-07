@@ -12,20 +12,14 @@ fuente: "Teoría del canal pociones-teoria del castillo"
 
 ## Sobre este cuaderno
 
-Lo empecé porque en clase se dicen muchas cosas seguidas y luego, cuando estoy
-delante del caldero, se me olvidan justo las importantes. Así que copio la
-teoría lo mejor que puedo y después la escribo con mis palabras, que es cuando
-me entero de verdad de lo que he entendido y de lo que no.
-
 Lo que hay aquí es la **teoría**: la mesa, el caldero, el color, el removido,
 las dosis, hasta dónde llega cada brebaje y lo que dice la ley. Todo eso vale
 para cualquier poción y no para una sola, y es lo que de verdad me hace falta
 tener repasado antes de encender el fuego.
 
-**Las recetas no las dejo escritas aquí.** Las cantidades, los tiempos y sobre
+**Las recetas no las dejo escritas aquí(por ahora).** Las cantidades, los tiempos y sobre
 todo la forma de administrarlas no son cosas para ir soltando sueltas: media
-receta hace más daño que ninguna, y hay pociones que ni siquiera se beben. Las
-guardo para mí, y si alguien las necesita se las explico yo entera. Además, una
+receta hace más daño que ninguna, y hay pociones que ni siquiera se beben. Además, una
 cosa es saberse los ingredientes y otra muy distinta es haber visto la poción
 cambiar de color en el caldero: de las que solo he leído no doy consejos.
 
