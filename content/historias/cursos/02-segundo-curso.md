@@ -6,7 +6,8 @@ titulo: "Segundo curso"
 edad: 12
 casa: "Hufflepuff"
 estado: "en-curso"
-hechizos_aprendidos: []
+hechizos_aprendidos:
+  - red-spark-i-verdimillious
 clubes:
   - nombre: "Club de Pociones"
     estado: "admitido"
