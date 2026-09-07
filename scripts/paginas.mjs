@@ -362,16 +362,6 @@ export function magia(d) {
 // llegado a preparar o solo lo ha leído.
 export const rutaCuaderno = (slug) => `${BASE}/apuntes/${slug}`;
 
-// Los temas que admite add-apunte.py. Si falta uno, el apunte se publica
-// igual pero sin su sello, así que van todos.
-const TEMAS = { fundamentos: 'Fundamentos', equipo: 'Equipo', pocion: 'Pociones',
-                concepto: 'Concepto', criatura: 'Criaturas', planta: 'Plantas' };
-const VIAS = {
-  clase:   { texto: 'visto en clase', clase: 'via--clase' },
-  lectura: { texto: 'solo leído', clase: 'via--lectura' },
-  casa:    { texto: 'aprendido en casa', clase: 'via--casa' },
-};
-
 /** El color de una poción descrito en palabras: se busca el primero que se
  *  reconozca, y el texto entero se sigue mostrando tal cual está escrito. */
 const TONOS = [
@@ -432,7 +422,6 @@ export function apuntesCuaderno(d, c) {
 
   const fichas = apuntes.map((a) => {
     const x = a.datos;
-    const via = VIAS[x.via];
     // Los tiempos por caldero se dibujan uno a uno; lo que no viene por
     // caldero (`general`) es texto y va debajo, en una línea.
     const reposo = Object.entries(x.reposo ?? {});
@@ -441,15 +430,6 @@ export function apuntesCuaderno(d, c) {
 
     return `<article class="pergamino" id="${esc(x.slug)}">
       <div class="pergamino__hoja">
-      <p class="sellos">
-        ${via ? `<span class="sello ${via.clase}">${via.texto}</span>` : ''}
-        ${x.curso ? `<span class="sello">${x.curso}.º curso</span>` : ''}
-        ${x.tema && TEMAS[x.tema] ? `<span class="sello">${esc(TEMAS[x.tema])}</span>` : ''}
-        ${x.elaborado === true ? '<span class="sello sello--hecho">lo ha preparado</span>' : ''}
-        ${definido(x.dificultad)
-          ? `<span class="sello">dificultad ${esc(x.dificultad)}</span>` : ''}
-        ${x.orden ? `<span class="sello sello--numero">apunte n.º ${x.orden}</span>` : ''}
-      </p>
       <h3>${esc(x.titulo)}</h3>
       ${x.ingredientes?.length ? `<div class="receta">
         <div class="receta__lista">

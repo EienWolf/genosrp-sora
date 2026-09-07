@@ -122,14 +122,16 @@ p { max-width: 68ch; }
   color: var(--plata); text-decoration: none; margin-right: auto;
   display: flex; align-items: center; gap: .6rem;
 }
-/* Los dos ojos, en miniatura */
+/* El sello de la familia, el mismo que lacra sus cartas. Va como máscara
+   para que tome el color del texto y se encienda con él al pasar por encima. */
 .marca::before {
-  content: ""; width: 1.1rem; height: .55rem; border-radius: 999px; flex: none;
-  background: linear-gradient(90deg, var(--azul) 0 50%, var(--oro) 50% 100%);
-  box-shadow: 0 0 0 0 rgba(224,166,60,.35);
-  transition: box-shadow .5s ease, transform .5s var(--posarse);
+  content: ""; width: 1.4rem; height: 1.4rem; flex: none;
+  background: currentColor;
+  -webkit-mask: url("../assets/winterbourne.svg") no-repeat center / contain;
+  mask: url("../assets/winterbourne.svg") no-repeat center / contain;
+  transition: color .5s ease, transform .5s var(--posarse);
 }
-.marca:hover::before { transform: scaleX(1.15); box-shadow: 0 0 14px 1px rgba(224,166,60,.45); }
+.marca:hover::before { color: var(--oro); transform: scale(1.08); }
 
 .menu { display: flex; gap: 1.1rem; list-style: none; margin: 0; padding: 0; flex-wrap: wrap; }
 .menu a {
@@ -159,7 +161,8 @@ p { max-width: 68ch; }
    ============================================================ */
 
 .cielo { position: relative; overflow: hidden; border-bottom: 1px solid var(--linea); }
-.cielo .env { position: relative; padding-block: clamp(3rem, 8vw, 5.5rem) clamp(2.5rem, 5vw, 3.5rem); }
+/* Mismo recorte que el resto de páginas: la cabecera fija ya pone el aire. */
+.cielo .env { position: relative; padding-block: clamp(1rem, 2vw, 1.5rem) clamp(2.5rem, 5vw, 3.5rem); }
 
 .presentacion { display: grid; gap: clamp(1.5rem, 4vw, 3rem); grid-template-columns: 1fr; align-items: end; }
 @media (min-width: 46rem) { .presentacion { grid-template-columns: 15rem 1fr; } }
@@ -570,23 +573,6 @@ main section > h1::after, main section > h2::after {
   font-family: var(--mano); font-size: 1rem; color: var(--tinta-2);
   margin: 0 0 .3rem; max-width: none;
 }
-
-/* Sellos: de dónde viene el apunte y en qué punto está. Anillos de tinta,
-   como los que se hacen rodeando una palabra con el bolígrafo. */
-.sellos {
-  display: flex; flex-wrap: wrap; gap: .5rem; align-items: baseline;
-  margin: 0 0 .2rem; max-width: none;
-}
-.sello {
-  font-family: var(--mano); font-size: 1rem; line-height: 1.35;
-  color: var(--tinta-2);
-  border: 1.5px solid var(--tinta-2); border-radius: 999px; padding: 0 .55rem;
-}
-.sello.via--clase { color: var(--tinta-azul); border-color: var(--tinta-azul); transform: rotate(-2deg); }
-.sello.via--lectura { border-style: dashed; }
-.sello.sello--hecho { color: #8f6416; border-color: #b8892c; transform: rotate(1.5deg); }
-/* El número no lleva anillo: es la foliación, no una etiqueta */
-.sello--numero { margin-left: auto; border: none; padding: 0; }
 
 /* La receta: los ingredientes en su papel de rayas, y el color al que tiene
    que quedar, que es como se sabe si ha salido bien. */
