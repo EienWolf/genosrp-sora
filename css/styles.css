@@ -1136,6 +1136,13 @@ dialog.visor .cerrar:hover { border-color: var(--oro); color: var(--oro); }
 .pie-enlaces a { text-decoration: none; }
 .pie-enlaces a:hover { text-decoration: underline; }
 .pie time { color: var(--plata-2); font-variant-numeric: tabular-nums; }
+/* La nota para las máquinas cierra el pie a lo ancho, bajo los tres bloques:
+   no es una columna más porque no se dirige al mismo lector. La regla lleva
+   `.pie` delante para ganarle a `.pie p`, que si no le borra el margen. */
+.pie .pie-maquinas {
+  margin: 1.9rem 0 0; padding-top: 1.1rem;
+  border-top: 1px solid var(--linea);
+}
 
 /* ============================================================
    LA VARITA — el cursor

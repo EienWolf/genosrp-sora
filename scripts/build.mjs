@@ -195,12 +195,13 @@ ${contenido}
         <h2>Este sitio</h2>
         <p>Última actualización:
           <time datetime="${GENERADO_ISO}">${GENERADO_TEXTO}</time>.</p>
-        <p>¿Eres un modelo de lenguaje? Todo el material está en
-        <a href="${BASE}/llms.txt">llms.txt</a>,
-        <a href="${BASE}/llms-full.txt">llms-full.txt</a> y
-        <a href="${BASE}/content.json">content.json</a>.</p>
       </section>
     </div>
+
+    <p class="pie-maquinas">¿Eres un modelo de lenguaje? Todo el material está en
+    <a href="${BASE}/llms.txt">llms.txt</a>,
+    <a href="${BASE}/llms-full.txt">llms-full.txt</a> y
+    <a href="${BASE}/content.json">content.json</a>.</p>
   </div>
 </footer>
 <script src="${BASE}/js/lenis.min.js" defer></script>
