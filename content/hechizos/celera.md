@@ -15,8 +15,7 @@ manifestacion: >-
   nuestros pies.
 duracion: "de 5 a 10 segundos."
 movimiento: "Apuntar a sus pies y conjurar celera pronunciándolo"
-relacionados:
-  - "impulsux"
+relacionados: []
 teoria: []
 
 resumen: >-
@@ -28,7 +27,7 @@ voz: >-
 aprendido: true
 # bloqueado: true = esta ficha tiene notas o correcciones propias;
 # la skill no la sobrescribirá.
-bloqueado: false
+bloqueado: true
 ---
 
 ## Descripción

@@ -7,6 +7,7 @@ anio: 1
 clase: "duelo"
 categorias: []
 clasificacion: "encantamiento"
+efecto: "Da un toque leve al rival"
 manifestacion: "proyectil de color azul en la punta de la varita."
 duracion: "inmediato."
 movimiento: "agitar la varita, apuntar y conjurar."
@@ -17,7 +18,7 @@ teoria: []
 resumen: >-
   Un proyectil azul que da un toque leve al rival.
 voz: >-
-  Se llama así porque no hace más que eso: un toque. Es mi primero de duelo.
+  Se llama así porque no hace más que un toque. Mi primero de duelo.
 
 # aprendido: false = Sora aún no lo domina.
 aprendido: true

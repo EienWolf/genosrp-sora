@@ -5,7 +5,7 @@ orden: 15
 slug: "dolores-de-cabeza"
 titulo: "Poción para dolores de cabeza"
 tema: "pocion"
-via: "clase"
+via: "lectura"
 elaborado: false
 oculto: true
 curso: 1

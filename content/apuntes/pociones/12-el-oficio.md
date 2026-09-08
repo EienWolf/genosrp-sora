@@ -5,7 +5,7 @@ orden: 12
 slug: "el-oficio"
 titulo: "Pociones también es un oficio"
 tema: "concepto"
-via: "clase"
+via: "lectura"
 curso: 1
 fuente: "Teoría de pociones — el pocionero como oficio"
 ---

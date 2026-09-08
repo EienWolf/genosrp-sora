@@ -8,6 +8,9 @@ clase: "medimagia"
 categorias:
   - "curativo"
 clasificacion: "hechizo"
+efecto: >-
+  Venda las heridas pequeñas y alivia el dolor, también el de los huesos
+  dislocados
 manifestacion: "De la punta de la varita sale una venda la cual cubre la zona afectada."
 duracion: "Hasta que se quite el vendaje o se haga otra herida."
 movimiento: >-
@@ -20,7 +23,7 @@ teoria: []
 resumen: >-
   De la punta de la varita sale una venda que cubre la herida y calma el dolor.
 voz: >-
-  El círculo tiene que ser suave y al revés de las agujas. Si voy rápido no sale.
+  El círculo, suave y al revés de las agujas. Si voy rápido no sale.
 
 # aprendido: false = Sora aún no lo domina.
 aprendido: true

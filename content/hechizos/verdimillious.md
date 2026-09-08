@@ -8,6 +8,7 @@ categorias:
   - "creacion"
   - "luminico"
 clasificacion: "hechizo"
+efecto: "Señala la posición del mago e indica que todo va bien"
 manifestacion: "Chispas verdes desde la punta de la varita."
 duracion: "Dura unos segundos o hasta chocar contra algún obstáculo en su camino."
 movimiento: >-

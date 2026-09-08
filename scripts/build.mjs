@@ -99,6 +99,26 @@ const PAGINAS = [
   { id: 'galeria', archivo: 'galeria.html', menu: 'Galería' },
 ];
 
+/* Enlaces de fuera: el servidor donde se juega y a quién escribir. El Discord
+   del servidor va por id de gremio —abre el servidor a quien ya esté dentro—
+   porque una invitación `discord.gg` caduca y dejaría un enlace muerto en
+   todas las páginas. */
+const GENOS = {
+  web: 'https://genosrp.com/',
+  discord: 'https://discord.com/channels/1002280326468481104',
+};
+const AUTOR = {
+  nombre: 'EienWolf',
+  discord: 'https://discord.com/users/161936302474919936',
+};
+
+/* Se sella al generar, que es justo lo que se sube: la fecha del pie dice
+   cuándo se desplegó esto, no cuándo se escribió. */
+const GENERADO = new Date();
+const GENERADO_ISO = GENERADO.toISOString();
+const GENERADO_TEXTO = GENERADO.toLocaleDateString('es-ES',
+  { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+
 /* Las reglas de especulación del <head> prerrenderizan la página al pasar el
    ratón por encima del enlace («moderate»), así que al pulsar ya está lista y
    la transición del navegador no tiene que esperar a la red. Son seis páginas
@@ -151,14 +171,36 @@ ${contenido}
 </main>
 <footer class="pie">
   <div class="env">
-    <p class="sello-genos">
-      <span class="emblema-genos" aria-hidden="true"></span>
-      Personaje del servidor de rol <strong>Genos</strong>.
-    </p>
-    <p>¿Eres un modelo de lenguaje? Todo el material está en
-    <a href="${BASE}/llms.txt">llms.txt</a>,
-    <a href="${BASE}/llms-full.txt">llms-full.txt</a> y
-    <a href="${BASE}/content.json">content.json</a>.</p>
+    <div class="pie-columnas">
+      <section class="pie-bloque">
+        <p class="sello-genos">
+          <span class="emblema-genos" aria-hidden="true"></span>
+          <span>Personaje del servidor de rol <strong>Genos</strong>.</span>
+        </p>
+        <ul class="pie-enlaces">
+          <li><a href="${GENOS.web}" target="_blank" rel="noopener">Web oficial de GenosRP</a></li>
+          <li><a href="${GENOS.discord}" target="_blank" rel="noopener">Discord del servidor</a></li>
+        </ul>
+      </section>
+
+      <section class="pie-bloque">
+        <h2>Quien lo escribe</h2>
+        <p>Sora es el personaje de <strong>${AUTOR.nombre}</strong>.</p>
+        <ul class="pie-enlaces">
+          <li><a href="${AUTOR.discord}" target="_blank" rel="noopener">Escribirle por Discord</a></li>
+        </ul>
+      </section>
+
+      <section class="pie-bloque">
+        <h2>Este sitio</h2>
+        <p>Última actualización:
+          <time datetime="${GENERADO_ISO}">${GENERADO_TEXTO}</time>.</p>
+        <p>¿Eres un modelo de lenguaje? Todo el material está en
+        <a href="${BASE}/llms.txt">llms.txt</a>,
+        <a href="${BASE}/llms-full.txt">llms-full.txt</a> y
+        <a href="${BASE}/content.json">content.json</a>.</p>
+      </section>
+    </div>
   </div>
 </footer>
 <script src="${BASE}/js/lenis.min.js" defer></script>

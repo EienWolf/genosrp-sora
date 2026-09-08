@@ -57,11 +57,16 @@ voz: >-
   Me hizo sentir que volaba sin escoba por unos segundos.
 ```
 
-- **`resumen`** — para qué sirve, en una frase corta (≤ 120 caracteres). Sale
-  en la tarjeta cerrada, debajo del nombre.
-- **`voz`** — cómo lo cuenta Sora, entrecomillado. Se escribe **a partir de lo
-  que ya dice la ficha**: nada de sucesos nuevos ni de datos que no estén.
-  Si el hechizo aparece en una carta suya, cita esa frase tal cual.
+- **`resumen`** — para qué sirve, en una frase corta (**≤ 92 caracteres**).
+  Sale en la tarjeta cerrada, debajo del nombre.
+- **`voz`** — cómo lo cuenta Sora, entrecomillado (**≤ 68 caracteres**). Se
+  escribe **a partir de lo que ya dice la ficha**: nada de sucesos nuevos ni
+  de datos que no estén. Si el hechizo aparece en una carta suya, cita esa
+  frase tal cual.
+
+Los dos topes no son estéticos: la tarjeta cerrada tiene alto fijo y lo que
+se pase se recorta con puntos suspensivos. Están medidos sobre la columna más
+estrecha de la rejilla; el detalle está en `content/README.md`.
 
 Los dos van sueltos en el frontmatter, junto a `aprendido`, y sobreviven a la
 sincronización como cualquier campo propio. **No les pongas un comentario
@@ -93,7 +98,14 @@ una, dale su nombre en ese mapa.
 
 1. Enseña al usuario la ficha generada y qué campos quedaron vacíos: la base
    está incompleta en `efecto` (21/142), `contrahechizo` (24/142) y
-   `pronunciacion` (92/142). No los inventes.
+   `pronunciacion` (92/142). No los inventes: pregúntale, o dedúcelos de lo
+   que la propia ficha ya dice —el `efecto` suele leerse en la manifestación—.
+   Lo que escribas ahí **sobrevive a la sincronización** aunque sean campos
+   generados: mientras la base siga vacía en ese campo, gana el tuyo. No hace
+   falta bloquear la ficha para completarlos.
+
+   Un `contrahechizo` vacío ya está revisado: esos hechizos no tienen. No lo
+   vuelvas a listar como pendiente.
 2. Si el usuario aporta contenido nuevo (manifestación propia, emotes,
    notas), añádelo en campos o secciones propias y **deja `bloqueado: false`**:
    se conserva solo. Pon `bloqueado: true` únicamente si corrige un dato que
@@ -102,12 +114,16 @@ una, dale su nombre en ese mapa.
 ## Actualizar todo lo ya importado
 
 ```bash
-for f in content/hechizos/*.md; do
+for f in $(grep -L "^bloqueado: true" content/hechizos/*.md); do
   python3 scripts/add-hechizo.py "$(basename "$f" .md | tr '-' ' ')"
 done
 ```
 
-Los bloqueados se saltan solos e informan de ello. Existe también `--todos`,
+**Recorre solo las desbloqueadas, no `content/hechizos/*.md` entero.** Una
+ficha bloqueada se salta al escribir, pero la búsqueda por nombre se hace
+antes: `red spark` no existe como tal en la base y cae por aproximación en
+«RED SPARK I VERDIMILLIOUS», que se escribe como ficha nueva. El bucle ingenuo
+resucita el registro fundido que este proyecto desdobló a propósito. Existe también `--todos`,
 que importa los 142 de la base: **no lo uses** salvo que el usuario pida
 explícitamente el catálogo completo, porque este proyecto es solo de hechizos
 relevantes para Sora.

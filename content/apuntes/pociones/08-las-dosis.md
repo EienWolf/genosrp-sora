@@ -5,7 +5,7 @@ orden: 8
 slug: "las-dosis"
 titulo: "Más nunca es mejor"
 tema: "concepto"
-via: "clase"
+via: "lectura"
 curso: 1
 fuente: "Teoría de pociones — dosificación"
 ---
@@ -27,8 +27,7 @@ Pasarse no refuerza el efecto: lo estropea, y en varios casos hace daño.
   produciendo el efecto contrario: insomnio.
 - **Regeneración ósea.** Cuanta más dosis, **más dolor**. Sin más beneficio.
 - **Vitalizantes.** Abusar crea **dependencia** y compromete la **función
-  renal**. En clase lo resumieron con una frase que me dejó pensando: *la cura
-  se vuelve la nueva enfermedad*.
+  renal**.
 
 ## Cómo se calcula
 

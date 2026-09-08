@@ -5,7 +5,7 @@ orden: 22
 slug: "velocidad"
 titulo: "Poción de velocidad"
 tema: "pocion"
-via: "clase"
+via: "lectura"
 elaborado: false
 oculto: true
 curso: 1

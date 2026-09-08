@@ -5,7 +5,7 @@ orden: 4
 slug: "el-caldero"
 titulo: "El caldero manda en el tiempo"
 tema: "fundamentos"
-via: "clase"
+via: "lectura"
 curso: 1
 fuente: "Teoría de pociones — el material del caldero"
 ---
@@ -36,7 +36,6 @@ delante antes de mirar los tiempos**, porque si lees el número del cobre y
 estás trabajando en peltre, te vas a quedar corto en todo.
 
 > **Nota mía.** El de casa es de cobre y yo me había aprendido los tiempos de
-> Lyra sin saber que eran los del cobre y no los de la poción. En clase, con
-> otro caldero, me salían las cuentas mal y no entendía por qué si estaba
-> haciendo lo mismo. Ahora lo primero que apunto de cada receta es de qué
-> caldero hablo, aunque parezca una tontería escribirlo cada vez.
+> Lyra sin saber que eran los del cobre y no los de la poción. Ahora lo primero 
+> que apunto de cada receta es de qué caldero hablo, aunque parezca una tontería 
+> escribirlo cada vez.

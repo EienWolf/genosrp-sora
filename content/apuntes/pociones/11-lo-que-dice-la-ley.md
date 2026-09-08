@@ -5,7 +5,7 @@ orden: 11
 slug: "lo-que-dice-la-ley"
 titulo: "Lo que dice la ley"
 tema: "concepto"
-via: "clase"
+via: "lectura"
 curso: 1
 hechizos:
   - "diffindo"
@@ -22,13 +22,6 @@ Las penas van desde una **multa cuantiosa hasta la prisión**.
 Hay antídoto contra el suero, pero con una ventana rarísima: hay que tomarlo
 **exactamente dos minutos antes** de la ingesta. O sea que solo sirve si sabes
 de antemano lo que te van a dar.
-
-## Lo que se puede dejar de enseñar
-
-`Diffindo` está documentado en la teoría de la asignatura con una advertencia
-seria: tiene «el potencial de acabar con la vida de las personas», y si se usa
-de malas maneras **dejará de enseñarse en el castillo**. No es una amenaza
-contra quien lo haga: es que se retira para todos.
 
 ## Lo que una poción no puede dar
 

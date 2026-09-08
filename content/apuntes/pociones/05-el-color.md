@@ -5,7 +5,7 @@ orden: 5
 slug: "el-color"
 titulo: "El color es la prueba"
 tema: "fundamentos"
-via: "clase"
+via: "lectura"
 curso: 1
 fuente: "Teoría de pociones — verificación por color"
 ---

@@ -5,6 +5,7 @@ nombre: "CIRCULI COLORE"
 anio: 2
 clase: "duelo"
 categorias: []
+efecto: "Golpea al rival con aros de colores y le deja hematomas"
 manifestacion: "Aros de colores."
 duracion: "hasta que impacte."
 movimiento: >-
@@ -16,7 +17,7 @@ teoria: []
 resumen: >-
   Aros de colores que impactan en el rival y dejan hematomas; también sirven de distracción.
 voz: >-
-  Los aros son bonitos hasta que llegan. Yo los uso más para distraer que para dar.
+  Los aros son bonitos hasta que llegan. Yo los uso más para distraer.
 
 # aprendido: false = Sora aún no lo domina.
 aprendido: true

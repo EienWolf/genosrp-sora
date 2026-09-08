@@ -102,6 +102,17 @@ CLAVES_GENERADAS = {
 }
 SECCIONES_GENERADAS = {"Descripción", "Apuntes de clase"}
 
+# Escalares que el script genera pero que la base deja vacíos a menudo
+# (`efecto` en 121 de 142, `contrahechizo` en 118, `pronunciacion` en 50). Si
+# la ficha local tiene un valor y la base no trae nada, gana el local: si no,
+# rellenar uno a mano obligaría a bloquear la ficha entera y perderíamos las
+# correcciones que la base sí haga en el resto de campos. Cuando la base trae
+# el dato, manda la base.
+CLAVES_RESCATABLES = {
+    "nombre_alt", "pronunciacion", "clasificacion", "efecto",
+    "manifestacion", "duracion", "movimiento", "contrahechizo",
+}
+
 
 def leer_local(ruta):
     """Estado local de una ficha existente.
@@ -109,7 +120,8 @@ def leer_local(ruta):
     Todo lo que el script no genera —claves de frontmatter y secciones del
     cuerpo— se devuelve tal cual para conservarlo al regenerar.
     """
-    vacio = {"bloqueado": False, "aprendido": True, "extra_fm": "", "extra_cuerpo": []}
+    vacio = {"bloqueado": False, "aprendido": True, "extra_fm": "", "extra_cuerpo": [],
+             "propios": {}}
     if not ruta.is_file():
         return vacio
     texto = ruta.read_text(encoding="utf-8")
@@ -137,19 +149,28 @@ def leer_local(ruta):
         return lineas
 
     # Claves de primer nivel que el script no conoce: se conservan íntegras.
-    extra, pendiente, clave = [], [], None
+    # Las rescatables se guardan aparte, con su bloque YAML tal cual, para
+    # reponerlas si la base viene vacía en ese campo.
+    extra, propios, pendiente, clave = [], {}, [], None
+
+    def cerrar(clave, pendiente):
+        if not clave:
+            return
+        if clave not in CLAVES_GENERADAS:
+            extra.extend(recortar(pendiente))
+        elif clave in CLAVES_RESCATABLES:
+            propios[clave] = "".join(recortar(pendiente))
+
     for linea in fm.splitlines(keepends=True):
         m = re.match(r"([A-Za-z_][A-Za-z0-9_]*):", linea)
         if m:
-            if clave and clave not in CLAVES_GENERADAS:
-                extra.extend(recortar(pendiente))
+            cerrar(clave, pendiente)
             pendiente, clave = [linea], m.group(1)
         elif clave is None:
             continue
         else:
             pendiente.append(linea)
-    if clave and clave not in CLAVES_GENERADAS:
-        extra.extend(recortar(pendiente))
+    cerrar(clave, pendiente)
 
     # Secciones del cuerpo que el script no genera.
     secciones = []
@@ -163,6 +184,7 @@ def leer_local(ruta):
         "aprendido": flag("aprendido", True),
         "extra_fm": "".join(extra).strip("\n"),
         "extra_cuerpo": secciones,
+        "propios": propios,
     }
 
 
@@ -178,22 +200,28 @@ def limpiar(v):
 
 def construir(fila, categorias, relacionados, teoria, local):
     g = lambda k: limpiar(fila[k])
+    propios = local.get("propios", {})
+
+    def rescatable(clave, valor):
+        """El valor de la base, o el que ya tuviera la ficha si la base calla."""
+        return campo(clave, valor) if valor is not None else propios.get(clave, "")
+
     fm = "---\n"
     fm += 'tipo: "hechizo"\n'
     fm += campo("slug", slugify(fila["nombre"]))
     fm += campo("nombre", fila["nombre"])
-    fm += campo("nombre_alt", g("nombre_alt"))
-    fm += campo("pronunciacion", g("conjuro"))
+    fm += rescatable("nombre_alt", g("nombre_alt"))
+    fm += rescatable("pronunciacion", g("conjuro"))
     if fila["anio"] is not None:
         fm += f"anio: {fila['anio']}\n"
     fm += campo("clase", g("asignatura"))
     fm += lista("categorias", categorias)
-    fm += campo("clasificacion", g("tipo"))
-    fm += campo("efecto", g("efecto"))
-    fm += campo("manifestacion", g("manifestacion"))
-    fm += campo("duracion", g("duracion"))
-    fm += campo("movimiento", g("movimiento"))
-    fm += campo("contrahechizo", g("contrahechizo"))
+    fm += rescatable("clasificacion", g("tipo"))
+    fm += rescatable("efecto", g("efecto"))
+    fm += rescatable("manifestacion", g("manifestacion"))
+    fm += rescatable("duracion", g("duracion"))
+    fm += rescatable("movimiento", g("movimiento"))
+    fm += rescatable("contrahechizo", g("contrahechizo"))
     fm += lista("relacionados", relacionados)
     fm += lista("teoria", teoria)
     if local["extra_fm"]:

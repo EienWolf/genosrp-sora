@@ -7,6 +7,7 @@ clase: "hechiceria"
 categorias:
   - "creacion"
 clasificacion: "hechizo"
+efecto: "Crea entre tres y cinco aves de colores que estallan en confeti"
 manifestacion: >-
   Unas aves de colores que brotan de la varita las cuales explotan en
   confeti pasados unos segundos.

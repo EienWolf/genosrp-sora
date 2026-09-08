@@ -5,7 +5,7 @@ orden: 13
 slug: "cura-de-forunculos"
 titulo: "Poción cura de forúnculos"
 tema: "pocion"
-via: "clase"
+via: "lectura"
 elaborado: false
 oculto: true
 curso: 1

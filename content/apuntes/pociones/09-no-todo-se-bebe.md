@@ -5,7 +5,7 @@ orden: 9
 slug: "no-todo-se-bebe"
 titulo: "No todo se bebe"
 tema: "concepto"
-via: "clase"
+via: "lectura"
 curso: 1
 fuente: "Teoría de pociones — vías de administración"
 ---
@@ -31,7 +31,7 @@ somníferos se emplean con animales —en el **transporte de dragones**, por
 ejemplo— como calmante.
 
 > **Nota mía.** Lo de que se puedan camuflar en la comida es lo que más
-> impresión me hizo de toda la clase, y no por la poción, sino por lo fácil que
+> impresión me hizo, y no por la poción, sino por lo fácil que
 > suena. Supongo que por eso insisten tanto en las etiquetas y en no dejar
 > frascos sueltos por ahí. Un frasco sin etiqueta no es solo desorden: es algo
 > que alguien puede beberse sin saber qué era.

@@ -5,7 +5,7 @@ orden: 20
 slug: "pompium"
 titulo: "Poción Pompium"
 tema: "pocion"
-via: "clase"
+via: "lectura"
 elaborado: false
 oculto: true
 curso: 1

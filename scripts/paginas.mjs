@@ -309,8 +309,8 @@ export function magia(d) {
         </span>
         <span class="curso">${esc(materia(x.clase, 'corto'))} · ${esc(curso)}${
           x.pronunciacion ? ` · <span class="conjuro">${esc(x.pronunciacion)}</span>` : ''}</span>
-        ${definido(x.resumen) ? `<span class="resumen">${esc(x.resumen)}</span>` : ''}
-        ${definido(x.voz) ? `<span class="voz">«${esc(x.voz)}»</span>` : ''}
+        <span class="resumen">${definido(x.resumen) ? esc(x.resumen) : ''}</span>
+        <span class="voz">${definido(x.voz) ? `«${esc(x.voz)}»` : ''}</span>
       </summary>
       <div class="cuerpo">
         ${md(seccion(h.cuerpo, 'Descripción'))}
@@ -755,7 +755,7 @@ export function entorno(d) {
 </section>
 
 <section>
-  <h2>Aurora</h2>
+  <h2>Mascotas</h2>
   ${criaturas}
 </section>`,
   });

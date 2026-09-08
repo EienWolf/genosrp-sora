@@ -5,7 +5,7 @@ orden: 14
 slug: "antidoto-venenos-comunes"
 titulo: "Antídoto para venenos comunes"
 tema: "pocion"
-via: "clase"
+via: "lectura"
 elaborado: false
 oculto: true
 curso: 1

@@ -5,7 +5,7 @@ orden: 7
 slug: "el-corte-y-la-contaminacion"
 titulo: "El corte y la contaminación"
 tema: "fundamentos"
-via: "clase"
+via: "lectura"
 curso: 1
 hechizos:
   - "diffindo"

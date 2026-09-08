@@ -6,6 +6,9 @@ anio: 2
 clase: "dcao-hechizos"
 categorias: []
 clasificacion: "encantamiento"
+efecto: >-
+  Obliga al boggart a tomar una forma ridícula y le quita el poder de
+  aterrorizar
 manifestacion: "Luz naranja en la punta de la varita."
 duracion: "varía según la edad del mago y el flujo mágico."
 movimiento: >-
@@ -17,7 +20,7 @@ teoria: []
 resumen: >-
   Contra un boggart: le da una forma ridícula y le quita el miedo de encima.
 voz: >-
-  El movimiento es como el de los pescadores, pero con gracia. Eso es lo que me cuesta.
+  Como el movimiento de los pescadores, pero con gracia. Eso me cuesta.
 
 # aprendido: false = Sora aún no lo domina.
 aprendido: true

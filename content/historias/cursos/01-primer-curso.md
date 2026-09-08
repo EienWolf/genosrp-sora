@@ -62,8 +62,7 @@ revés de las agujas; [Toquito](hechizo:toquito), su primer hechizo de duelo,
 un proyectil azul que no hace más daño que su nombre;
 [Gladismuto](hechizo:gladismuto), que le convierte los objetos en algo que por
 ahora pesa más de lo que corta; y [Avis](hechizo:avis), del que nunca sabe
-cuántos pájaros van a salir, que es exactamente lo que le gusta de él. Seis
-hechizos en un año, y ninguno le salió a la primera.
+cuántos pájaros van a salir, que es exactamente lo que le gusta de él.
 
 Vio el cartel del club de Pociones y escribió esa misma tarde. Arlan Fendragon
 lo admitió sin ceremonia y con una chapa dentro del sobre, que Sora lleva

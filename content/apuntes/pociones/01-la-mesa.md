@@ -5,7 +5,7 @@ orden: 1
 slug: "la-mesa"
 titulo: "La mesa de trabajo"
 tema: "fundamentos"
-via: "clase"
+via: "lectura"
 curso: 1
 fuente: "Teoría de pociones — funcionamiento de la mesa"
 ---

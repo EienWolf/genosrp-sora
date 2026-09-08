@@ -8,6 +8,7 @@ clase: "medimagia"
 categorias:
   - "curativo"
 clasificacion: "hechizo"
+efecto: "Limpia el polvo y las manchas superficiales de la zona"
 manifestacion: "Un leve aire amarillo que recorre el área dejando la zona limpia."
 duracion: "Efecto inmediato, se disipa al realizar la limpieza superficial"
 movimiento: "Realizar un suave barrido con la varita hacia el objetivo"

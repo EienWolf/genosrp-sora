@@ -20,7 +20,7 @@ teoria: []
 resumen: >-
   Impulsa hacia delante a gran velocidad durante ocho segundos.
 voz: >-
-  Las piernas vibran un poco y salgo disparado. Ocho segundos, y según el suelo.
+  Las piernas vibran un poco y salgo disparado. Ocho segundos, no más.
 
 # aprendido: false = Sora aún no lo domina.
 aprendido: true

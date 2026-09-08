@@ -137,19 +137,34 @@ python3 scripts/add-hechizo.py "wingardium leviosa"
 | `clase` | `asignatura` | `encantamientos`, `dcao-hechizos`… |
 | `categorias` | tabla `categorias` | Lista normalizada |
 | `clasificacion` | `tipo` | encantamiento, embrujo, maleficio… |
-| `efecto` | `efecto` | Solo 21 de 142 |
+| `efecto` | `efecto` | Solo 21 de 142. Si la base calla, se escribe a mano |
 | `manifestacion`, `duracion`, `movimiento` | íd. | |
-| `contrahechizo` | `contrahechizo` | Solo 24 de 142 |
+| `contrahechizo` | `contrahechizo` | Solo 24 de 142. Vacío = no tiene |
 | `relacionados` | tabla `referencias` | Slugs de otros hechizos |
 | `teoria` | tabla `teoria_refs` | Asignaturas de teoría que lo citan |
-| `resumen` | — | **Local.** Para qué sirve, en una frase (≤ 120 car.) |
-| `voz` | — | **Local.** Cómo lo cuenta él. Sale entrecomillado en la tarjeta |
+| `resumen` | — | **Local.** Para qué sirve, en una frase (≤ 92 car.) |
+| `voz` | — | **Local.** Cómo lo cuenta él, entrecomillado en la tarjeta (≤ 68 car.) |
 | `aprendido` | — | **Local.** `false` si Sora aún no lo domina. **No se publica** |
 | `bloqueado` | — | **Local.** Ver abajo |
 | `personalizable` | — | **Local.** La ilusión/efecto varía según el mago |
 
 Genera en el cuerpo `## Descripción` y `## Apuntes de clase`. Cualquier otra
 sección que añadas —`## Manifestación de Sora`, `## Notas`…— se conserva.
+
+#### Campos que se pueden completar a mano
+
+La base llega incompleta en varios escalares: `efecto` falta en 121 de 142,
+`contrahechizo` en 118 y `pronunciacion` en 50. Esos huecos se rellenan en la
+ficha y **el script los respeta**: si la base viene vacía en uno de estos ocho
+campos —`nombre_alt`, `pronunciacion`, `clasificacion`, `efecto`,
+`manifestacion`, `duracion`, `movimiento`, `contrahechizo`— gana lo que ya
+hubiera escrito; si la base sí trae el dato, manda la base.
+
+Es lo que evita tener que bloquear una ficha entera solo por completar un
+campo, que además congelaría las correcciones que la base haga en el resto.
+
+Un `contrahechizo` vacío **no es un hueco pendiente**: son hechizos que no lo
+tienen. Están revisados uno a uno.
 
 Un hechizo con `aprendido: false` se queda fuera del sitio entero —páginas,
 `llms.txt` y `content.json`— hasta que Sora lo domine. Darlo de alta antes
@@ -160,6 +175,30 @@ lo que sabe hacer.
 ellos la tarjeta enseña el nombre y poco más. No vienen de la base, así que
 los escribes tú —a partir de lo que ya dice la ficha, sin inventar datos— y
 `add-hechizo.py` los conserva al sincronizar como cualquier campo propio.
+
+#### Cuánto cabe en la tarjeta
+
+La tarjeta cerrada tiene alto fijo para que la rejilla no quede escalonada, y
+ese alto es un presupuesto de líneas: 2 de nombre, 2 de materia · curso ·
+pronunciación, 4 de resumen y 3 de la nota de Sora. En una sola columna el
+resumen y la nota bajan a 2, que es lo que ocupan a ese ancho.
+
+Los topes están medidos con las fuentes reales sobre la columna más estrecha
+que produce la rejilla (15rem), probando varios textos y quedándose con el
+peor corte de palabra:
+
+| Campo | Líneas | Tope seguro |
+| ----- | ------ | ----------- |
+| `nombre` | 2 | 31 car. |
+| materia · curso · `pronunciacion` | 2 | 53 car. |
+| `resumen` | 4 | 92 car. |
+| `voz` | 3 | 68 car. |
+
+Por debajo de esos números siempre entra. Por encima **puede** entrar —
+depende de dónde caigan los espacios— y si no entra, el CSS lo recorta con
+puntos suspensivos en vez de romper la rejilla. Cuatro fichas pasan hoy del
+tope de `voz` (`red-spark`, `gladismuto`, `verdimillious`, `riddikulus`) y se
+han comprobado una a una: caben. Si tocas su texto, vuelve a mirarlas.
 
 #### `bloqueado`
 

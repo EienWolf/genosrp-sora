@@ -5,7 +5,7 @@ orden: 17
 slug: "protectora-llamas"
 titulo: "Poción protectora contra las llamas"
 tema: "pocion"
-via: "clase"
+via: "lectura"
 elaborado: false
 oculto: true
 curso: 1

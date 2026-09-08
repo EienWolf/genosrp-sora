@@ -5,7 +5,7 @@ orden: 10
 slug: "hasta-donde-llega"
 titulo: "Hasta dónde llega cada poción"
 tema: "concepto"
-via: "clase"
+via: "lectura"
 curso: 1
 fuente: "Teoría de pociones — alcance y límites"
 ---

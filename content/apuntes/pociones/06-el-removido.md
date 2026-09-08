@@ -5,7 +5,7 @@ orden: 6
 slug: "el-removido"
 titulo: "Remover es magia, no mezclar"
 tema: "fundamentos"
-via: "clase"
+via: "lectura"
 curso: 1
 fuente: "Teoría de pociones — sentido del removido e incorporación"
 ---

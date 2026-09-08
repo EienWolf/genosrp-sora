@@ -5,7 +5,7 @@ orden: 2
 slug: "el-equipo"
 titulo: "El equipo básico"
 tema: "equipo"
-via: "clase"
+via: "lectura"
 curso: 1
 fuente: "Teoría de pociones — equipo básico"
 ---

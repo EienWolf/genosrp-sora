@@ -5,7 +5,7 @@ orden: 21
 slug: "herbicida"
 titulo: "Poción herbicida"
 tema: "pocion"
-via: "clase"
+via: "lectura"
 elaborado: false
 oculto: true
 curso: 1

@@ -5,7 +5,7 @@ orden: 3
 slug: "hechizos-de-la-mesa"
 titulo: "Los hechizos de la mesa"
 tema: "fundamentos"
-via: "clase"
+via: "lectura"
 curso: 1
 hechizos:
   - "fluxum"

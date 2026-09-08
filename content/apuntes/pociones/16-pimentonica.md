@@ -5,7 +5,7 @@ orden: 16
 slug: "pimentonica"
 titulo: "Poción pimentónica"
 tema: "pocion"
-via: "clase"
+via: "lectura"
 elaborado: false
 oculto: true
 curso: 1

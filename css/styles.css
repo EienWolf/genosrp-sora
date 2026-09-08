@@ -460,24 +460,86 @@ main section > h1::after, main section > h2::after {
 /* Abierta ocupa la fila entera: la ficha completa no cabe en una columna */
 .hechizo[open] { grid-column: 1 / -1; }
 
-.hechizo summary { cursor: pointer; list-style: none; display: grid; gap: .1rem; }
+/* La tarjeta cerrada tiene alto fijo. Si cada una midiera lo suyo la rejilla
+   quedaba escalonada y las de nombre o resumen corto parecían a medio hacer.
+   El presupuesto se cuenta en líneas y está medido con las fuentes reales a
+   15rem de ancho, que es la columna más estrecha que produce la rejilla:
+   más allá el texto solo puede ocupar menos. Cambiar un `--n-` cambia el alto
+   de todas a la vez. */
+.hechizo {
+  --n-nombre:  2;  --lh-nombre:  1.5625rem;  /* 1.25rem × 1.25 */
+  --n-curso:   2;  --lh-curso:   1.1475rem;  /*  .85rem × 1.35 */
+  --n-resumen: 4;  --lh-resumen: 1.38rem;    /*  .92rem × 1.5  */
+  --n-voz:     3;  --lh-voz:     1.495rem;   /* 1.15rem × 1.3  */
+  --hueco-tarjeta: .35rem;
+}
+.hechizo summary {
+  cursor: pointer; list-style: none;
+  display: flex; flex-direction: column; gap: var(--hueco-tarjeta);
+  min-block-size: calc(
+      var(--n-nombre)  * var(--lh-nombre)
+    + var(--n-curso)   * var(--lh-curso)
+    + var(--n-resumen) * var(--lh-resumen)
+    + var(--n-voz)     * var(--lh-voz)
+    + 3 * var(--hueco-tarjeta));
+}
 .hechizo summary::-webkit-details-marker { display: none; }
-.rotulo-hechizo { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; }
+/* En una sola columna la tarjeta pasa de 15rem a casi 30 y el texto envuelve
+   la mitad: con el presupuesto de escritorio quedaría medio palmo vacío en
+   cada una. Medido a ese ancho, ni el resumen ni la nota pasan de dos líneas.
+   El nombre y la materia mantienen su tope de dos por si un hechizo futuro
+   trae un nombre largo. */
+@media (max-width: 34rem) {
+  .hechizo { --n-resumen: 2; --n-voz: 2; }
+}
+/* Recorta a N líneas: el alto fijo solo se sostiene si nada puede desbordarlo.
+   Es la red de seguridad, no la norma; la norma son los topes de caracteres
+   que documenta content/README.md. */
+.hechizo .nombre, .hechizo .curso, .hechizo .resumen, .hechizo .voz {
+  display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden;
+}
+.rotulo-hechizo {
+  display: flex; align-items: baseline; justify-content: space-between; gap: .5rem;
+}
 .hechizo .nombre {
   font-family: var(--serif); font-size: 1.25rem; font-weight: 600; color: var(--plata);
+  line-height: 1.25; -webkit-line-clamp: var(--n-nombre); line-clamp: var(--n-nombre);
   transition: color .3s ease, text-shadow .3s ease;
 }
 .hechizo summary:hover .nombre { color: var(--oro); text-shadow: 0 0 18px rgba(224,166,60,.45); }
 .hechizo[open] .nombre { color: var(--oro); }
 .hechizo .chispa { color: var(--oro); flex: none; }
-.hechizo .curso { color: var(--oro); font-size: .85rem; font-style: italic; }
+.hechizo .curso {
+  color: var(--oro); font-size: .85rem; font-style: italic; line-height: 1.35;
+  -webkit-line-clamp: var(--n-curso); line-clamp: var(--n-curso);
+}
 .hechizo .conjuro { color: var(--oro); font-style: italic; }
-.hechizo .resumen { color: var(--plata-2); font-size: .92rem; margin-top: .5rem; }
+/* `margin-block: auto` reparte el hueco sobrante por igual arriba y abajo: el
+   resumen queda centrado entre el subtítulo y la nota, y de paso empuja la
+   nota al fondo de la tarjeta sin tener que fijarla. */
+.hechizo .resumen {
+  color: var(--plata-2); font-size: .92rem; line-height: 1.5;
+  -webkit-line-clamp: var(--n-resumen); line-clamp: var(--n-resumen);
+  margin-block: auto;
+}
 /* Lo que dice él va de su puño, como todo lo suyo */
 .hechizo .voz {
   font-family: var(--mano); font-size: 1.15rem; line-height: 1.3;
-  color: var(--plata-3); margin-top: .35rem;
+  color: var(--plata-3);
+  -webkit-line-clamp: var(--n-voz); line-clamp: var(--n-voz);
 }
+/* Solo el conjunto reserva alto; las zonas miden lo suyo. Si cada una
+   reservase sus líneas, un título de dos líneas quedaría pegado al subtítulo
+   y uno de una línea con un hueco enorme debajo: el mismo alto, pero con los
+   espacios descuadrados. Así la holgura sobrante cae siempre en el resumen,
+   que es justo el que se centra. */
+/* Abierta manda la ficha, no el presupuesto de la tarjeta cerrada. */
+.hechizo[open] summary { min-block-size: 0; }
+.hechizo[open] .nombre, .hechizo[open] .curso,
+.hechizo[open] .resumen, .hechizo[open] .voz {
+  -webkit-line-clamp: none; line-clamp: none; display: block; overflow: visible;
+}
+.hechizo[open] .resumen { margin-block: 0; }
 
 .hechizo .cuerpo { padding-top: 1rem; }
 /* ::details-content anima la apertura como un acordeón real. Antes el alto
@@ -1053,8 +1115,27 @@ dialog.visor .cerrar:hover { border-color: var(--oro); color: var(--oro); }
 }
 .sello-genos:hover .emblema-genos { opacity: 1; }
 .pie { border-top: 1px solid var(--linea); padding-block: 2.5rem; color: var(--plata-3); font-size: .9rem; }
-.pie p { max-width: none; }
+.pie p { max-width: none; margin: 0 0 .5rem; }
 .pie a { color: var(--plata-2); }
+.pie a:hover { color: var(--oro); }
+/* Tres bloques que caben en fila en escritorio y se apilan solos en cuanto
+   dejan de caber: `auto-fit` sin consultas de medios, como la rejilla de
+   hechizos. El de «este sitio» es el más ancho, así que marca el mínimo. */
+.pie-columnas {
+  display: grid; gap: 1.6rem 2.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+}
+.pie-bloque h2 {
+  font-family: var(--serif); font-size: .95rem; font-weight: 600;
+  color: var(--plata-2); margin: 0 0 .5rem; letter-spacing: .02em;
+}
+.pie-enlaces { list-style: none; margin: 0; padding: 0; }
+.pie-enlaces li { margin-block: .3rem; }
+/* Sin subrayado hasta que se apunta: en el pie hay varios seguidos y
+   subrayados todos parecían un menú. */
+.pie-enlaces a { text-decoration: none; }
+.pie-enlaces a:hover { text-decoration: underline; }
+.pie time { color: var(--plata-2); font-variant-numeric: tabular-nums; }
 
 /* ============================================================
    LA VARITA — el cursor

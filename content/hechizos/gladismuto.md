@@ -7,6 +7,7 @@ anio: 1
 clase: "transfiguracion"
 categorias:
   - "transformacion"
+efecto: "Convierte un objeto inerte en un arma sin filo"
 manifestacion: >-
   el objeto inerte afectado se convierte en un arma sin filo, generalmente
   una espada.
