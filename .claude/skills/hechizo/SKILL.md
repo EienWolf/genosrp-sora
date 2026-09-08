@@ -106,6 +106,25 @@ una, dale su nombre en ese mapa.
 
    Un `contrahechizo` vacío ya está revisado: esos hechizos no tienen. No lo
    vuelvas a listar como pendiente.
+
+   **Avisa siempre, sin que haga falta que te lo pidan, si falta alguno de
+   estos tres:**
+
+   | Campo | Qué es | Por qué se pregunta |
+   | ----- | ------ | ------------------- |
+   | `pronunciacion` | Cómo se dice en voz alta | No se deduce de la grafía: la base solo la trae en 50 de 142. |
+   | `clasificacion` | `hechizo`, `encantamiento`, `maldición`… | No se infiere de `clase` ni de `categorias`: son ejes distintos. |
+   | `categorias` | `ofensivo`, `luminico`, `creacion`… | Una lista vacía no significa «sin categoría», significa que la base no la trae. |
+
+   Los tres se rellenan a mano y sobreviven a la sincronización como el resto.
+   Es lo contrario de `efecto`, que sí se deduce de lo que la propia ficha
+   dice, y de un `contrahechizo` vacío, que ya está revisado.
+
+   Dilo al terminar, una línea por campo, junto con la ficha generada. Es el
+   caso normal y no la excepción: de los hechizos ya importados, seis no traen
+   pronunciación, tres no traen clasificación y cuatro tienen `categorias`
+   vacío.
+
 2. Si el usuario aporta contenido nuevo (manifestación propia, emotes,
    notas), añádelo en campos o secciones propias y **deja `bloqueado: false`**:
    se conserva solo. Pon `bloqueado: true` únicamente si corrige un dato que
