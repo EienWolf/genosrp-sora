@@ -599,7 +599,7 @@ export function cartasIndice(d, pagina, total) {
   // Decorativa: el texto de al lado ya dice quién es, así que no lleva alt.
   const imagenAurora = ave ? `<img class="aurora"
     src="${BASE}/assets/img/${esc(ave.datos.slug)}.png"
-    alt="" width="720" height="720" aria-hidden="true">` : '';
+    alt="" width="720" height="582" aria-hidden="true">` : '';
   const nAbiertos = d.hilos.filter((h) => h.meta?.datos?.estado === 'abierto').length;
 
   const filas = hilos.map((h) => {
