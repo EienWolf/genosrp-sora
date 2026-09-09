@@ -174,6 +174,7 @@ export function contentJson(d) {
   const limpia = (f) => ({ ...f.datos, ruta: f.ruta, cuerpo: f.cuerpo });
   return JSON.stringify({
     generado: new Date().toISOString().slice(0, 10),
+    version: d.version,
     aviso: 'Volcado íntegro de content/. Nada está marcado como privado. '
          + 'El sitio HTML muestra una selección; esto no.',
     personaje_principal: 'sora-winterbourne',

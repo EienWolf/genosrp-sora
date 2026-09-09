@@ -1165,6 +1165,14 @@ dialog.visor .cerrar:hover { border-color: var(--oro); color: var(--oro); }
 .pie-enlaces a { text-decoration: none; }
 .pie-enlaces a:hover { text-decoration: underline; }
 .pie time { color: var(--plata-2); font-variant-numeric: tabular-nums; }
+/* La versión, debajo de la fecha: un dato de mantenimiento, así que va en
+   pequeño y sin llamar la atención. Las cifras, tabulares, para que no
+   bailen de ancho al subir de número. */
+.pie .version { margin: .35rem 0 0; font-size: .85rem; }
+.pie .version b {
+  color: var(--plata-2); font-weight: 600;
+  font-variant-numeric: tabular-nums; letter-spacing: .02em;
+}
 /* La nota para las máquinas cierra el pie a lo ancho, bajo los tres bloques:
    no es una columna más porque no se dirige al mismo lector. La regla lleva
    `.pie` delante para ganarle a `.pie p`, que si no le borra el margen. */

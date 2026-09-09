@@ -52,6 +52,28 @@ Para probarlo tal cual quedará en producción (con el prefijo `/sora`):
 npm run preview    # http://localhost:8787/sora/
 ```
 
+## La versión
+
+En el pie de cada página, debajo de la fecha, va la versión del sitio en tres
+cifras: **`<curso>.<motor>.<ficha>`**. Ninguna se escribe a mano.
+
+| Cifra | Qué cuenta | De dónde sale |
+| ----- | ---------- | ------------- |
+| curso | El curso que Sora está cursando | El resumen de curso que está `en-curso`, en `content/historias/cursos/` |
+| motor | Cambios en el generador | Commits que tocan `scripts/`, `css/`, `js/`, `package.json` o `wrangler.jsonc` |
+| ficha | Actualizaciones que solo traen contenido | Commits desde el último cambio de motor que no tocan nada de lo anterior |
+
+La cifra de ficha **vuelve a cero** cada vez que se mueve el motor: cuenta las
+veces que se ha actualizado el contenido sobre un generador que ya funcionaba.
+
+Se calcula al construir, contando el historial de git **y lo que aún no está
+confirmado**. Eso último no es un capricho: el sitio se despliega antes de
+hacer el commit, así que sin contar el árbol de trabajo lo publicado iría
+siempre una versión por detrás de lo que se acaba de subir.
+
+Fuera de un repositorio de git no hay historial que contar y el pie sale solo
+con la fecha.
+
 ## Despliegue
 
 El sitio se publica como un **Worker de Cloudflare con assets estáticos**. El

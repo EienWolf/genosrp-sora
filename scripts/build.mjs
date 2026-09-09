@@ -11,6 +11,7 @@
  */
 import { cp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { basename, dirname, extname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { load as yamlLoad } from 'js-yaml';
@@ -141,8 +142,53 @@ const AUTOR = {
    cuándo se desplegó esto, no cuándo se escribió. */
 const GENERADO = new Date();
 const GENERADO_ISO = GENERADO.toISOString();
+// Sin año: la fecha del pie dice lo reciente que es esto, y para eso el día y
+// el mes bastan. El año sigue en el `datetime`, que es el que leen las máquinas.
 const GENERADO_TEXTO = GENERADO.toLocaleDateString('es-ES',
-  { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+  { day: 'numeric', month: 'long', timeZone: 'UTC' });
+
+/* La versión del sitio, en tres cifras: <curso>.<motor>.<ficha>.
+
+   · curso — el que Sora está cursando. Sube sola al cerrar un año y abrir el
+     siguiente, así que dice de un vistazo por dónde va el rol.
+   · motor — cuántas veces ha cambiado el generador: scripts/, css/, js/ y la
+     configuración del despliegue.
+   · ficha — cuántas actualizaciones han traído solo contenido desde el último
+     cambio del motor. Vuelve a cero cuando el motor se mueve.
+
+   Se cuenta sobre el historial de git, y también sobre lo que todavía no está
+   confirmado: el sitio se despliega antes de hacer el commit, así que sin
+   contar el árbol de trabajo lo publicado iría siempre una versión por detrás. */
+const ES_MOTOR = (f) => /^(scripts|css|js)\//.test(f)
+  || ['package.json', 'package-lock.json', 'wrangler.jsonc'].includes(f);
+
+const git = (...args) => execFileSync('git', args,
+  { cwd: RAIZ, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+
+function calcularVersion(curso) {
+  let motor = 0, ficha = 0;
+  const contar = (archivos) => {
+    if (!archivos.length) return;
+    if (archivos.some(ES_MOTOR)) { motor++; ficha = 0; } else ficha++;
+  };
+  try {
+    // Un commit de fusión no lista archivos: no cambia nada por sí mismo.
+    for (const commit of git('log', '--reverse', '--format=%x1e', '--name-only')
+      .split('\x1e').slice(1)) {
+      contar(commit.split('\n').filter(Boolean));
+    }
+    contar(git('status', '--porcelain').split('\n').filter(Boolean)
+      // «R  antes -> después» y las rutas con espacios, que git entrecomilla.
+      .map((l) => l.slice(3).split(' -> ').pop().replace(/^"|"$/g, '')));
+  } catch {
+    return null;   // fuera de un repositorio no hay historial que contar
+  }
+  return `${curso ?? 0}.${motor}.${ficha}`;
+}
+
+/** La versión de este despliegue. La sella `cargar()`, que es quien sabe por
+ *  qué curso va Sora. */
+let VERSION = null;
 
 /* Las reglas de especulación del <head> prerrenderizan la página al pasar el
    ratón por encima del enlace («moderate»), así que al pulsar ya está lista y
@@ -220,6 +266,7 @@ ${contenido}
         <h2>Este sitio</h2>
         <p>Última actualización:
           <time datetime="${GENERADO_ISO}">${GENERADO_TEXTO}</time>.</p>
+        ${VERSION ? `<p class="version">Versión <b>${esc(VERSION)}</b></p>` : ''}
       </section>
     </div>
 
@@ -296,7 +343,15 @@ async function cargar() {
     }
   }
 
+  // El curso en marcha manda en la primera cifra de la versión; si están
+  // todos cerrados, el último que hubo.
+  const cursos = await leerCarpeta('historias/cursos');
+  const enMarcha = cursos.find((c) => c.datos.estado === 'en-curso')
+    ?? [...cursos].sort((a, b) => (b.datos.curso ?? 0) - (a.datos.curso ?? 0))[0];
+  VERSION = calcularVersion(enMarcha?.datos?.curso);
+
   return {
+    version: VERSION,
     sora: porSlug['sora-winterbourne'],
     personajes, porSlug, nombreDe,
     criaturas: await leerCarpeta('criaturas'),
@@ -304,7 +359,7 @@ async function cargar() {
     // anotarlos antes de tiempo, pero no se publican: fuera de aquí el sitio
     // solo enseña lo que sabe hacer, páginas y volcados para máquinas incluidos.
     hechizos: (await leerCarpeta('hechizos')).filter((h) => h.datos.aprendido !== false),
-    cursos: await leerCarpeta('historias/cursos'),
+    cursos,
     complementarias: await leerCarpeta('historias/complementarias'),
     galeria: await leerCarpeta('galeria'),
     conocidos: conocidos.conocidos ?? [],
