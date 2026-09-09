@@ -9,5 +9,5 @@ participantes:
   - "sora-winterbourne"
 cartas: 2
 ultimo_registro: 9
-estado: "abierto"
+estado: "cerrado"
 ---

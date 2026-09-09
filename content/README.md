@@ -58,7 +58,7 @@ falta por migrar, no es un error.
 | `hitos` | | Cronología anterior a Hogwarts. Ver abajo |
 | `casa` | | Solo si estudia en Hogwarts |
 | `estatus_social` | | |
-| `fisico` | | `estatura`, `complexion`, `cabello`, `ojos` |
+| `fisico` | | `estatura`, `complexion`, `cabello`, `ojos`. `tipo_sangre` se guarda pero no se pinta en ninguna página |
 | `miedos`, `aspiraciones` | | Lista de `{titulo, descripcion}` |
 | `parentesco`, `vinculos` | | Lista de `{slug, relacion}` |
 | `gustos` | | Lista de textos |

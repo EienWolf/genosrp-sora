@@ -14,6 +14,8 @@ estatus_social: Media
 fisico:
   altura: "1,46 m"
   peso: "39 kg"
+  # Dato de ficha, para el rol. La web no lo enseña en ninguna página.
+  tipo_sangre: "B+"
   estatura: Baja
   complexion: Media
   cabello:
