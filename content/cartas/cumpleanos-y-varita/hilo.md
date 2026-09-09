@@ -7,7 +7,7 @@ participantes:
   - "ethan-winterbourne"
   - "lyra-winterbourne"
   - "sora-winterbourne"
-cartas: 1
-ultimo_registro: 8
+cartas: 2
+ultimo_registro: 9
 estado: "abierto"
 ---

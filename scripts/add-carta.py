@@ -83,16 +83,28 @@ def meta(ruta):
     m = re.match(r"^---\n(.*?)\n---\n", ruta.read_text(encoding="utf-8"), re.S)
     if not m:
         return {}
-    partes = [None, m.group(1)]
-    datos, clave = {}, None
-    for linea in partes[1].splitlines():
+    lineas = m.group(1).splitlines()
+    datos, clave, i = {}, None, 0
+    while i < len(lineas):
+        linea = lineas[i]
         m = re.match(r"([a-z_]+):\s*(.*)", linea)
         if m:
-            clave = m.group(1)
-            datos[clave] = m.group(2).strip().strip('"')
+            clave, valor = m.group(1), m.group(2).strip()
+            if valor.startswith((">", "|")):
+                # Escalar plegado: el valor son las líneas sangradas que
+                # siguen. Sin esto, un `titulo: >-` se leía como vacío.
+                trozos = []
+                while (i + 1 < len(lineas) and re.match(r"\s+\S", lineas[i + 1])
+                       and not lineas[i + 1].strip().startswith("- ")):
+                    trozos.append(lineas[i + 1].strip())
+                    i += 1
+                datos[clave] = " ".join(trozos)
+            else:
+                datos[clave] = valor.strip('"')
         elif clave and linea.strip().startswith("- "):
             datos.setdefault(clave + "_lista", []).append(
                 linea.strip()[2:].strip().strip('"'))
+        i += 1
     return datos
 
 
@@ -182,8 +194,16 @@ def anadir(args, cuerpo):
     fm += "---\n\n" + cuerpo.strip() + "\n"
     ruta.write_text(fm, encoding="utf-8")
 
-    escribir_hilo(dir_hilo, args.titulo or nombre.replace("-", " ").capitalize(),
-                  args.asunto, args.estado)
+    # El hilo conserva lo suyo. `--titulo` y `--asunto` describen la carta y
+    # solo estrenan el hilo cuando se crea: antes, añadir una carta a un hilo
+    # existente sin repetirlos reescribía `hilo.md` con un título sacado del
+    # slug y le borraba el asunto.
+    previo = meta(dir_hilo / "hilo.md")
+    escribir_hilo(dir_hilo,
+                  previo.get("titulo") or args.titulo
+                  or nombre.replace("-", " ").capitalize(),
+                  previo.get("asunto") or args.asunto,
+                  args.estado or previo.get("estado") or "abierto")
     print(f"✔ {ruta.relative_to(RAIZ)}  ({', '.join(remitentes)} → {', '.join(destinos)})")
 
 
@@ -243,7 +263,7 @@ def main():
     p.add_argument("--fecha", help="Fecha in-game, si se conoce")
     p.add_argument("--desde", help="Lugar desde el que se envía, si se conoce")
     p.add_argument("--hacia", help="Lugar al que se envía, si se conoce")
-    p.add_argument("--estado", default="abierto", help="abierto | cerrado")
+    p.add_argument("--estado", help="abierto | cerrado (por defecto, el que ya tenga el hilo)")
     p.add_argument("--adjunto", action="append", help="Objeto que acompaña la carta")
     p.add_argument("--emote", action="append", help="Texto de un /do de la carta")
     p.add_argument("--conocido", help="Slug de la persona a registrar")

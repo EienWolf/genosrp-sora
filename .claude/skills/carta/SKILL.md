@@ -44,7 +44,12 @@ elija; es más barato que separar hilos mal fusionados después.
 
 El slug del hilo describe el asunto, no a la persona: `club-de-quidditch`,
 `llegada-a-hogwarts`. Marca `--estado cerrado` cuando la conversación se haya
-agotado; déjalo `abierto` (por defecto) si alguien quedó en responder.
+agotado; sin el flag el hilo conserva el estado que ya tuviera, y uno nuevo
+nace `abierto`.
+
+`--titulo` y `--asunto` describen la carta y estrenan el hilo cuando se crea.
+Un hilo que ya existe conserva los suyos: si quieres cambiarle el título o el
+asunto, edita su `hilo.md`.
 
 ## 2. Añadir la carta
 
