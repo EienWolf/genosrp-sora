@@ -28,9 +28,12 @@ fisico:
   voz: Alegre y enérgica, de tono amigable
   aroma: Cálido, a lavanda y vainilla
   expresion: Mirada curiosa y una sonrisa ligera constante
-# Las chapitas que lleva puestas en el uniforme.
+# Las chapitas que lleva puestas en el uniforme. Una chapa es su nombre, y se
+# dibuja como un disco de metal; con `imagen` (un slug de galeria/) se enseña
+# la de verdad en su lugar.
 chapitas:
-  - "P.E.Q.U.E.S"
+  - nombre: "P.E.Q.U.E.S"
+    imagen: chapa-peques
   - "Pociones"
 miedos:
   - titulo: Miedo a las aguas profundas (Talasofobia)

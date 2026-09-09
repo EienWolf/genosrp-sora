@@ -70,10 +70,21 @@ const color = (texto) => {
   return 'var(--plata-2)';
 };
 
-/** Las chapas del uniforme, alternando el metal: dorada, azul, dorada… */
+/** Las chapas del uniforme, alternando el metal: dorada, azul, dorada…
+ *  Una chapa de la que existe la imagen se enseña tal cual, y entonces el
+ *  disco dibujado sobra: para eso está la foto. */
 const chapas = (lista) => (lista ?? []).length
-  ? `<ul class="chapas">` + lista.map((c, i) =>
-      `<li class="chapa chapa--${i % 2 ? 'azul' : 'oro'}">${esc(c)}</li>`).join('') + `</ul>`
+  ? `<ul class="chapas">` + lista.map((c, i) => {
+      const nombre = typeof c === 'string' ? c : c.nombre;
+      const g = typeof c === 'string' ? null : imagenPorSlug(c.imagen);
+      if (typeof c !== 'string' && c.imagen && !g) {
+        throw new Error(`La chapa «${nombre}» cita «${c.imagen}», que no está en content/galeria/`);
+      }
+      return g
+        ? `<li class="chapa chapa--foto"><img src="${BASE}/img/${esc(g.archivo)}"
+            width="${g.ancho}" height="${g.alto}" alt="${esc(nombre)}" loading="lazy"></li>`
+        : `<li class="chapa chapa--${i % 2 ? 'azul' : 'oro'}">${esc(nombre)}</li>`;
+    }).join('') + `</ul>`
   : '';
 
 export function portada(d) {

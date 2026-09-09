@@ -59,12 +59,29 @@ falta por migrar, no es un error.
 | `casa` | | Solo si estudia en Hogwarts |
 | `estatus_social` | | |
 | `fisico` | | `estatura`, `complexion`, `cabello`, `ojos`. `tipo_sangre` se guarda pero no se pinta en ninguna página |
+| `chapitas` | | Las del uniforme. Ver abajo |
 | `miedos`, `aspiraciones` | | Lista de `{titulo, descripcion}` |
 | `parentesco`, `vinculos` | | Lista de `{slug, relacion}` |
 | `gustos` | | Lista de textos |
 
 Secciones esperadas en el cuerpo: `## Descripción física`,
 `## Personalidad`, `## Historia`.
+
+#### `chapitas`
+
+Las chapas prendidas en el uniforme, junto al retrato de la portada. Una chapa
+puede ser solo su nombre —y se dibuja como un disco de metal, alternando el
+dorado y el azul— o traer la imagen de la de verdad:
+
+```yaml
+chapitas:
+  - nombre: "P.E.Q.U.E.S"
+    imagen: chapa-peques      # slug de galeria/
+  - "Pociones"
+```
+
+Con `imagen` se enseña la chapa recortada en lugar del disco dibujado. El slug
+tiene que existir en `content/galeria/`; si no, la compilación falla.
 
 #### `hitos`
 

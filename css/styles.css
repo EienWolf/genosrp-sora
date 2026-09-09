@@ -234,6 +234,19 @@ p { max-width: 68ch; }
   background: radial-gradient(circle at 35% 30%, #6fb6ec, #2f6f9e 62%, #1d4a6d);
   color: var(--plata); transform: rotate(-6deg);
 }
+/* La chapa de verdad, recortada: trae su propio metal y su propia forma, así
+   que no se le pone disco debajo ni se recorta a círculo. La sombra la sigue
+   por el contorno, que no es redondo. */
+.chapa--foto {
+  width: 4.6rem; height: 4.6rem; padding: 0;
+  background: none; border-radius: 0; box-shadow: none;
+  transform: rotate(8deg);
+  /* El esmalte de la chapa es azul noche, casi el fondo de la página: sin un
+     resplandor cálido que la despegue solo se le vería el oro. */
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,.6))
+          drop-shadow(0 0 4px rgba(244,205,125,.28));
+}
+.chapa--foto img { width: 100%; height: 100%; object-fit: contain; }
 
 /* ---------- El nombre ---------- */
 /* Escrito a mano, como si lo hubiera anotado él en el margen */
