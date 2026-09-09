@@ -61,12 +61,12 @@ cifras: **`<curso>.<motor>.<ficha>`**. Ninguna se escribe a mano.
 | ----- | ---------- | ------------- |
 | curso | El curso que Sora está cursando | El resumen de curso que está `en-curso`, en `content/historias/cursos/` |
 | motor | Cambios en el generador | Commits que tocan `scripts/`, `css/`, `js/`, `package.json` o `wrangler.jsonc` |
-| ficha | Actualizaciones que mueven el contenido | Commits desde el último cambio de motor que tocan `content/` |
+| ficha | Actualizaciones que mueven el contenido | Commits que tocan `content/` |
 
-La cifra de ficha **vuelve a cero** cada vez que se mueve el motor: cuenta las
-veces que se ha actualizado el contenido sobre un generador que ya funcionaba.
-Un commit que solo toca el README o las skills no suma en ninguna de las dos:
-no cambia nada de lo que se publica.
+Las dos últimas cuentan por su lado y **ninguna reinicia a la otra**: un commit
+que toque el generador y el contenido a la vez sube las dos. Un commit que solo
+toca el README o las skills no suma en ninguna: no cambia nada de lo que se
+publica.
 
 Se calcula al construir, contando el historial de git **y lo que aún no está
 confirmado**. Eso último no es un capricho: el sitio se despliega antes de
