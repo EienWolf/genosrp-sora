@@ -2,6 +2,10 @@
 tipo: "historia"
 slug: "nombre-corto-del-suceso"
 titulo: "Título de la historia"
+# El suceso en dos o tres frases; sin sinopsis se enseña el relato
+# entero, sin desplegable.
+sinopsis: >-
+  Lo que pasó, en corto.
 curso: 1                    # en qué curso ocurre
 fecha: null                 # in-game, si se conoce
 personajes:                 # slugs de quienes participan

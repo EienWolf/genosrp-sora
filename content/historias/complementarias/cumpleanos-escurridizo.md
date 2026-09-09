@@ -2,6 +2,13 @@
 tipo: "historia"
 slug: "cumpleanos-escurridizo"
 titulo: "Un cumpleaños escurridizo"
+# El suceso en dos o tres frases. Es lo que se lee en la cronología;
+# el relato entero queda debajo, en «La versión larga».
+sinopsis: >-
+  Se le olvidó su propio cumpleaños hasta que llegó la lechuza de Dorset con
+  la varita de ébano. El día acabó en una fiesta sorpresa al otro lado de un
+  traslador, y la fiesta acabó con una serpiente enorme saliendo del follaje.
+  Nadie salió herido de gravedad; Sora, con rasguños y la mirada encendida.
 curso: 2
 # El día es el 7 de septiembre, su cumpleaños; el año in-game no está fijado.
 fecha: null

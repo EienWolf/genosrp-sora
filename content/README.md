@@ -343,6 +343,7 @@ ordinario se resume en el curso. Ver `PLANTILLA.md.ejemplo`.
 | Campo | Notas |
 | ----- | ----- |
 | `titulo` | |
+| `sinopsis` | El suceso en dos o tres frases. Es lo que se lee en la cronología; el relato entero queda debajo, en «La versión larga». Sin ella se enseña entero y sin desplegable |
 | `curso` | **Obligatorio.** Es lo que la sitúa en la cronología |
 | `fecha` | `null` si no se conoce. Ordena las historias dentro del curso |
 | `personajes`, `lugares` | Slugs |

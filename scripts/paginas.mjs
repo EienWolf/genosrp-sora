@@ -177,11 +177,18 @@ export function historia(d) {
     // posición ya lo dice. Solo se rotula si la historia va suelta al final.
     const cuando = fecha(x.fecha)
       ?? (suelta && definido(x.curso) ? `${ORDINALES[x.curso] ?? x.curso} curso` : null);
+    // Igual que en los cursos: con `sinopsis` el relato se pliega, porque una
+    // historia larga abierta parte la cronología en dos. Sin ella, se enseña
+    // entero: es lo único que hay que leer.
+    const relato = md(seccion(h.cuerpo, 'Historia'));
     return `<li class="suceso" id="${esc(x.slug ?? '')}">
       <span class="hito hito--estrella hito--oro" aria-hidden="true">✦</span>
       ${cuando ? `<p class="cuando">${esc(cuando)}</p>` : ''}
       <h3>${esc(x.titulo)}</h3>
-      ${md(seccion(h.cuerpo, 'Historia'))}
+      ${definido(x.sinopsis) ? `<p class="sinopsis">${esc(x.sinopsis)}</p>` : ''}
+      ${relato && definido(x.sinopsis)
+        ? `<details class="entera"><summary>La versión larga</summary>${relato}</details>`
+        : relato}
     </li>`;
   };
 
