@@ -20,6 +20,9 @@ clubes:
   - nombre: "Club de Pociones"
     estado: "admitido"
     contacto: arlan-fendragon
+  - nombre: "Club de Quidditch"
+    estado: "admitido"
+    contacto: lilwenn-pliego
 complementarias:
   - cumpleanos-escurridizo
 ---
