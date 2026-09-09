@@ -153,14 +153,16 @@ const GENERADO_TEXTO = GENERADO.toLocaleDateString('es-ES',
      siguiente, así que dice de un vistazo por dónde va el rol.
    · motor — cuántas veces ha cambiado el generador: scripts/, css/, js/ y la
      configuración del despliegue.
-   · ficha — cuántas actualizaciones han traído solo contenido desde el último
-     cambio del motor. Vuelve a cero cuando el motor se mueve.
+   · ficha — cuántas actualizaciones han movido content/ desde el último cambio
+     del motor. Vuelve a cero cuando el motor se mueve. Un commit que solo
+     toca el README o las skills no cuenta: no cambia lo que se publica.
 
    Se cuenta sobre el historial de git, y también sobre lo que todavía no está
    confirmado: el sitio se despliega antes de hacer el commit, así que sin
    contar el árbol de trabajo lo publicado iría siempre una versión por detrás. */
 const ES_MOTOR = (f) => /^(scripts|css|js)\//.test(f)
   || ['package.json', 'package-lock.json', 'wrangler.jsonc'].includes(f);
+const ES_FICHA = (f) => f.startsWith('content/');
 
 const git = (...args) => execFileSync('git', args,
   { cwd: RAIZ, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
@@ -168,8 +170,8 @@ const git = (...args) => execFileSync('git', args,
 function calcularVersion(curso) {
   let motor = 0, ficha = 0;
   const contar = (archivos) => {
-    if (!archivos.length) return;
-    if (archivos.some(ES_MOTOR)) { motor++; ficha = 0; } else ficha++;
+    if (archivos.some(ES_MOTOR)) { motor++; ficha = 0; }
+    else if (archivos.some(ES_FICHA)) ficha++;
   };
   try {
     // Un commit de fusión no lista archivos: no cambia nada por sí mismo.
