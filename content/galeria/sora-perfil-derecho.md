@@ -1,7 +1,7 @@
 ---
 tipo: "imagen"
 slug: "sora-perfil-derecho"
-archivo: "sora-perfil-derecho.png"
+archivo: "sora-perfil-derecho.webp"
 ancho: 637
 alto: 582
 hash: "81266269072e4170"

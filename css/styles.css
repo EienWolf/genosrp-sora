@@ -1071,6 +1071,22 @@ main section > h1::after, main section > h2::after {
   min-height: 2.1rem;
 }
 
+/* ---------- Imágenes dentro del texto ----------
+   Una foto metida en una carta, en una historia o en un apunte. Aquí ilustra
+   lo que se está leyendo, no es el contenido: se ve entera en vez de recortada
+   a cuadro, y ocupa más porque no compite con otras veinte. */
+.galeria--escena {
+  grid-template-columns: repeat(auto-fit, minmax(min(22rem, 100%), 1fr));
+  margin: 1.8rem 0 .4rem;
+}
+.galeria--escena button { aspect-ratio: auto; background: #0b1020; }
+.galeria--escena button img { height: auto; object-fit: contain; }
+/* Dentro de una carta el papel ya está torcido: una foto torcida encima
+   sobre el papel se lee como un fallo de maquetación. */
+.papel .galeria--escena figure,
+.papel .galeria--escena figure:nth-child(3n+2),
+.papel .galeria--escena figure:nth-child(3n+3) { transform: none; }
+
 dialog.visor {
   border: none; background: transparent; padding: 0;
   max-width: min(92vw, 60rem); max-height: 92vh;

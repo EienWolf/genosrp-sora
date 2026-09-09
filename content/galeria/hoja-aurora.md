@@ -1,7 +1,7 @@
 ---
 tipo: "imagen"
 slug: "hoja-aurora"
-archivo: "hoja-aurora.jpeg"
+archivo: "hoja-aurora.webp"
 ancho: 1024
 alto: 559
 hash: "193a1f9bb9878b33"

@@ -1,7 +1,7 @@
 ---
 tipo: "imagen"
 slug: "sora-retrato-joven"
-archivo: "sora-retrato-joven.jpeg"
+archivo: "sora-retrato-joven.webp"
 ancho: 765
 alto: 1024
 hash: "770ccd491da3312c"

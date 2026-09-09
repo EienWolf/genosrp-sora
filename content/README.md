@@ -294,6 +294,7 @@ en que se enviaron, y el script les pone un contador global:
 | `desde`, `hacia` | Lugares que van escritos en el sobre. `null` si no se saben |
 | `asunto` | |
 | `adjuntos` | Objetos que acompañan la carta |
+| `imagenes` | Slugs de `galeria/`. Salen dentro del sobre, al final |
 | `emotes` | Líneas `/do` del mensaje |
 
 `desde` y `hacia` siguen la misma regla que `fecha`: **no se deducen**. Si la
@@ -335,6 +336,7 @@ sirve mientras el curso está en marcha y todavía no hay nada que sintetizar.
 | `hechizos_aprendidos` | Slugs; deben existir en `hechizos/` |
 | `clubes` | `nombre`, `estado`, `contacto` (slug) |
 | `complementarias` | Slugs de las historias de ese curso. Informativo: quien coloca cada historia en la cronología es su propio `curso` |
+| `imagenes` | Slugs de `galeria/`. Salen al final del resumen |
 
 **Historia complementaria** (`complementarias/<slug>.md`): un suceso concreto
 que merece contarse aparte. Solo se crea si la historia lo justifica; lo
@@ -347,6 +349,7 @@ ordinario se resume en el curso. Ver `PLANTILLA.md.ejemplo`.
 | `curso` | **Obligatorio.** Es lo que la sitúa en la cronología |
 | `fecha` | `null` si no se conoce. Ordena las historias dentro del curso |
 | `personajes`, `lugares` | Slugs |
+| `imagenes` | Slugs de `galeria/`. Salen al final del relato |
 | `relacionado_con` | Slugs de hechizos, cartas o fichas que toca |
 
 `curso` no es opcional: sin él la historia no sabe dónde ponerse. Si apunta a
@@ -366,7 +369,15 @@ python3 scripts/add-imagen.py --pendientes     # fichas sin describir
 python3 scripts/add-imagen.py --referencias    # propone el lote
 ```
 
-Cada imagen son dos archivos con el mismo nombre: `<slug>.png` y `<slug>.md`.
+Cada imagen son dos archivos con el mismo nombre: `<slug>.webp` y `<slug>.md`.
+
+**Todo se guarda en WebP.** El script convierte lo que le des (PNG, JPEG) al
+añadirlo, a calidad 85. No es cosmético: el sitio sirve las imágenes tal cual,
+sin ningún paso de optimización, y una ilustración en PNG pesa entre 2 y 4 MB
+frente a los 300 KB del mismo archivo en WebP. El original no se guarda; si
+hiciera falta, está en el historial de git. El `hash` que evita duplicados es
+el del archivo que se entregó, no el del WebP, así que vuelve a detectar la
+misma imagen aunque cambie la compresión.
 
 La ficha cumple dos funciones distintas. Los campos `titulo` y `descripcion`
 alimentan la galería del sitio. El resto mide **si la captura sirve como
@@ -399,6 +410,36 @@ Una hoja del personaje entra siempre en el lote y no compite por ángulo. Todo
 lo que no es del personaje —accesorios, la lechuza, el sello de la familia— se
 lista aparte: no sirve para consistencia de cara, y se añade solo si eso tiene
 que salir en la imagen.
+
+### Imágenes dentro del contenido
+
+La galería es el único almacén: solo se publica lo que tiene ficha ahí, porque
+el generador copia a `img/` recorriendo `content/galeria/`. Desde ahí, una
+imagen se cita **por su slug** en cualquier otra ficha:
+
+```yaml
+imagenes:
+  - varita-regalo
+```
+
+Funciona en las cartas, en los resúmenes de curso, en las historias
+complementarias y en los apuntes. La imagen sale entera al final de la pieza
+—dentro del sobre en una carta, dentro de «La versión larga» en una historia—
+y se amplía en el visor como las de la galería.
+
+Para meterla en mitad de un texto, en el cuerpo, va el protocolo `imagen:`,
+igual que `hechizo:`:
+
+```markdown
+![La tarima montada en el campo](imagen:fiesta-sora)
+```
+
+Un slug que no exista **rompe la compilación** a propósito: una errata que
+dejara la página con un hueco pasaría desapercibida.
+
+| Campo | Notas |
+| ----- | ----- |
+| `en_galeria` | `true` por defecto. A `false` la imagen se publica y se puede citar, pero no se lista en la página de Galería. Para las que solo ilustran una carta o una historia |
 
 ## Conocidos
 

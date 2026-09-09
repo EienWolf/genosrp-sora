@@ -1,7 +1,7 @@
 ---
 tipo: "imagen"
 slug: "sora-espalda-mochila"
-archivo: "sora-espalda-mochila.png"
+archivo: "sora-espalda-mochila.webp"
 ancho: 637
 alto: 582
 hash: "58ac568f26f1c07f"

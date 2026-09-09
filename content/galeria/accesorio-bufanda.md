@@ -1,7 +1,7 @@
 ---
 tipo: "imagen"
 slug: "accesorio-bufanda"
-archivo: "accesorio-bufanda.jpeg"
+archivo: "accesorio-bufanda.webp"
 ancho: 1024
 alto: 1024
 hash: "1bfe01adc5be4413"

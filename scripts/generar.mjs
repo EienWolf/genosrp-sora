@@ -3,12 +3,15 @@
 import { cp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { cargar, RAIZ, CONTENIDO, SALIDA, PAGINAS } from './build.mjs';
+import { cargar, registrarImagenes, RAIZ, CONTENIDO, SALIDA, PAGINAS } from './build.mjs';
 import * as P from './paginas.mjs';
 import { llmsTxt, llmsFullTxt, contentJson, robotsTxt, sitemapXml, hiloMd,
          cuadernoMd } from './maquina.mjs';
 
 const d = await cargar();
+// Antes de pintar nada: el contenido cita las imágenes por slug y hace falta
+// la galería delante para saber a qué archivo corresponde cada una.
+registrarImagenes(d.galeria);
 
 await rm(join(RAIZ, 'dist'), { recursive: true, force: true });
 await mkdir(SALIDA, { recursive: true });

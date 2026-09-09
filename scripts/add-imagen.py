@@ -17,6 +17,12 @@ RAIZ = Path(__file__).resolve().parent.parent
 GALERIA = RAIZ / "content" / "galeria"
 SIN_DESCRIBIR = "PENDIENTE"
 
+# Las imágenes se guardan en WebP. Un PNG de una ilustración pesa entre 2 y 4
+# MB y el sitio las sirve tal cual, sin ningún paso de optimización: a 85 el
+# mismo archivo baja a unos 300 KB sin diferencia visible en pantalla. El
+# original no se guarda; si hace falta, está en el historial de git.
+WEBP_CALIDAD = 85
+
 # Qué hace buena a una referencia, y cuánto pesa. El objetivo es consistencia
 # de personaje: cara nítida, color fiel y sin adornos que el generador copie.
 # Una hoja de referencia no es una captura: está hecha a propósito para esto,
@@ -41,6 +47,26 @@ def slugify(t):
 
 def esc(s):
     return '"' + str(s).replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+
+def a_webp(origen, destino):
+    """Convierte la imagen a WebP y devuelve sus dimensiones.
+
+    Una imagen que ya viene en WebP se copia tal cual: recomprimirla solo
+    perdería calidad."""
+    try:
+        from PIL import Image
+    except ImportError:
+        sys.exit("✘ Falta Pillow para convertir a WebP:  pip install --user pillow")
+    if origen.suffix.lower() == ".webp":
+        shutil.copy2(origen, destino)
+        return dimensiones(destino)
+    with Image.open(origen) as im:
+        # Un PNG con transparencia la conserva; el resto va a RGB, que es lo
+        # que espera WebP y evita perfiles de color raros.
+        im = im.convert("RGBA" if "A" in im.getbands() else "RGB")
+        im.save(destino, "WEBP", quality=WEBP_CALIDAD, method=6)
+        return im.size
 
 
 def dimensiones(ruta):
@@ -94,7 +120,7 @@ def anadir(args):
         sys.exit(f"✘ No existe: {origen}")
     slug = args.slug or slugify(origen.stem)
     GALERIA.mkdir(parents=True, exist_ok=True)
-    destino = GALERIA / f"{slug}{origen.suffix.lower()}"
+    destino = GALERIA / f"{slug}.webp"
     ficha = GALERIA / f"{slug}.md"
     if ficha.exists() and not args.force:
         sys.exit(f"✘ Ya existe {ficha.relative_to(RAIZ)}. Usa --force o cambia --slug.")
@@ -104,8 +130,11 @@ def anadir(args):
         if meta(f).get("hash") == digest and f != ficha:
             sys.exit(f"✘ Esa imagen ya está en la galería como {f.name} (mismo hash).")
 
-    shutil.copy2(origen, destino)
-    w, h = dimensiones(destino)
+    # El hash es el del archivo que trae el usuario, no el del WebP: así
+    # detecta que esa misma imagen ya está aunque cambie la compresión.
+    antes = origen.stat().st_size
+    w, h = a_webp(origen, destino)
+    despues = destino.stat().st_size
     fm = f'''---
 tipo: "imagen"
 slug: {esc(slug)}
@@ -120,6 +149,9 @@ clase: {esc(args.clase)}
 referencia_de: {esc(args.referencia_de)}
 # retrato_principal: true = es el retrato que abre la portada.
 retrato_principal: {'true' if args.retrato else 'false'}
+# en_galeria: false la publica pero no la lista en la página de Galería.
+# Para las que solo ilustran una carta, una historia o un apunte.
+en_galeria: true
 
 # Descripción — la rellena la skill `galeria` mirando la imagen
 titulo: {esc(args.titulo) if args.titulo else esc(SIN_DESCRIBIR)}
@@ -150,7 +182,8 @@ notas_referencia: null
 <!-- Qué se ve en la captura, en prosa. -->
 '''
     ficha.write_text(fm, encoding="utf-8")
-    print(f"✔ {destino.relative_to(RAIZ)}  ({w}×{h})")
+    print(f"✔ {destino.relative_to(RAIZ)}  ({w}×{h}, "
+          f"{antes // 1024} KB → {despues // 1024} KB)")
     print(f"  ficha: {ficha.relative_to(RAIZ)} — falta describirla")
 
 

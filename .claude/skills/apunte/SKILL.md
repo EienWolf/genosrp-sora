@@ -126,6 +126,18 @@ En el cuerpo se enlaza por slug, nunca por ruta:
 - `[Celera](hechizo:celera)` → la ficha del hechizo
 - `[la pócima](apunte:pocima-para-dormir)` → otro apunte del mismo cuaderno
 - `[magia](pagina:magia)` → una página del sitio
+- `![la mesa](imagen:fiesta-sora)` → una imagen de la galería, en mitad del texto
+
+Una imagen que ilustre el apunte entero va mejor en el frontmatter, y sale al
+final de la ficha:
+
+```yaml
+imagenes:
+  - nombre-del-slug
+```
+
+Las imágenes se añaden antes con la skill `galeria`; un slug que no exista ahí
+rompe la compilación.
 
 ## Al terminar
 

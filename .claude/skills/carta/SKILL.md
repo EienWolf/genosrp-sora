@@ -73,6 +73,16 @@ EOF
 Respeta el texto del usuario literalmente: es contenido narrativo suyo. Ajusta
 solo el ancho de línea.
 
+Si el usuario aporta una imagen de la carta o de lo que venía con ella,
+añádela con la skill `galeria` y cítala en el frontmatter de la carta:
+
+```yaml
+imagenes:
+  - varita-regalo
+```
+
+Sale dentro del sobre, al final, debajo de los adjuntos.
+
 ## 3. Detectar personas nuevas
 
 Cualquier remitente o destinatario que no esté ya en `content/personajes/` ni

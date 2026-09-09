@@ -1,7 +1,7 @@
 ---
 tipo: "imagen"
 slug: "sello-winterbourne"
-archivo: "sello-winterbourne.png"
+archivo: "sello-winterbourne.webp"
 ancho: 1536
 alto: 1024
 hash: "fbbf53ecf1d40716"

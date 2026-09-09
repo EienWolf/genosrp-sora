@@ -1,5 +1,6 @@
 /** Renderizado de las páginas del sitio. */
-import { esc, md, seccion, secciones, definido, plantilla, listaDefs, BASE, enlace } from './build.mjs';
+import { esc, md, seccion, secciones, definido, plantilla, listaDefs, imagenPorSlug,
+         BASE, enlace } from './build.mjs';
 
 const FECHA = { day: 'numeric', month: 'long', year: 'numeric' };
 const fecha = (iso) => iso
@@ -15,6 +16,37 @@ const diaYMes = (iso) => iso
 
 const ORDINALES = ['', 'Primer', 'Segundo', 'Tercer', 'Cuarto', 'Quinto',
                    'Sexto', 'Séptimo', 'Octavo'];
+
+// ------------------------------------------------------------------ imágenes
+
+/** Una imagen del contenido, en su marco. Es la misma en la galería, en una
+ *  carta, en una historia y en un apunte: mismo marcado, mismo visor. El
+ *  <img> va dentro del <button> porque es el que viaja al abrirse. */
+function figura(x) {
+  return `<figure class="foto--${esc(x.clase ?? 'captura')}">
+    <button type="button" data-grande="${BASE}/img/${esc(x.archivo)}"
+      data-alt="${esc(x.descripcion)}">
+      <img src="${BASE}/img/${esc(x.archivo)}" alt="${esc(x.titulo)}"
+        width="${x.ancho}" height="${x.alto}" loading="lazy">
+    </button>
+    <figcaption>${esc(x.titulo.toLowerCase())}</figcaption>
+  </figure>`;
+}
+
+/** Las imágenes que acompañan a una ficha, citadas por slug en `imagenes:`.
+ *  Un slug que no esté en la galería para el generador: es una errata, y
+ *  publicar la página con un hueco la escondería. */
+function figuras(slugs) {
+  const fichas = (slugs ?? []).map((slug) => {
+    const g = imagenPorSlug(slug);
+    if (!g) throw new Error(`«${slug}» no está en content/galeria/`);
+    return g;
+  });
+  if (!fichas.length) return '';
+  // Aquí las imágenes ilustran un texto, no son el contenido: se ven enteras
+  // y más grandes que en la galería, donde van recortadas a cuadro.
+  return `<div class="galeria galeria--escena">${fichas.map(figura).join('')}</div>`;
+}
 /** El curso que está cursando ahora sale de content/historias/cursos/: el que
  *  está `en-curso`. Así no hay un dato que mantener en dos sitios y al subir
  *  de año basta con cerrar uno y abrir el siguiente. */
@@ -164,8 +196,9 @@ export function historia(d) {
       ${definido(x.sinopsis) ? `<p class="sinopsis">${esc(x.sinopsis)}</p>` : ''}
       ${listaDefs([['Hechizos', hechizos || null], ['Clubes', clubes || null]])}
       ${largo && definido(x.sinopsis)
-        ? `<details class="entera"><summary>La versión larga</summary>${largo}</details>`
-        : largo}
+        ? `<details class="entera"><summary>La versión larga</summary>${largo}${
+            figuras(x.imagenes)}</details>`
+        : largo + figuras(x.imagenes)}
     </li>`;
   };
 
@@ -187,8 +220,9 @@ export function historia(d) {
       <h3>${esc(x.titulo)}</h3>
       ${definido(x.sinopsis) ? `<p class="sinopsis">${esc(x.sinopsis)}</p>` : ''}
       ${relato && definido(x.sinopsis)
-        ? `<details class="entera"><summary>La versión larga</summary>${relato}</details>`
-        : relato}
+        ? `<details class="entera"><summary>La versión larga</summary>${relato}${
+            figuras(x.imagenes)}</details>`
+        : relato + figuras(x.imagenes)}
     </li>`;
   };
 
@@ -464,6 +498,7 @@ export function apuntesCuaderno(d, c) {
         <ul>${x.advertencias.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>
       </div>` : ''}
       ${md(a.cuerpo.replace(/^(#{2,3}) /gm, (_, h) => '#'.repeat(h.length + 2) + ' '))}
+      ${figuras(x.imagenes)}
       ${x.fuente ? `<p class="fuente">Fuente: ${esc(x.fuente)}</p>` : ''}
       </div>
     </article>`;
@@ -573,7 +608,8 @@ function tarjetaCarta(d, c, { abierta, ultima }) {
       <div class="papel">
         ${definido(x.asunto) ? `<p class="papel__asunto">${esc(x.asunto)}</p>` : ''}
         ${md(c.cuerpo)}
-        ${adjuntos.map((a) => `<p class="adjunto">Adjunto: ${esc(a)}</p>`).join('')}</div>
+        ${adjuntos.map((a) => `<p class="adjunto">Adjunto: ${esc(a)}</p>`).join('')}
+        ${figuras(x.imagenes)}</div>
     </details>
   </article>`;
 }
@@ -773,21 +809,16 @@ export function entorno(d) {
 export function galeria(d) {
   // Del catálogo de imágenes solo salen título y descripción: los campos de
   // aptitud como referencia son herramienta interna, no contenido del sitio.
-  const foto = (g) => {
-    const x = g.datos;
-    return `<figure class="foto--${esc(x.clase ?? 'captura')}">
-      <button type="button" data-grande="${BASE}/img/${esc(x.archivo)}"
-        data-alt="${esc(x.descripcion)}">
-        <img src="${BASE}/img/${esc(x.archivo)}" alt="${esc(x.titulo)}"
-          width="${x.ancho}" height="${x.alto}" loading="lazy">
-      </button>
-      <figcaption>${esc(x.titulo.toLowerCase())}</figcaption>
-    </figure>`;
-  };
+  const foto = (g) => figura(g.datos);
 
+  // `en_galeria: false` la deja publicada pero fuera de esta página: es para
+  // las que solo ilustran una carta, una historia o un apunte y aquí no
+  // pintarían nada. El archivo se copia igual, que es lo que las hace
+  // visibles allí donde se citan.
+  const listables = d.galeria.filter((g) => g.datos.en_galeria !== false);
   // La del personaje primero: es la referencia principal y las de accesorio
   // solo se mandan cuando ese accesorio sale.
-  const de = (clase) => d.galeria.filter((g) => (g.datos.clase ?? 'captura') === clase);
+  const de = (clase) => listables.filter((g) => (g.datos.clase ?? 'captura') === clase);
   // La del personaje primero: es la referencia principal y las de accesorio
   // solo se mandan cuando ese accesorio sale.
   const hojas = de('hoja-referencia')
@@ -822,11 +853,6 @@ ${hojas.length ? `<section>
     hojas.length || ilustraciones.length ? 'h2' : 'h1'}>
   <p class="plomo">Tomadas dentro del juego, tal como se ven en pantalla.</p>
   <div class="galeria">${capturas.map(foto).join('')}</div>
-</section>
-<dialog class="visor">
-  <img alt="">
-  <p></p>
-  <button class="cerrar" type="button">Cerrar</button>
-</dialog>`,
+</section>`,
   });
 }

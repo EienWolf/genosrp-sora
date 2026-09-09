@@ -17,6 +17,9 @@ personajes:
   - ethan-winterbourne
   - lyra-winterbourne
 lugares: []
+# Slugs de content/galeria/. Se enseñan al final del relato.
+imagenes:
+  - fiesta-sora
 relacionado_con:
   - cumpleanos-y-varita
   - varita-regalo

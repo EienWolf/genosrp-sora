@@ -1,7 +1,7 @@
 ---
 tipo: "imagen"
 slug: "sora-espalda-interior"
-archivo: "sora-espalda-interior.png"
+archivo: "sora-espalda-interior.webp"
 ancho: 686
 alto: 709
 hash: "6560175c0dbe663d"

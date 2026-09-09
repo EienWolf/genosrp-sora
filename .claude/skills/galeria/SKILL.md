@@ -46,9 +46,30 @@ scripts/add-imagen.py ~/hoja.jpeg --slug hoja-personaje \
 python3 scripts/add-imagen.py ~/captura.png --slug sora-frontal-uniforme
 ```
 
-Copia el archivo, calcula tamaño y hash —rechaza duplicados— y deja la ficha
-con la descripción en `PENDIENTE`. El slug describe qué se ve
+**Convierte el archivo a WebP**, calcula tamaño y hash —rechaza duplicados— y
+deja la ficha con la descripción en `PENDIENTE`. El slug describe qué se ve
 (`sora-perfil-derecho`), no cuándo se tomó.
+
+La conversión no es opcional ni cosmética: el sitio sirve las imágenes tal
+cual, y un PNG de 4 MB tarda en cargar lo que el WebP de 400 KB no. El
+original no se copia al repositorio.
+
+## Imágenes que ilustran una carta, una historia o un apunte
+
+La galería es el único almacén de imágenes del proyecto: solo se publica lo
+que tiene ficha aquí. Una imagen que acompaña a otra ficha se añade igual, y
+esa ficha la cita por su slug:
+
+```yaml
+imagenes:
+  - fiesta-sora
+```
+
+Vale en cartas, resúmenes de curso, historias complementarias y apuntes.
+
+`en_galeria: true` viene por defecto y hace que además salga en la página de
+Galería. Si el usuario quiere una imagen que solo aparezca donde se cita,
+ponle `en_galeria: false`: se publica y se puede citar, pero no se lista.
 
 ## 2. Describir — hay que MIRAR la imagen
 

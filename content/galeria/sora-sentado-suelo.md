@@ -1,7 +1,7 @@
 ---
 tipo: "imagen"
 slug: "sora-sentado-suelo"
-archivo: "sora-sentado-suelo.png"
+archivo: "sora-sentado-suelo.webp"
 ancho: 516
 alto: 420
 hash: "52794b6f47010dd8"

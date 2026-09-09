@@ -14,6 +14,9 @@ hacia: null  # sin lugar conocido
 asunto: "Felicitación de cumpleaños y el regalo de una varita propia"
 adjuntos:
   - "Un paquete pequeño y alargado con una varita nueva"
+# Slugs de content/galeria/. Se enseñan al abrir el sobre.
+imagenes:
+  - varita-regalo
 emotes:
   - comando: "do"
     texto: "La carta vendría acompañada tambien de un paquete pequeño y alargado."

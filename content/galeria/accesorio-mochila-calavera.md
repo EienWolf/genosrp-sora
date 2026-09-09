@@ -1,7 +1,7 @@
 ---
 tipo: "imagen"
 slug: "accesorio-mochila-calavera"
-archivo: "accesorio-mochila-calavera.jpeg"
+archivo: "accesorio-mochila-calavera.webp"
 ancho: 1024
 alto: 1024
 hash: "6cb438c4a0c32511"

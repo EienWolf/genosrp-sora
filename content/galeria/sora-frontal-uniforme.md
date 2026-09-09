@@ -1,7 +1,7 @@
 ---
 tipo: "imagen"
 slug: "sora-frontal-uniforme"
-archivo: "sora-frontal-uniforme.png"
+archivo: "sora-frontal-uniforme.webp"
 ancho: 637
 alto: 582
 hash: "21c4d9460caf6a57"

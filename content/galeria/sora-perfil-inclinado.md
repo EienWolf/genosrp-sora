@@ -1,7 +1,7 @@
 ---
 tipo: "imagen"
 slug: "sora-perfil-inclinado"
-archivo: "sora-perfil-inclinado.png"
+archivo: "sora-perfil-inclinado.webp"
 ancho: 637
 alto: 582
 hash: "477858a33a487ddf"

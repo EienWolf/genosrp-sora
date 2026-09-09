@@ -1,7 +1,7 @@
 ---
 tipo: "imagen"
 slug: "varita-regalo"
-archivo: "varita-regalo.png"
+archivo: "varita-regalo.webp"
 ancho: 1214
 alto: 1295
 hash: "2d9be3218ec833fe"

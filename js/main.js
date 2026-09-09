@@ -124,10 +124,12 @@
     caja.addEventListener('focus', function () { if (!todo) traer(function () {}); });
   }
 
-  // --- Visor de la galería -------------------------------------------------
+  // --- Visor de imágenes ---------------------------------------------------
   // La miniatura no se sustituye por la foto: se convierte en ella. Es la
   // misma imagen, así que animar la caja de una a otra da la continuidad que
   // un fundido no da. Sin View Transitions se abre y se cierra sin más.
+  // Vale para cualquier imagen del sitio, no solo las de la galería: se
+  // enganchan por `data-grande`, que es lo que las marca como ampliables.
   var visor = document.querySelector('dialog.visor');
   if (visor) {
     var img = visor.querySelector('img');
@@ -155,7 +157,7 @@
       });
     }
 
-    document.querySelectorAll('.galeria button').forEach(function (b) {
+    document.querySelectorAll('button[data-grande]').forEach(function (b) {
       b.addEventListener('click', function () {
         origen = b.querySelector('img');
         conViaje(function () {

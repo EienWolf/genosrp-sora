@@ -1,7 +1,7 @@
 ---
 tipo: "imagen"
 slug: "hoja-personaje"
-archivo: "hoja-personaje.jpeg"
+archivo: "hoja-personaje.webp"
 ancho: 1007
 alto: 1024
 hash: "346c759ba4b8ecaf"

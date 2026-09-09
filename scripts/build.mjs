@@ -29,13 +29,38 @@ marked.setOptions({ mangle: false, headerIds: false });
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+/* Las imágenes se citan por su slug de galería, no por su ruta: `imagen:tal`.
+   Así el contenido no depende de la extensión del archivo —todas son WebP
+   ahora, pero eso puede cambiar— ni de dónde acaben publicándose. */
+const IMAGENES = new Map();
+
+/** Registra la galería para que `imagen:<slug>` se pueda resolver. La llama
+ *  el generador antes de pintar ninguna página. */
+function registrarImagenes(galeria) {
+  IMAGENES.clear();
+  for (const g of galeria) IMAGENES.set(g.datos.slug, g.datos);
+}
+
+/** La ficha de una imagen por su slug, o `undefined` si no está en la galería.
+ *  Solo se publica lo que tiene ficha: es lo único que se copia a img/. */
+const imagenPorSlug = (slug) => IMAGENES.get(slug);
+
+const rutaImagen = (slug) => {
+  const g = IMAGENES.get(slug);
+  if (!g) throw new Error(`No hay ninguna imagen «${slug}» en content/galeria/`);
+  return `${BASE}/img/${g.archivo}`;
+};
+
 /* Enlaces entre fichas por slug. En content/ se escribe `hechizo:celera` y la
    ruta la decide el sitio, así que el contenido no depende de cómo estén
    organizadas las URLs ni se rompe si cambian. */
 const resolver = (html) => html
   .replace(/href="pagina:([a-z0-9-]+)"/g, `href="${BASE}/$1"`)
   .replace(/href="hechizo:([a-z0-9-]+)"/g, `href="${BASE}/magia#$1"`)
-  .replace(/href="apunte:([a-z0-9-]+)"/g, 'href="#$1"');
+  .replace(/href="apunte:([a-z0-9-]+)"/g, 'href="#$1"')
+  // `![pie](imagen:slug)` en el cuerpo; marked lo deja como src.
+  .replace(/(src|href)="imagen:([a-z0-9-]+)"/g, (_, attr, slug) =>
+    `${attr}="${rutaImagen(slug)}"`);
 
 const md = (s) => (s ? resolver(marked.parse(String(s))) : '');
 const definido = (v) => v !== null && v !== undefined && v !== '' && v !== '?';
@@ -204,6 +229,11 @@ ${contenido}
     <a href="${BASE}/content.json">content.json</a>.</p>
   </div>
 </footer>
+<dialog class="visor">
+  <img alt="">
+  <p></p>
+  <button class="cerrar" type="button">Cerrar</button>
+</dialog>
 <script src="${BASE}/js/lenis.min.js" defer></script>
 <script src="${BASE}/js/atmosfera.js" defer></script>
 <script src="${BASE}/js/main.js" defer></script>
@@ -283,4 +313,4 @@ async function cargar() {
 }
 
 export { cargar, ficha, enlace, esc, md, seccion, secciones, definido, plantilla, listaDefs,
-         RAIZ, CONTENIDO, SALIDA, BASE, PAGINAS };
+         registrarImagenes, imagenPorSlug, RAIZ, CONTENIDO, SALIDA, BASE, PAGINAS };

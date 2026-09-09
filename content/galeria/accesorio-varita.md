@@ -1,7 +1,7 @@
 ---
 tipo: "imagen"
 slug: "accesorio-varita"
-archivo: "accesorio-varita.png"
+archivo: "accesorio-varita.webp"
 ancho: 1024
 alto: 1536
 hash: "699ddf51b2c6f0c1"
