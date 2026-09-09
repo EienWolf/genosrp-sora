@@ -130,6 +130,23 @@ una, dale su nombre en ese mapa.
    se conserva solo. Pon `bloqueado: true` únicamente si corrige un dato que
    viene de la base.
 
+3. **Apúntalo en el curso en el que lo aprendió.** El script escribe la ficha,
+   pero no toca la historia: si el hechizo queda con `aprendido: true` y su
+   slug no está en `hechizos_aprendidos` del curso correspondiente
+   (`content/historias/cursos/*.md`), en la cronología no aparece que Sora lo
+   aprendiera ese año. Añade el slug al final de la lista del curso en marcha
+   —el que tiene `estado: en-curso`— salvo que el usuario diga otro. Los que
+   quedan con `aprendido: false` no se listan: se añadirán el día que los
+   domine.
+
+   ```bash
+   # Los aprendidos que no están en ningún curso:
+   for f in content/hechizos/*.md; do s=$(basename "$f" .md)
+     grep -q '^aprendido: true' "$f" &&
+       ! grep -q "^  - $s$" content/historias/cursos/*.md && echo "$s"
+   done
+   ```
+
 ## Actualizar todo lo ya importado
 
 ```bash

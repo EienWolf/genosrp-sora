@@ -15,6 +15,7 @@ hechizos_aprendidos:
   - protego
   - walkspeeden
   - riddikulus
+  - wintify
 clubes:
   - nombre: "Club de Pociones"
     estado: "admitido"
