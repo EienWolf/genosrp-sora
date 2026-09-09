@@ -20,7 +20,8 @@ clubes:
   - nombre: "Club de Pociones"
     estado: "admitido"
     contacto: arlan-fendragon
-complementarias: []
+complementarias:
+  - cumpleanos-escurridizo
 ---
 
 ## Resumen
