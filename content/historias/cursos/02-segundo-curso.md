@@ -16,6 +16,7 @@ hechizos_aprendidos:
   - walkspeeden
   - riddikulus
   - wintify
+  - vitalino
 clubes:
   - nombre: "Club de Pociones"
     estado: "admitido"
